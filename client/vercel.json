@@ -1,0 +1,14 @@
+(
+echo {
+echo   "rewrites": [
+echo     {
+echo       "source": "/api/:path*",
+echo       "destination": "https://smart-city-1f1s.onrender.com/api/:path*"
+echo     },
+echo     {
+echo       "source": "/uploads/:path*",
+echo       "destination": "https://smart-city-1f1s.onrender.com/uploads/:path*"
+echo     }
+echo   ]
+echo }
+)
