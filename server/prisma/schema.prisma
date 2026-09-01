@@ -1,0 +1,311 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CUSTOMER
+  SELLER
+  ADMIN
+}
+
+enum Availability {
+  IN_STOCK
+  LOW_STOCK
+  OUT_OF_STOCK
+}
+
+enum ActiveMode {
+  CUSTOMER
+  SELLER
+}
+
+model User {
+  id            String     @id @default(uuid())
+  email         String     @unique
+  passwordHash  String     @map("password_hash")
+  name          String
+  phone         String?
+  avatarUrl     String?    @map("avatar_url")
+  roles         Role[]     @default([CUSTOMER])
+  activeMode    ActiveMode @default(CUSTOMER) @map("active_mode")
+  isActive      Boolean    @default(true) @map("is_active")
+  createdAt     DateTime   @default(now()) @map("created_at")
+  updatedAt     DateTime   @updatedAt @map("updated_at")
+
+  customerProfile CustomerProfile?
+  sellerProfile   SellerProfile?
+  preferences     UserPreference[]
+  likes           Like[]
+  savedProducts   SavedProduct[]
+  recentlyViewed  RecentlyViewed[]
+  sentMessages    Message[]        @relation("SentMessages")
+  conversations   ConversationParticipant[]
+  searchLogs      SearchLog[]
+  productViews    ProductView[]
+
+  @@map("users")
+}
+
+model CustomerProfile {
+  id        String   @id @default(uuid())
+  userId    String   @unique @map("user_id")
+  bio       String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("customer_profiles")
+}
+
+model SellerProfile {
+  id          String   @id @default(uuid())
+  userId      String   @unique @map("user_id")
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  shops Shop[]
+
+  @@map("seller_profiles")
+}
+
+model Shop {
+  id              String   @id @default(uuid())
+  sellerProfileId String   @map("seller_profile_id")
+  name            String
+  logoUrl         String?  @map("logo_url")
+  description     String?
+  phone           String?
+  businessHours   String?  @map("business_hours")
+  isActive        Boolean  @default(true) @map("is_active")
+  viewCount       Int      @default(0) @map("view_count")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  sellerProfile SellerProfile @relation(fields: [sellerProfileId], references: [id], onDelete: Cascade)
+  location      Location?
+  products      Product[]
+  shopCategories ShopCategory[]
+
+  @@map("shops")
+}
+
+model Location {
+  id        String   @id @default(uuid())
+  shopId    String   @unique @map("shop_id")
+  area      String
+  city      String   @default("Dar es Salaam")
+  region    String   @default("Dar es Salaam")
+  country   String   @default("Tanzania")
+  street    String?
+  building  String?
+  floor     String?
+  shopNumber String? @map("shop_number")
+  latitude  Float?
+  longitude Float?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  shop Shop @relation(fields: [shopId], references: [id], onDelete: Cascade)
+
+  @@index([area])
+  @@index([city])
+  @@map("locations")
+}
+
+model Category {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  slug      String   @unique
+  icon      String?
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  products       Product[]
+  userPreferences UserPreference[]
+  shopCategories ShopCategory[]
+
+  @@map("categories")
+}
+
+model ShopCategory {
+  shopId     String @map("shop_id")
+  categoryId String @map("category_id")
+
+  shop     Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([shopId, categoryId])
+  @@map("shop_categories")
+}
+
+model Product {
+  id           String       @id @default(uuid())
+  shopId       String       @map("shop_id")
+  categoryId   String?      @map("category_id")
+  name         String
+  description  String?
+  price        Float?
+  currency     String       @default("TSh")
+  availability Availability @default(IN_STOCK)
+  videoUrl     String?      @map("video_url")
+  isActive     Boolean      @default(true) @map("is_active")
+  viewCount    Int          @default(0) @map("view_count")
+  likeCount    Int          @default(0) @map("like_count")
+  saveCount    Int          @default(0) @map("save_count")
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
+
+  shop           Shop             @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  category       Category?        @relation(fields: [categoryId], references: [id])
+  images         ProductImage[]
+  likes          Like[]
+  savedProducts  SavedProduct[]
+  recentlyViewed RecentlyViewed[]
+  views          ProductView[]
+
+  @@index([name])
+  @@index([shopId])
+  @@index([categoryId])
+  @@index([createdAt])
+  @@map("products")
+}
+
+model ProductImage {
+  id        String   @id @default(uuid())
+  productId String   @map("product_id")
+  url       String
+  isPrimary Boolean  @default(false) @map("is_primary")
+  sortOrder Int      @default(0) @map("sort_order")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("product_images")
+}
+
+model UserPreference {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  categoryId String   @map("category_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, categoryId])
+  @@map("user_preferences")
+}
+
+model Like {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  productId String   @map("product_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@map("likes")
+}
+
+model SavedProduct {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  productId String   @map("product_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@map("saved_products")
+}
+
+model RecentlyViewed {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  productId String   @map("product_id")
+  viewedAt  DateTime @default(now()) @map("viewed_at")
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@map("recently_viewed")
+}
+
+model ProductView {
+  id        String   @id @default(uuid())
+  productId String   @map("product_id")
+  userId    String?  @map("user_id")
+  viewedAt  DateTime @default(now()) @map("viewed_at")
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user    User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([productId])
+  @@index([viewedAt])
+  @@map("product_views")
+}
+
+model Conversation {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  participants ConversationParticipant[]
+  messages     Message[]
+
+  @@map("conversations")
+}
+
+model ConversationParticipant {
+  id             String   @id @default(uuid())
+  conversationId String   @map("conversation_id")
+  userId         String   @map("user_id")
+  joinedAt       DateTime @default(now()) @map("joined_at")
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, userId])
+  @@map("conversation_participants")
+}
+
+model Message {
+  id             String   @id @default(uuid())
+  conversationId String   @map("conversation_id")
+  senderId       String   @map("sender_id")
+  content        String
+  isRead         Boolean  @default(false) @map("is_read")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User         @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+  @@map("messages")
+}
+
+model SearchLog {
+  id        String   @id @default(uuid())
+  userId    String?  @map("user_id")
+  query     String
+  filters   String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([query])
+  @@index([createdAt])
+  @@map("search_logs")
+}
