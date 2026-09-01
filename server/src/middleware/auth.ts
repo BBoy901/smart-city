@@ -36,7 +36,7 @@ export function optionalAuth(req: AuthRequest, res: Response, next: NextFunction
 
   try {
     const payload = verifyToken(header.slice(7));
-    req.user = { id: payload.userId, email: payload.email, roles: payload.roles };
+    req.user = { id: payload.userId, email: payload.email, roles: payload.roles as any };
   } catch {
     // ignore invalid token for optional auth
   }

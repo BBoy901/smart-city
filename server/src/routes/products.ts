@@ -179,7 +179,7 @@ router.get('/user/recent', authenticate, async (req: AuthRequest, res: Response)
 
 router.get('/:id', optionalAuth, async (req: AuthRequest, res: Response) => {
   const product = await prisma.product.findUnique({
-    where: { id: req.params.id },
+    where: { id: String(req.params.id) },
     include: productInclude,
   });
 
@@ -213,7 +213,7 @@ router.get('/:id', optionalAuth, async (req: AuthRequest, res: Response) => {
 });
 
 router.post('/:id/like', authenticate, async (req: AuthRequest, res: Response) => {
-  const productId = req.params.id;
+  const productId = String(req.params.id);
   const existing = await prisma.like.findUnique({
     where: { userId_productId: { userId: req.user!.id, productId } },
   });
@@ -234,7 +234,7 @@ router.post('/:id/like', authenticate, async (req: AuthRequest, res: Response) =
 });
 
 router.post('/:id/save', authenticate, async (req: AuthRequest, res: Response) => {
-  const productId = req.params.id;
+  const productId = String(req.params.id);
   const existing = await prisma.savedProduct.findUnique({
     where: { userId_productId: { userId: req.user!.id, productId } },
   });

@@ -76,7 +76,7 @@ router.post('/', authenticate, requireRole(Role.SELLER), upload.array('images', 
 router.patch('/:id', authenticate, requireRole(Role.SELLER), upload.array('images', 5), async (req: AuthRequest, res: Response) => {
   try {
     const product = await prisma.product.findUnique({
-      where: { id: req.params.id },
+      where: { id: String(req.params.id) },
       include: { shop: { include: { sellerProfile: true } } },
     });
     if (!product || product.shop.sellerProfile.userId !== req.user!.id) {
@@ -120,7 +120,7 @@ router.patch('/:id', authenticate, requireRole(Role.SELLER), upload.array('image
 
 router.delete('/:id', authenticate, requireRole(Role.SELLER), async (req: AuthRequest, res: Response) => {
   const product = await prisma.product.findUnique({
-    where: { id: req.params.id },
+    where: { id: String(req.params.id) },
     include: { shop: { include: { sellerProfile: true } } },
   });
   if (!product || product.shop.sellerProfile.userId !== req.user!.id) {

@@ -8,7 +8,7 @@ const router = Router();
 
 router.get('/:id', async (req, res) => {
   const shop = await prisma.shop.findUnique({
-    where: { id: req.params.id },
+    where: { id: String(req.params.id) },
     include: {
       location: true,
       sellerProfile: { include: { user: { select: { id: true, name: true, phone: true, avatarUrl: true } } } },
@@ -86,7 +86,7 @@ router.post('/', authenticate, requireRole(Role.SELLER), upload.single('logo'), 
 
 router.patch('/:id', authenticate, requireRole(Role.SELLER), upload.single('logo'), async (req: AuthRequest, res: Response) => {
   const shop = await prisma.shop.findUnique({
-    where: { id: req.params.id },
+    where: { id: String(req.params.id) },
     include: { sellerProfile: true },
   });
   if (!shop || shop.sellerProfile.userId !== req.user!.id) {
@@ -124,7 +124,7 @@ router.patch('/:id', authenticate, requireRole(Role.SELLER), upload.single('logo
 
 router.post('/:id/location', authenticate, requireRole(Role.SELLER), async (req: AuthRequest, res: Response) => {
   const shop = await prisma.shop.findUnique({
-    where: { id: req.params.id },
+    where: { id: String(req.params.id) },
     include: { sellerProfile: true },
   });
   if (!shop || shop.sellerProfile.userId !== req.user!.id) {

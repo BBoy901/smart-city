@@ -65,18 +65,18 @@ router.post('/start', authenticate, async (req: AuthRequest, res: Response) => {
 
 router.get('/:id/messages', authenticate, async (req: AuthRequest, res: Response) => {
   const participant = await prisma.conversationParticipant.findUnique({
-    where: { conversationId_userId: { conversationId: req.params.id, userId: req.user!.id } },
+    where: { conversationId_userId: { conversationId: String(req.params.id), userId: req.user!.id } },
   });
   if (!participant) return res.status(403).json({ error: 'Not a participant' });
 
   const messages = await prisma.message.findMany({
-    where: { conversationId: req.params.id },
+    where: { conversationId: String(req.params.id) },
     include: { sender: { select: { id: true, name: true, avatarUrl: true } } },
     orderBy: { createdAt: 'asc' },
   });
 
   await prisma.message.updateMany({
-    where: { conversationId: req.params.id, senderId: { not: req.user!.id }, isRead: false },
+    where: { conversationId: String(req.params.id), senderId: { not: req.user!.id }, isRead: false },
     data: { isRead: true },
   });
 
@@ -88,17 +88,17 @@ router.post('/:id/messages', authenticate, async (req: AuthRequest, res: Respons
   if (!content?.trim()) return res.status(400).json({ error: 'Message content required' });
 
   const participant = await prisma.conversationParticipant.findUnique({
-    where: { conversationId_userId: { conversationId: req.params.id, userId: req.user!.id } },
+    where: { conversationId_userId: { conversationId: String(req.params.id), userId: req.user!.id } },
   });
   if (!participant) return res.status(403).json({ error: 'Not a participant' });
 
   const message = await prisma.message.create({
-    data: { conversationId: req.params.id, senderId: req.user!.id, content: content.trim() },
+    data: { conversationId: String(req.params.id), senderId: req.user!.id, content: content.trim() },
     include: { sender: { select: { id: true, name: true, avatarUrl: true } } },
   });
 
   await prisma.conversation.update({
-    where: { id: req.params.id },
+    where: { id: String(req.params.id) },
     data: { updatedAt: new Date() },
   });
 
