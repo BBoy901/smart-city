@@ -3,9 +3,9 @@ import { NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function BottomNav() {
-  const { isSellerMode, isAuthenticated } = useAuth();
+  const { isSellerMode, unreadMessages, chatOpen } = useAuth();
 
-  if (!isAuthenticated) return null;
+  if (chatOpen) return null;
 
   const customerLinks = [
     { to: '/', icon: Home, label: 'Home' },
@@ -31,6 +31,7 @@ export default function BottomNav() {
         <NavLink key={to} to={to} end={to === '/' || to === '/seller'} className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
           <Icon />
           <span>{label}</span>
+          {label === 'Messages' && unreadMessages > 0 && <span className="nav-badge">{unreadMessages > 99 ? '99+' : unreadMessages}</span>}
         </NavLink>
       ))}
     </nav>

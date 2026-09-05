@@ -79,7 +79,7 @@ export default function SellerSetup() {
         <div className="chips-row" style={{ marginBottom: 16 }}>
           {categories.map((c) => (
             <button type="button" key={c.id} className={`chip ${form.categoryIds.includes(c.id) ? 'active' : ''}`} onClick={() => toggleCategory(c.id)}>
-              {c.icon} {c.name}
+              {c.name}
             </button>
           ))}
         </div>

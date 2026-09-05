@@ -149,6 +149,17 @@ router.get('/search', optionalAuth, async (req: AuthRequest, res: Response) => {
   res.json(results);
 });
 
+router.get('/user/searches', authenticate, async (req: AuthRequest, res: Response) => {
+  const searches = await prisma.searchLog.findMany({
+    where: { userId: req.user!.id },
+    orderBy: { createdAt: 'desc' },
+    take: 8,
+    distinct: ['query'],
+    select: { query: true, createdAt: true },
+  });
+  res.json(searches);
+});
+
 router.get('/user/liked', authenticate, async (req: AuthRequest, res: Response) => {
   const likes = await prisma.like.findMany({
     where: { userId: req.user!.id },

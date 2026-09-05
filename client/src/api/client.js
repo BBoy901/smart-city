@@ -26,6 +26,8 @@ export const api = {
   // Auth
   register: (data) => request('/auth/register', { method: 'POST', body: JSON.stringify(data) }),
   login: (data) => request('/auth/login', { method: 'POST', body: JSON.stringify(data) }),
+  forgotPassword: (email) => request('/auth/forgot-password', { method: 'POST', body: JSON.stringify({ email }) }),
+  resetPassword: (data) => request('/auth/reset-password', { method: 'POST', body: JSON.stringify(data) }),
   getMe: () => request('/auth/me'),
   addRole: (role) => request('/auth/add-role', { method: 'POST', body: JSON.stringify({ role }) }),
   switchMode: (mode) => request('/auth/switch-mode', { method: 'PATCH', body: JSON.stringify({ mode }) }),
@@ -51,6 +53,7 @@ export const api = {
   getLiked: () => request('/products/user/liked'),
   getSaved: () => request('/products/user/saved'),
   getRecent: () => request('/products/user/recent'),
+  getRecentSearches: () => request('/products/user/searches'),
 
   // Shops
   getShop: (id) => request(`/shops/${id}`),

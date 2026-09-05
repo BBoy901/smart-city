@@ -33,7 +33,7 @@ export default function ShopProfile() {
         {shop.shopCategories?.length > 0 && (
           <div className="chips-row" style={{ marginTop: 8 }}>
             {shop.shopCategories.map((sc) => (
-              <span key={sc.categoryId} className="chip">{sc.category.icon} {sc.category.name}</span>
+              <span key={sc.categoryId} className="chip">{sc.category.name}</span>
             ))}
           </div>
         )}

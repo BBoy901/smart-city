@@ -31,6 +31,7 @@ export default function Onboarding() {
 
   return (
     <div className="page-no-nav" style={{ padding: '32px 24px' }}>
+      <div className="standalone-brand"><span className="header-brand-mark" />Smart City</div>
       <div style={{ textAlign: 'center', marginBottom: 32 }}>
         <h1 style={{ fontSize: '1.5rem', fontWeight: 700 }}>What are you interested in?</h1>
         <p style={{ color: 'var(--text-secondary)', marginTop: 8 }}>Select categories to personalize your feed</p>
@@ -39,7 +40,7 @@ export default function Onboarding() {
       <div className="chips-row" style={{ justifyContent: 'center', marginBottom: 32 }}>
         {categories.map((c) => (
           <button key={c.id} className={`chip ${selected.includes(c.id) ? 'active' : ''}`} onClick={() => toggle(c.id)}>
-            {c.icon} {c.name}
+            {c.name}
           </button>
         ))}
       </div>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Search as SearchIcon } from 'lucide-react';
-import { api } from '../api/client';
+import { api, formatPrice, getImageUrl } from '../api/client';
+import { useAuth } from '../context/AuthContext';
 import ProductCard from '../components/ProductCard';
 import Header from '../components/Header';
 import Loading from '../components/Loading';
@@ -8,6 +9,7 @@ import { Link } from 'react-router-dom';
 import { MapPin } from 'lucide-react';
 
 export default function SearchPage() {
+  const { isAuthenticated } = useAuth();
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('');
   const [area, setArea] = useState('');
@@ -15,21 +17,82 @@ export default function SearchPage() {
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState([]);
   const [tab, setTab] = useState('all');
+  const [highlightResults, setHighlightResults] = useState({ products: [], sellers: [] });
+  const [highlightLoading, setHighlightLoading] = useState(false);
+  const [recentSearches, setRecentSearches] = useState([]);
+  const [showHints, setShowHints] = useState(false);
 
   useEffect(() => { api.getCategories().then(setCategories).catch(console.error); }, []);
 
-  const handleSearch = async (e) => {
+  useEffect(() => {
+    if (isAuthenticated) {
+      api.getRecentSearches().then((searches) => setRecentSearches(searches.map((search) => search.query))).catch(() => setRecentSearches([]));
+      return undefined;
+    }
+    try {
+      setRecentSearches(JSON.parse(localStorage.getItem('smart-city-recent-searches') || '[]'));
+    } catch {
+      setRecentSearches([]);
+    }
+    return undefined;
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    const searchTerm = query.trim();
+    if (!showHints || searchTerm.length < 2) {
+      setHighlightResults({ products: [], sellers: [] });
+      setHighlightLoading(false);
+      return undefined;
+    }
+
+    let active = true;
+    const timer = setTimeout(async () => {
+      setHighlightLoading(true);
+      try {
+        const data = await api.search({ q: searchTerm, type: tab, limit: 4 });
+        if (active) setHighlightResults({ products: data.products || [], sellers: data.sellers || [] });
+      } catch {
+        if (active) setHighlightResults({ products: [], sellers: [] });
+      } finally {
+        if (active) setHighlightLoading(false);
+      }
+    }, 350);
+
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
+  }, [query, tab, showHints]);
+
+  const handleSearch = async (e, searchValue = query, searchType = tab) => {
     e?.preventDefault();
-    if (!query && !category && !area) return;
+    if (!searchValue && !category && !area) return;
+    setShowHints(false);
     setLoading(true);
     try {
-      const data = await api.search({ q: query, category, area, type: tab });
+      const data = await api.search({ q: searchValue, category, area, type: searchType });
       setResults(data);
+      if (searchValue.trim()) {
+        const nextSearches = [searchValue.trim(), ...recentSearches.filter((search) => search.toLowerCase() !== searchValue.trim().toLowerCase())].slice(0, 8);
+        setRecentSearches(nextSearches);
+        if (!isAuthenticated) localStorage.setItem('smart-city-recent-searches', JSON.stringify(nextSearches));
+      }
     } catch (err) {
       console.error(err);
     } finally {
       setLoading(false);
     }
+  };
+
+  const applyRecentSearch = (search) => {
+    setQuery(search);
+    setShowHints(true);
+  };
+
+  const handleTabChange = (nextTab) => {
+    setTab(nextTab);
+    setShowHints(true);
+    if (results && (query.trim() || category || area)) handleSearch(undefined, query, nextTab);
   };
 
   const handleLike = async (id) => {
@@ -54,17 +117,23 @@ export default function SearchPage() {
 
   return (
     <div className="page">
-      <Header title="Search" />
+      <Header
+        title="Search"
+        titleRight={(
+          <div className="header-search-field">
+            <SearchIcon size={17} />
+            <input
+              type="search"
+              aria-label="Search products or sellers"
+              placeholder="Type product or seller..."
+              value={query}
+              onChange={(e) => { setQuery(e.target.value); if (results) setResults(null); }}
+              onKeyDown={(e) => { if (e.key === 'Enter') handleSearch(e); }}
+            />
+          </div>
+        )}
+      />
       <form onSubmit={handleSearch}>
-        <div className="search-bar">
-          <SearchIcon size={20} color="var(--text-secondary)" />
-          <input
-            type="text"
-            placeholder="Search products, sellers..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-        </div>
         <div style={{ padding: '0 16px 12px', display: 'flex', gap: 8 }}>
           <input className="form-input" placeholder="Area (e.g. Kariakoo)" value={area} onChange={(e) => setArea(e.target.value)} style={{ flex: 1 }} />
           <button type="submit" className="btn btn-primary btn-sm">Search</button>
@@ -73,11 +142,37 @@ export default function SearchPage() {
 
       <div className="tabs" style={{ margin: '0 16px' }}>
         {['all', 'products', 'sellers'].map((t) => (
-          <button key={t} className={`tab ${tab === t ? 'active' : ''}`} onClick={() => setTab(t)}>
+          <button type="button" key={t} className={`tab ${tab === t ? 'active' : ''}`} onClick={() => handleTabChange(t)}>
             {t.charAt(0).toUpperCase() + t.slice(1)}
           </button>
         ))}
       </div>
+
+      {!results && showHints && recentSearches.length > 0 && (
+        <section className="recent-searches">
+          <div className="recent-searches-heading"><span>Recent searches</span><button type="button" onClick={() => { setRecentSearches([]); if (!isAuthenticated) localStorage.removeItem('smart-city-recent-searches'); }}>Clear</button></div>
+          <div className="recent-search-list">
+            {recentSearches.map((search) => <button type="button" className="recent-search-item" key={search} onClick={() => applyRecentSearch(search)}><SearchIcon size={14} /> {search}</button>)}
+          </div>
+        </section>
+      )}
+
+      {!results && showHints && (highlightLoading || highlightResults.products.length > 0 || highlightResults.sellers.length > 0) && (
+        <div className="search-highlights">
+          <div className="search-highlights-heading"><span>{tab === 'sellers' ? 'Seller highlights' : tab === 'products' ? 'Product highlights' : 'Matching highlights'} for “{query.trim()}”</span>{highlightLoading && <span className="search-loading">Searching...</span>}</div>
+          {highlightResults.products.map((product) => {
+            const image = product.images?.[0]?.url;
+            return <Link key={product.id} to={`/product/${product.id}`} className="search-highlight-item">
+              <div className="search-highlight-image">{image ? <img src={getImageUrl(image)} alt={product.name} /> : <span>📦</span>}</div>
+              <div className="search-highlight-info"><strong>{product.name}</strong><b>{formatPrice(product.price)}</b><small>{product.shop?.name} · {product.shop?.location?.area || 'Location available'}</small></div>
+            </Link>;
+          })}
+          {highlightResults.sellers.map((shop) => <Link key={shop.id} to={`/shop/${shop.id}`} className="search-highlight-item">
+            <div className="search-highlight-image"><span>🏪</span></div>
+            <div className="search-highlight-info"><strong>{shop.name}</strong><small>{shop.location?.area || 'Seller location available'} · {shop.products?.length || 0} products</small></div>
+          </Link>)}
+        </div>
+      )}
 
       {loading && <Loading />}
 

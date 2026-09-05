@@ -16,16 +16,25 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
     orderBy: { updatedAt: 'desc' },
   });
 
-  const enriched = conversations.map((c) => {
+  const enriched = await Promise.all(conversations.map(async (c) => {
     const other = c.participants.find((p) => p.userId !== req.user!.id);
     const lastMessage = c.messages[0];
+    const unreadCount = await prisma.message.count({
+      where: { conversationId: c.id, senderId: { not: req.user!.id }, isRead: false },
+    });
+    const messageCount = await prisma.message.count({ where: { conversationId: c.id } });
+    const sentCount = await prisma.message.count({ where: { conversationId: c.id, senderId: req.user!.id } });
     return {
       id: c.id,
       otherUser: other?.user,
       lastMessage,
+      unreadCount,
+      messageCount,
+      sentCount,
+      lastMessageAt: lastMessage?.createdAt || c.updatedAt,
       updatedAt: c.updatedAt,
     };
-  });
+  }));
 
   res.json(enriched);
 });

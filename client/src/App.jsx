@@ -1,5 +1,5 @@
-import { useCallback, useState } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useCallback, useRef, useState } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import BottomNav from './components/BottomNav';
 import Loading from './components/Loading';
@@ -11,7 +11,10 @@ import Search from './pages/Search';
 import Saved from './pages/Saved';
 import Messages from './pages/Messages';
 import Profile from './pages/Profile';
+import Settings from './pages/Settings';
+import About from './pages/About';
 import Login from './pages/Login';
+import ResetPassword from './pages/ResetPassword';
 import Register from './pages/Register';
 import Onboarding from './pages/Onboarding';
 import ProductDetail from './pages/ProductDetail';
@@ -25,8 +28,33 @@ import AddProduct from './pages/seller/AddProduct';
 import AdminLayout from './pages/admin/AdminLayout';
 
 function AppLayout({ children }) {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const touchStart = useRef(null);
+  const swipeRoutes = ['/', '/search', '/saved', '/messages', '/profile'];
+  const currentRoute = location.pathname === '/explore' ? '/' : location.pathname;
+
+  const handleTouchStart = (event) => {
+    if (!swipeRoutes.includes(currentRoute) || event.target.closest('.chat-thread, .chat-composer, .home-category-row')) return;
+    const touch = event.touches[0];
+    touchStart.current = { x: touch.clientX, y: touch.clientY };
+  };
+
+  const handleTouchEnd = (event) => {
+    if (!touchStart.current) return;
+    const touch = event.changedTouches[0];
+    const deltaX = touch.clientX - touchStart.current.x;
+    const deltaY = touch.clientY - touchStart.current.y;
+    touchStart.current = null;
+    if (Math.abs(deltaX) < 60 || Math.abs(deltaX) <= Math.abs(deltaY) * 1.3) return;
+
+    const routeIndex = swipeRoutes.indexOf(currentRoute);
+    const nextIndex = deltaX < 0 ? routeIndex + 1 : routeIndex - 1;
+    if (nextIndex >= 0 && nextIndex < swipeRoutes.length) navigate(swipeRoutes[nextIndex]);
+  };
+
   return (
-    <div className="app-container">
+    <div className="app-container" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
       {children}
       <BottomNav />
     </div>
@@ -68,12 +96,15 @@ function AppRoutes() {
       <Route path="/explore" element={<AppLayout><Home /></AppLayout>} />
       <Route path="/welcome" element={<Welcome />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/register" element={<Register />} />
       <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
       <Route path="/search" element={<AppLayout><Search /></AppLayout>} />
       <Route path="/saved" element={<AppLayout><Saved /></AppLayout>} />
       <Route path="/messages" element={<AppLayout><Messages /></AppLayout>} />
       <Route path="/profile" element={<AppLayout><Profile /></AppLayout>} />
+      <Route path="/settings" element={<AppLayout><Settings /></AppLayout>} />
+      <Route path="/about" element={<AppLayout><About /></AppLayout>} />
       <Route path="/product/:id" element={<AppLayout><ProductDetail /></AppLayout>} />
       <Route path="/shop/:id" element={<AppLayout><ShopProfile /></AppLayout>} />
 

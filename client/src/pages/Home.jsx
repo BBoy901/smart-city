@@ -15,6 +15,7 @@ const SECTIONS = [
 export default function Home() {
   const { user } = useAuth();
   const [section, setSection] = useState('for-you');
+  const [categoryId, setCategoryId] = useState('');
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -37,6 +38,10 @@ export default function Home() {
     api.getCategories().then(setCategories).catch(console.error);
   }, []);
 
+  const visibleProducts = categoryId
+    ? [...products].sort((first, second) => Number(second.categoryId === categoryId) - Number(first.categoryId === categoryId))
+    : products;
+
   const handleLike = async (id) => {
     try {
       const { liked } = await api.likeProduct(id);
@@ -52,28 +57,27 @@ export default function Home() {
   };
 
   return (
-    <div className="page">
-      <Header title="Smart City" />
-      <div className="scroll-row">
-        {SECTIONS.map((s) => (
-          <button key={s.key} className={`chip ${section === s.key ? 'active' : ''}`} onClick={() => setSection(s.key)}>
-            {s.label}
+    <div className="page home-page">
+      <Header
+        title="Home"
+        titleRight={(
+          <div className="home-section-tabs">
+            {SECTIONS.map((s) => (
+              <button key={s.key} className={`chip ${section === s.key ? 'active' : ''}`} onClick={() => setSection(s.key)}>
+                {s.label}
+              </button>
+            ))}
+          </div>
+        )}
+      />
+      <div className="scroll-row home-category-row">
+        <button className={`chip ${!categoryId ? 'active' : ''}`} onClick={() => setCategoryId('')}>All</button>
+        {categories.map((c) => (
+          <button key={c.id} className={`chip ${categoryId === c.id ? 'active' : ''}`} onClick={() => setCategoryId(c.id)}>
+            {c.name}
           </button>
         ))}
       </div>
-
-      {categories.length > 0 && (
-        <div className="section" style={{ paddingTop: 0 }}>
-          <div className="section-header">
-            <h2 className="section-title">Categories</h2>
-          </div>
-          <div className="scroll-row" style={{ padding: 0 }}>
-            {categories.map((c) => (
-              <span key={c.id} className="chip">{c.icon} {c.name}</span>
-            ))}
-          </div>
-        </div>
-      )}
 
       {user && (
         <div style={{ padding: '0 16px 8px' }}>
@@ -83,14 +87,14 @@ export default function Home() {
         </div>
       )}
 
-      {loading ? <Loading /> : products.length === 0 ? (
+      {loading ? <Loading /> : visibleProducts.length === 0 ? (
         <div className="empty-state">
           <h3>No products yet</h3>
           <p>Check back soon for new discoveries in Kariakoo!</p>
         </div>
       ) : (
         <div className="feed-grid">
-          {products.map((p) => (
+          {visibleProducts.map((p) => (
             <ProductCard key={p.id} product={p} onLike={handleLike} onSave={handleSave} />
           ))}
         </div>

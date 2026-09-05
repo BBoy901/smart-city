@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../../api/client';
 import { useAuth } from '../../context/AuthContext';
 import Loading from '../../components/Loading';
-import { LayoutDashboard, Users, Package, Store, Tag, BarChart3, LogOut } from 'lucide-react';
-import { Link, Routes, Route, NavLink } from 'react-router-dom';
+import { Users, Package, Store, Tag, Settings, LogOut, Power } from 'lucide-react';
+import { Link, Routes, Route, useSearchParams } from 'react-router-dom';
 
 function AdminDashboard() {
   const [stats, setStats] = useState(null);
@@ -16,52 +16,70 @@ function AdminDashboard() {
 
   if (loading) return <Loading />;
   const o = stats?.overview || {};
+  const manageItems = [
+    { to: '/admin/users', icon: Users, label: 'Customers', count: o.totalCustomers },
+    { to: '/admin/users?role=SELLER', icon: Store, label: 'Sellers', count: o.totalSellers },
+    { to: '/admin/products', icon: Package, label: 'Products', count: o.totalProducts },
+    { to: '/admin/categories', icon: Tag, label: 'Categories', count: o.totalCategories },
+    { to: '/admin/shops', icon: Store, label: 'Shops', count: o.totalShops },
+  ];
 
   return (
     <div>
-      <h1 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: 24 }}>Dashboard</h1>
-      <div className="stat-grid">
+      <div className="admin-eyebrow">Kariakoo Pilot · Overview</div>
+      <div className="stat-grid admin-overview-grid">
         <div className="stat-card"><div className="stat-card-value">{o.totalCustomers}</div><div className="stat-card-label">Customers</div></div>
         <div className="stat-card"><div className="stat-card-value">{o.totalSellers}</div><div className="stat-card-label">Sellers</div></div>
-        <div className="stat-card"><div className="stat-card-value">{o.totalProducts}</div><div className="stat-card-label">Products</div></div>
-        <div className="stat-card"><div className="stat-card-value">{o.totalShops}</div><div className="stat-card-label">Shops</div></div>
-        <div className="stat-card"><div className="stat-card-value">{o.productViews}</div><div className="stat-card-label">Product Views</div></div>
-        <div className="stat-card"><div className="stat-card-value">{o.totalMessages}</div><div className="stat-card-label">Messages</div></div>
-        <div className="stat-card"><div className="stat-card-value">{o.totalSearches}</div><div className="stat-card-label">Searches</div></div>
-        <div className="stat-card"><div className="stat-card-value">{o.shopViews}</div><div className="stat-card-label">Shop Views</div></div>
+        <div className="stat-card"><div className="stat-card-value">{o.totalProducts}</div><div className="stat-card-label">Products listed</div></div>
+        <div className="stat-card"><div className="stat-card-value">{o.totalMessages}</div><div className="stat-card-label">Messages sent</div></div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
-        <div>
-          <h2 style={{ fontWeight: 600, marginBottom: 12 }}>Top Products</h2>
-          <table className="admin-table">
-            <thead><tr><th>Product</th><th>Views</th><th>Likes</th></tr></thead>
-            <tbody>
-              {stats?.topProducts?.map((p) => (
-                <tr key={p.id}><td>{p.name}</td><td>{p.viewCount}</td><td>{p.likeCount}</td></tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <div>
-          <h2 style={{ fontWeight: 600, marginBottom: 12 }}>Top Searches</h2>
-          <table className="admin-table">
-            <thead><tr><th>Query</th><th>Count</th></tr></thead>
-            <tbody>
-              {stats?.topSearches?.map((s, i) => (
-                <tr key={i}><td>{s.query}</td><td>{s.count}</td></tr>
-              ))}
-            </tbody>
-          </table>
+      <div className="admin-dashboard-section">
+        <h2 className="admin-section-title">Most searched products</h2>
+        <div className="admin-list-card admin-search-list">
+          {(stats?.topSearches?.length ? stats.topSearches : stats?.topProducts?.map((p) => ({ query: p.name, count: p.viewCount })))?.map((item, index) => (
+            <div className="admin-ranking-row" key={`${item.query}-${index}`}>
+              <span className="admin-rank">{index + 1}</span>
+              <span className="admin-ranking-name">{item.query}</span>
+              <span className="admin-ranking-meta">{item.count} {item.count === 1 ? 'search' : 'searches'}</span>
+            </div>
+          ))}
         </div>
       </div>
+
+      <section className="admin-dashboard-section">
+        <h2 className="admin-section-title">Popular Categories</h2>
+        <div className="admin-category-list">
+          {stats?.popularCategories?.slice(0, 6).map((category) => (
+            <div className="admin-category-item" key={category.id}>
+              <span>{category.icon} {category.name}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="admin-dashboard-section">
+        <h2 className="admin-section-title">Manage</h2>
+        <div className="admin-manage-grid">
+          {manageItems.map(({ to, icon: Icon, label, count }) => (
+            <Link className="admin-manage-card" to={to} key={label}>
+              <Icon size={20} />
+              <span>{label}</span>
+              <strong>{count ?? 0}</strong>
+            </Link>
+          ))}
+          <div className="admin-manage-card admin-manage-disabled"><Settings size={20} /><span>Settings</span><strong>-</strong></div>
+        </div>
+      </section>
     </div>
   );
 }
 
 function AdminUsers() {
   const [users, setUsers] = useState([]);
-  useEffect(() => { api.getAdminUsers().then(setUsers).catch(console.error); }, []);
+  const [searchParams] = useSearchParams();
+  const role = searchParams.get('role');
+  useEffect(() => { api.getAdminUsers(role ? { role } : {}).then(setUsers).catch(console.error); }, [role]);
 
   const toggle = async (id, isActive) => {
     await api.toggleUserStatus(id, !isActive);
@@ -70,7 +88,7 @@ function AdminUsers() {
 
   return (
     <div>
-      <h1 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: 24 }}>Users</h1>
+      <h1 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: 24 }}>{role === 'SELLER' ? 'Sellers' : 'Customers'}</h1>
       <table className="admin-table">
         <thead><tr><th>Name</th><th>Email</th><th>Roles</th><th>Status</th><th>Action</th></tr></thead>
         <tbody>
@@ -159,29 +177,12 @@ export default function AdminLayout() {
     return <div style={{ padding: 48, textAlign: 'center' }}><h2>Admin access required</h2><Link to="/login">Login</Link></div>;
   }
 
-  const links = [
-    { to: '/admin', icon: LayoutDashboard, label: 'Dashboard', end: true },
-    { to: '/admin/users', icon: Users, label: 'Users' },
-    { to: '/admin/products', icon: Package, label: 'Products' },
-    { to: '/admin/shops', icon: Store, label: 'Shops' },
-    { to: '/admin/categories', icon: Tag, label: 'Categories' },
-  ];
-
   return (
     <div className="admin-layout">
-      <aside className="admin-sidebar">
-        <div style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: 32 }}>🏙️ Smart City</div>
-        <nav>
-          {links.map(({ to, icon: Icon, label, end }) => (
-            <NavLink key={to} to={to} end={end} className={({ isActive }) => `admin-nav-link ${isActive ? 'active' : ''}`}>
-              <Icon size={18} /> {label}
-            </NavLink>
-          ))}
-        </nav>
-        <button className="admin-nav-link" style={{ marginTop: 'auto', position: 'absolute', bottom: 24 }} onClick={() => { logout(); navigate('/'); }}>
-          <LogOut size={18} /> Logout
-        </button>
-      </aside>
+      <header className="admin-header">
+        <div className="admin-brand"><span className="admin-brand-mark" />Smart City <span className="admin-role">ADMIN</span></div>
+        <button className="admin-logout" title="Log out" onClick={() => { logout(); navigate('/'); }}><Power size={18} /></button>
+      </header>
       <main className="admin-main">
         <Routes>
           <Route index element={<AdminDashboard />} />

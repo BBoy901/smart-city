@@ -6,6 +6,18 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [unreadMessages, setUnreadMessages] = useState(0);
+  const [chatOpen, setChatOpen] = useState(false);
+
+  const refreshUnreadMessages = useCallback(async () => {
+    if (!localStorage.getItem('token')) { setUnreadMessages(0); return; }
+    try {
+      const conversations = await api.getConversations();
+      setUnreadMessages(conversations.reduce((total, conversation) => total + (conversation.unreadCount || 0), 0));
+    } catch {
+      setUnreadMessages(0);
+    }
+  }, []);
 
   const loadUser = useCallback(async () => {
     const token = localStorage.getItem('token');
@@ -21,6 +33,13 @@ export function AuthProvider({ children }) {
   }, []);
 
   useEffect(() => { loadUser(); }, [loadUser]);
+
+  useEffect(() => {
+    if (!user) { setUnreadMessages(0); return undefined; }
+    refreshUnreadMessages();
+    const timer = setInterval(refreshUnreadMessages, 30000);
+    return () => clearInterval(timer);
+  }, [user, refreshUnreadMessages]);
 
   const login = async (email, password) => {
     const { token, user: u } = await api.login({ email, password });
@@ -67,7 +86,8 @@ export function AuthProvider({ children }) {
   return (
     <AuthContext.Provider value={{
       user, loading, login, register, logout, refreshUser, switchMode, addRole,
-      isCustomer, isSeller, isAdmin, isSellerMode, isAuthenticated: !!user,
+      isCustomer, isSeller, isAdmin, isSellerMode, unreadMessages, refreshUnreadMessages,
+      chatOpen, setChatOpen, isAuthenticated: !!user,
     }}>
       {children}
     </AuthContext.Provider>

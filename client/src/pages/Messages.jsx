@@ -1,13 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
+import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import Header from '../components/Header';
 import Loading from '../components/Loading';
-import { Send } from 'lucide-react';
+import { ArrowLeft, Send, Settings } from 'lucide-react';
 
 export default function Messages() {
-  const { user } = useAuth();
+  const { user, refreshUnreadMessages, setChatOpen } = useAuth();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const toUserId = searchParams.get('to');
   const [conversations, setConversations] = useState([]);
@@ -16,6 +17,11 @@ export default function Messages() {
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
   const messagesEnd = useRef(null);
+
+  useEffect(() => {
+    setChatOpen(!!activeConv);
+    return () => setChatOpen(false);
+  }, [activeConv, setChatOpen]);
 
   useEffect(() => {
     if (!user) return;
@@ -33,6 +39,7 @@ export default function Messages() {
   const loadMessages = async (convId) => {
     const msgs = await api.getMessages(convId);
     setMessages(msgs);
+    refreshUnreadMessages();
     setTimeout(() => messagesEnd.current?.scrollIntoView({ behavior: 'smooth' }), 100);
   };
 
@@ -70,10 +77,15 @@ export default function Messages() {
     const other = activeConv.otherUser || activeConv.participants?.find((p) => p.userId !== user.id)?.user;
     return (
       <div className="page-no-nav" style={{ display: 'flex', flexDirection: 'column', height: '100dvh' }}>
-        <Header title={other?.name || 'Chat'} showBack right={
-          <button onClick={() => { setActiveConv(null); setMessages([]); }} style={{ fontSize: '0.8125rem', color: 'var(--primary)' }}>Back</button>
-        } />
-        <div style={{ flex: 1, overflow: 'auto', padding: 16 }}>
+        <header className="chat-header">
+          <div className="chat-header-brand"><span className="header-brand-mark" />Smart City</div>
+          <div className="chat-header-user">
+            <button className="chat-back" onClick={() => { setActiveConv(null); setMessages([]); }} title="Back"><ArrowLeft size={19} /></button>
+            <div className="chat-avatar">{other?.name?.[0]?.toUpperCase() || '?'}</div>
+            <strong>{other?.name || 'Chat'}</strong>
+          </div>
+        </header>
+        <div className="chat-thread">
           {messages.map((m) => (
             <div key={m.id} className={`message-bubble ${m.senderId === user.id ? 'sent' : 'received'}`}>
               {m.content}
@@ -82,9 +94,9 @@ export default function Messages() {
           ))}
           <div ref={messagesEnd} />
         </div>
-        <form onSubmit={handleSend} style={{ display: 'flex', gap: 8, padding: 12, borderTop: '1px solid var(--border)' }}>
-          <input className="form-input" value={newMessage} onChange={(e) => setNewMessage(e.target.value)} placeholder="Type a message..." style={{ flex: 1 }} />
-          <button type="submit" className="btn btn-primary btn-sm"><Send size={18} /></button>
+        <form className="chat-composer" onSubmit={handleSend}>
+          <input className="form-input" value={newMessage} onChange={(e) => setNewMessage(e.target.value)} placeholder="Andika ujumbe..." style={{ flex: 1 }} />
+          <button type="submit" className="chat-send" title="Send"><Send size={17} /></button>
         </form>
       </div>
     );
@@ -92,7 +104,13 @@ export default function Messages() {
 
   return (
     <div className="page">
-      <Header title="Messages" />
+      <header className="messages-topbar">
+        <Link to="/" className="messages-brand"><span className="messages-brand-mark" />Smart City</Link>
+        <div className="messages-top-actions">
+          <button onClick={() => navigate('/settings')} title="Settings" aria-label="Settings"><Settings size={17} /></button>
+        </div>
+      </header>
+      <h1 className="messages-heading">Messages</h1>
       {loading ? <Loading /> : conversations.length === 0 ? (
         <div className="empty-state">
           <h3>No messages yet</h3>
@@ -101,15 +119,22 @@ export default function Messages() {
       ) : (
         <div>
           {conversations.map((conv) => (
-            <button key={conv.id} onClick={() => openConversation(conv)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 16, width: '100%', borderBottom: '1px solid var(--border)', textAlign: 'left' }}>
-              <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'var(--primary-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, color: 'var(--primary)' }}>
+            <button key={conv.id} className="conversation-item" onClick={() => openConversation(conv)}>
+              <div className="conversation-avatar">
                 {conv.otherUser?.name?.[0]}
               </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontWeight: 600 }}>{conv.otherUser?.name}</div>
-                <div style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              <div className="conversation-content">
+                <div className="conversation-heading"><strong>{conv.otherUser?.name}</strong></div>
+                <div className="conversation-preview">
                   {conv.lastMessage?.content || 'No messages yet'}
                 </div>
+              </div>
+              <div className="conversation-side">
+                <div className="conversation-time-row">
+                  <time>{conv.lastMessageAt && new Date(conv.lastMessageAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</time>
+                  {conv.unreadCount > 0 && <span className="message-badge">{conv.unreadCount} new</span>}
+                </div>
+                <span className="conversation-meta">{conv.messageCount || 0} messages · {conv.sentCount || 0} sent</span>
               </div>
             </button>
           ))}

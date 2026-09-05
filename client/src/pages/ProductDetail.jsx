@@ -1,13 +1,16 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Heart, Bookmark, MessageCircle, Phone, MapPin, Store } from 'lucide-react';
 import { api, formatPrice, getImageUrl, getLocationString } from '../api/client';
 import Header from '../components/Header';
 import Loading from '../components/Loading';
 import ProductCard from '../components/ProductCard';
+import { useAuth } from '../context/AuthContext';
 
 export default function ProductDetail() {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -19,6 +22,7 @@ export default function ProductDetail() {
   const related = data?.relatedProducts || [];
 
   const handleLike = async () => {
+    if (!isAuthenticated) { navigate('/login', { state: { from: `/product/${id}`, action: 'like' } }); return; }
     try {
       const { liked } = await api.likeProduct(id);
       setData((d) => ({ ...d, product: { ...d.product, isLiked: liked } }));
@@ -26,6 +30,7 @@ export default function ProductDetail() {
   };
 
   const handleSave = async () => {
+    if (!isAuthenticated) { navigate('/login', { state: { from: `/product/${id}`, action: 'save' } }); return; }
     try {
       const { saved } = await api.saveProduct(id);
       setData((d) => ({ ...d, product: { ...d.product, isSaved: saved } }));
@@ -71,18 +76,27 @@ export default function ProductDetail() {
             )}
           </div>
         </Link>
-      </div>
 
-      <div className="action-bar" style={{ position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50)', maxWidth: 'var(--max-width)', width: '100%', zIndex: 50 }}>
-        <button className="btn-icon" onClick={handleLike}><Heart size={20} fill={product.isLiked ? 'var(--danger)' : 'none'} color={product.isLiked ? 'var(--danger)' : 'currentColor'} /></button>
-        <button className="btn-icon" onClick={handleSave}><Bookmark size={20} fill={product.isSaved ? 'var(--primary)' : 'none'} color={product.isSaved ? 'var(--primary)' : 'currentColor'} /></button>
-        {shop?.phone && <a href={`tel:${shop.phone}`} className="btn btn-secondary btn-sm"><Phone size={16} /> Call</a>}
-        <Link to={`/messages?to=${sellerUser?.id}`} className="btn btn-primary btn-sm"><MessageCircle size={16} /> Message</Link>
-        {shop?.location?.latitude && (
-          <a href={`https://maps.google.com/?q=${shop.location.latitude},${shop.location.longitude}`} target="_blank" rel="noreferrer" className="btn btn-secondary btn-sm">
-            <MapPin size={16} /> Map
-          </a>
-        )}
+        <div className="product-detail-actions">
+          <div className="action-row">
+            <button className="btn btn-secondary" onClick={handleLike}>
+              <Heart size={17} fill={product.isLiked ? 'var(--danger)' : 'none'} color={product.isLiked ? 'var(--danger)' : 'currentColor'} />
+              {product.isLiked ? 'Liked' : 'Like'}
+            </button>
+            <button className="btn btn-secondary" onClick={handleSave}>
+              <Bookmark size={17} fill={product.isSaved ? 'var(--primary)' : 'none'} color={product.isSaved ? 'var(--primary)' : 'currentColor'} />
+              {product.isSaved ? 'Saved' : 'Save'}
+            </button>
+          </div>
+          <div className="action-row">
+            <Link to={isAuthenticated ? `/messages?to=${sellerUser?.id}` : '/login'} state={!isAuthenticated ? { from: `/product/${id}`, action: 'message' } : undefined} className="btn btn-primary">
+              <MessageCircle size={17} /> Message
+            </Link>
+            {shop?.phone && <a href={`tel:${shop.phone}`} className="btn btn-secondary">
+              <Phone size={17} /> Call
+            </a>}
+          </div>
+        </div>
       </div>
 
       {related.length > 0 && (

@@ -2,6 +2,7 @@ import { Router, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import { Role } from '@prisma/client';
 import prisma from '../lib/prisma';
+import jwt from 'jsonwebtoken';
 import { signToken } from '../lib/jwt';
 import { authenticate, AuthRequest } from '../middleware/auth';
 
@@ -81,6 +82,34 @@ router.post('/login', async (req, res) => {
     res.json({ token, user: fullUser });
   } catch {
     res.status(500).json({ error: 'Login failed' });
+  }
+});
+
+router.post('/forgot-password', async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ error: 'Email is required' });
+
+  const user = await prisma.user.findUnique({ where: { email: String(email).trim().toLowerCase() } });
+  if (!user) return res.json({ message: 'If that email is registered, a reset link is ready.' });
+
+  const token = jwt.sign({ userId: user.id, purpose: 'password-reset' }, process.env.JWT_SECRET || 'dev-secret', { expiresIn: '15m' });
+  res.json({ message: 'Password reset link is ready.', resetToken: token });
+});
+
+router.post('/reset-password', async (req, res) => {
+  const { token, password } = req.body;
+  if (!token || !password || String(password).length < 8) {
+    return res.status(400).json({ error: 'A valid token and password of at least 8 characters are required' });
+  }
+
+  try {
+    const payload = jwt.verify(token, process.env.JWT_SECRET || 'dev-secret') as { userId: string; purpose: string };
+    if (payload.purpose !== 'password-reset') return res.status(400).json({ error: 'Invalid reset link' });
+    const passwordHash = await bcrypt.hash(password, 10);
+    await prisma.user.update({ where: { id: payload.userId }, data: { passwordHash } });
+    res.json({ message: 'Password updated successfully' });
+  } catch {
+    res.status(400).json({ error: 'This reset link is invalid or expired' });
   }
 });
 
