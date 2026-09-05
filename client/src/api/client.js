@@ -97,8 +97,12 @@ export function formatPrice(price, currency = 'TSh') {
 
 export function getImageUrl(url) {
   if (!url) return null;
+
   if (url.startsWith('http')) return url;
-  return url;
+
+  const apiUrl = import.meta.env.VITE_API_URL || '';
+
+  return `${apiUrl}${url}`;
 }
 
 export function getLocationString(location) {

@@ -1,3 +1,4 @@
+import cloudinary from '../../lib/cloudinary';
 import { Router, Response } from 'express';
 import prisma from '../../lib/prisma';
 import { authenticate, requireRole, AuthRequest } from '../../middleware/auth';
@@ -44,6 +45,28 @@ router.post('/', authenticate, requireRole(Role.SELLER), upload.array('images', 
     }
 
     const files = req.files as Express.Multer.File[];
+
+const uploadedImages = files?.length
+  ? await Promise.all(
+      files.map(
+        (file) =>
+          new Promise<any>((resolve, reject) => {
+            const stream = cloudinary.uploader.upload_stream(
+              {
+                folder: 'smart-city/products',
+                resource_type: 'auto',
+              },
+              (error, result) => {
+                if (error) reject(error);
+                else resolve(result);
+              }
+            );
+
+            stream.end(file.buffer);
+          })
+      )
+    )
+  : [];
     const product = await prisma.product.create({
       data: {
         shopId,
@@ -56,7 +79,7 @@ router.post('/', authenticate, requireRole(Role.SELLER), upload.array('images', 
         images: files?.length
           ? {
               create: files.map((f, i) => ({
-                url: `/uploads/${f.filename}`,
+                url: uploadedImages[i].secure_url,
                 isPrimary: i === 0,
                 sortOrder: i,
               })),
@@ -84,7 +107,29 @@ router.patch('/:id', authenticate, requireRole(Role.SELLER), upload.array('image
     }
 
     const { name, description, price, categoryId, availability, videoUrl, isActive } = req.body;
-    const files = req.files as Express.Multer.File[];
+const files = req.files as Express.Multer.File[];
+
+const uploadedImages = files?.length
+  ? await Promise.all(
+      files.map(
+        (file) =>
+          new Promise<any>((resolve, reject) => {
+            const stream = cloudinary.uploader.upload_stream(
+              {
+                folder: 'smart-city/products',
+                resource_type: 'auto',
+              },
+              (error, result) => {
+                if (error) reject(error);
+                else resolve(result);
+              }
+            );
+
+            stream.end(file.buffer);
+          })
+      )
+    )
+  : [];
 
     const updated = await prisma.product.update({
       where: { id: product.id },
@@ -104,7 +149,7 @@ router.patch('/:id', authenticate, requireRole(Role.SELLER), upload.array('image
       await prisma.productImage.createMany({
         data: files.map((f, i) => ({
           productId: product.id,
-          url: `/uploads/${f.filename}`,
+          url: uploadedImages[i].secure_url,
           isPrimary: i === 0,
           sortOrder: i,
         })),
