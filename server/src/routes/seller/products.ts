@@ -1,7 +1,12 @@
 import cloudinary from '../../lib/cloudinary';
 import { Router, Response } from 'express';
 import prisma from '../../lib/prisma';
-import { authenticate, requireRole, AuthRequest } from '../../middleware/auth';
+import {
+  authenticate,
+  requireRole,
+  requireApprovedSeller,
+  AuthRequest,
+} from '../../middleware/auth';
 import { upload } from '../../middleware/upload';
 import { Role } from '@prisma/client';
 
@@ -13,7 +18,7 @@ const productInclude = {
   shop: { include: { location: true } },
 };
 
-router.get('/my', authenticate, requireRole(Role.SELLER), async (req: AuthRequest, res: Response) => {
+router.get('/my', authenticate, requireRole(Role.SELLER), requireApprovedSeller, async (req: AuthRequest, res: Response) => {
   const seller = await prisma.sellerProfile.findUnique({
     where: { userId: req.user!.id },
     include: { shops: { select: { id: true } } },
@@ -29,7 +34,7 @@ router.get('/my', authenticate, requireRole(Role.SELLER), async (req: AuthReques
   res.json(products);
 });
 
-router.post('/', authenticate, requireRole(Role.SELLER), upload.array('images', 5), async (req: AuthRequest, res: Response) => {
+router.post('/', authenticate, requireRole(Role.SELLER), requireApprovedSeller, upload.array('images', 5), async (req: AuthRequest, res: Response) => {
   try {
     const { shopId, name, description, price, categoryId, availability, videoUrl } = req.body;
     if (!shopId || !name) {
@@ -96,7 +101,7 @@ const uploadedImages = files?.length
   }
 });
 
-router.patch('/:id', authenticate, requireRole(Role.SELLER), upload.array('images', 5), async (req: AuthRequest, res: Response) => {
+router.patch('/:id', authenticate, requireRole(Role.SELLER), requireApprovedSeller, upload.array('images', 5), async (req: AuthRequest, res: Response) => {
   try {
     const product = await prisma.product.findUnique({
       where: { id: String(req.params.id) },
@@ -163,7 +168,7 @@ const uploadedImages = files?.length
   }
 });
 
-router.delete('/:id', authenticate, requireRole(Role.SELLER), async (req: AuthRequest, res: Response) => {
+router.delete('/:id', authenticate, requireRole(Role.SELLER), requireApprovedSeller, async (req: AuthRequest, res: Response) => {
   const product = await prisma.product.findUnique({
     where: { id: String(req.params.id) },
     include: { shop: { include: { sellerProfile: true } } },

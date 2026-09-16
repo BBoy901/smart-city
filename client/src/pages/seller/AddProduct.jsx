@@ -55,11 +55,11 @@ export default function AddProduct() {
   }
 
   return (
-    <div className="page-no-nav" style={{ padding: '16px' }}>
+    <div className="page-no-nav">
       <Header title="Add Product" showBack />
       {error && <div className="alert alert-error">{error}</div>}
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="seller-product-form">
         <div className="form-group">
           <label className="form-label">Shop</label>
           <select className="form-input form-select" value={form.shopId} onChange={(e) => setForm({ ...form, shopId: e.target.value })} required>

@@ -19,6 +19,7 @@ function AdminDashboard() {
   const manageItems = [
     { to: '/admin/users', icon: Users, label: 'Customers', count: o.totalCustomers },
     { to: '/admin/users?role=SELLER', icon: Store, label: 'Sellers', count: o.totalSellers },
+    { to: '/admin/sellers', icon: Users, label: 'Pending Sellers', count: o.pendingSellers },
     { to: '/admin/products', icon: Package, label: 'Products', count: o.totalProducts },
     { to: '/admin/categories', icon: Tag, label: 'Categories', count: o.totalCategories },
     { to: '/admin/shops', icon: Store, label: 'Shops', count: o.totalShops },
@@ -71,6 +72,287 @@ function AdminDashboard() {
           <div className="admin-manage-card admin-manage-disabled"><Settings size={20} /><span>Settings</span><strong>-</strong></div>
         </div>
       </section>
+    </div>
+  );
+}
+
+function AdminSellers() {
+  const [sellers, setSellers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [processingId, setProcessingId] = useState(null);
+
+  const loadSellers = async () => {
+    try {
+      setLoading(true);
+      const data = await api.getPendingSellers();
+      setSellers(data);
+    } catch (error) {
+      console.error('Failed to load pending sellers:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadSellers();
+  }, []);
+
+  const handleApproval = async (id, approvalStatus) => {
+    try {
+      setProcessingId(id);
+
+      await api.approveSeller(id, approvalStatus);
+
+      setSellers((prev) => prev.filter((seller) => seller.id !== id));
+    } catch (error) {
+      console.error(
+        `Failed to ${approvalStatus.toLowerCase()} seller:`,
+        error
+      );
+
+      alert(
+        `Failed to ${approvalStatus.toLowerCase()} seller. Please try again.`
+      );
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
+  if (loading) {
+    return <Loading />;
+  }
+
+  return (
+    <div>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 12,
+          marginBottom: 8,
+        }}
+      >
+        <h1
+          style={{
+            fontSize: '1.5rem',
+            fontWeight: 700,
+            margin: 0,
+          }}
+        >
+          Pending Sellers
+        </h1>
+
+        <span
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minWidth: 28,
+            height: 28,
+            padding: '0 8px',
+            borderRadius: 999,
+            background: '#f3f4f6',
+            fontSize: '0.85rem',
+            fontWeight: 700,
+          }}
+        >
+          {sellers.length}
+        </span>
+      </div>
+
+      <p
+        style={{
+          margin: '0 0 24px',
+          color: '#666',
+          fontSize: '0.95rem',
+        }}
+      >
+        Review sellers waiting for admin approval.
+      </p>
+
+      {sellers.length === 0 ? (
+        <div
+          className="admin-list-card"
+          style={{
+            padding: 24,
+            textAlign: 'center',
+          }}
+        >
+          <div
+            style={{
+              fontSize: '2rem',
+              marginBottom: 8,
+            }}
+          >
+            ✓
+          </div>
+
+          <strong>All caught up</strong>
+
+          <p
+            style={{
+              margin: '6px 0 0',
+              color: '#777',
+              fontSize: '0.9rem',
+            }}
+          >
+            There are no sellers waiting for approval.
+          </p>
+        </div>
+      ) : (
+        <div className="admin-list-card">
+          {sellers.map((seller, index) => (
+            <div
+              key={seller.id}
+              style={{
+                padding: '18px 0',
+                borderBottom:
+                  index === sellers.length - 1
+                    ? 'none'
+                    : '1px solid #eee',
+              }}
+            >
+              {/* Seller information */}
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'flex-start',
+                  gap: 12,
+                }}
+              >
+                <div
+                  style={{
+                    minWidth: 0,
+                    flex: 1,
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: '1rem',
+                      fontWeight: 700,
+                      marginBottom: 5,
+                    }}
+                  >
+                    {seller.user?.name || 'Unnamed seller'}
+                  </div>
+
+                  <div
+                    style={{
+                      color: '#666',
+                      fontSize: '0.9rem',
+                      overflowWrap: 'anywhere',
+                    }}
+                  >
+                    {seller.user?.email || 'No email'}
+                  </div>
+
+                  {seller.user?.phone && (
+                    <div
+                      style={{
+                        marginTop: 3,
+                        color: '#666',
+                        fontSize: '0.9rem',
+                      }}
+                    >
+                      {seller.user.phone}
+                    </div>
+                  )}
+
+                  {seller.shops?.length > 0 && (
+                    <div
+                      style={{
+                        marginTop: 10,
+                        fontSize: '0.9rem',
+                      }}
+                    >
+                      <span style={{ color: '#777' }}>Shop: </span>
+                      <strong>
+                        {seller.shops
+                          .map((shop) => shop.name)
+                          .join(', ')}
+                      </strong>
+                    </div>
+                  )}
+
+                  <div
+                    style={{
+                      marginTop: 8,
+                      color: '#888',
+                      fontSize: '0.8rem',
+                    }}
+                  >
+                    Applied{' '}
+                    {seller.createdAt
+                      ? new Date(
+                          seller.createdAt
+                        ).toLocaleDateString()
+                      : '-'}
+                  </div>
+                </div>
+
+                {/* Pending badge */}
+                <span
+                  style={{
+                    flexShrink: 0,
+                    padding: '4px 8px',
+                    borderRadius: 999,
+                    background: '#fff7ed',
+                    color: '#c2410c',
+                    fontSize: '0.72rem',
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  Pending
+                </span>
+              </div>
+
+              {/* Actions */}
+              <div
+                style={{
+                  display: 'flex',
+                  gap: 10,
+                  marginTop: 16,
+                }}
+              >
+                <button
+                  type="button"
+                  className="btn btn-primary btn-sm"
+                  style={{
+                    flex: 1,
+                  }}
+                  disabled={processingId === seller.id}
+                  onClick={() =>
+                    handleApproval(seller.id, 'APPROVED')
+                  }
+                >
+                  {processingId === seller.id
+                    ? 'Processing...'
+                    : 'Approve'}
+                </button>
+
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-sm"
+                  style={{
+                    flex: 1,
+                  }}
+                  disabled={processingId === seller.id}
+                  onClick={() =>
+                    handleApproval(seller.id, 'REJECTED')
+                  }
+                >
+                  {processingId === seller.id
+                    ? 'Processing...'
+                    : 'Reject'}
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -187,6 +469,7 @@ export default function AdminLayout() {
         <Routes>
           <Route index element={<AdminDashboard />} />
           <Route path="users" element={<AdminUsers />} />
+          <Route path="sellers" element={<AdminSellers />} />
           <Route path="products" element={<AdminProducts />} />
           <Route path="shops" element={<AdminShops />} />
           <Route path="categories" element={<AdminCategories />} />

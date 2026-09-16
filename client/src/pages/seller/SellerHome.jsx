@@ -43,18 +43,37 @@ export default function SellerHome() {
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-              <Link to="/seller/add-product" className="btn btn-primary" style={{ flex: 1 }}><PlusCircle size={18} /> Add Product</Link>
-              <Link to="/seller/products" className="btn btn-secondary" style={{ flex: 1 }}><Package size={18} /> My Products</Link>
-            </div>
+           <div className="seller-dashboard-actions">
+  <Link to="/seller/add-product" className="btn btn-primary">
+    <PlusCircle size={18} /> Add Product
+  </Link>
+
+  <Link to="/seller/products" className="btn btn-secondary">
+    <Package size={18} /> My Products
+  </Link>
+</div>
 
             {shops.map((shop) => (
-              <div key={shop.id} className="card" style={{ padding: 16, marginBottom: 12 }}>
-                <div style={{ fontWeight: 600, fontSize: '1.125rem' }}>{shop.name}</div>
-                {shop.location && <div style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)', marginTop: 4 }}>📍 {shop.location.area}</div>}
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: 4 }}>{shop._count?.products || 0} products</div>
-              </div>
-            ))}
+  <div key={shop.id} className="seller-shop-card">
+    <div className="seller-shop-icon">
+      <Store size={20} />
+    </div>
+
+    <div className="seller-shop-info">
+      <div className="seller-shop-name">{shop.name}</div>
+
+      {shop.location && (
+        <div className="seller-shop-location">
+          📍 {shop.location.area}
+        </div>
+      )}
+
+      <div className="seller-shop-products">
+        {shop._count?.products || 0} products
+      </div>
+    </div>
+  </div>
+))}
           </>
         )}
       </div>

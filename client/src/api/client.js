@@ -88,6 +88,13 @@ export const api = {
   createCategory: (data) => request('/admin/categories', { method: 'POST', body: JSON.stringify(data) }),
   getAdminShops: () => request('/admin/shops'),
   toggleShopStatus: (id, isActive) => request(`/admin/shops/${id}/status`, { method: 'PATCH', body: JSON.stringify({ isActive }) }),
+
+  getPendingSellers: () => request('/admin/sellers/pending'),
+  approveSeller: (id, approvalStatus) =>
+    request(`/admin/sellers/${id}/approval`, {
+    method: 'PATCH',
+    body: JSON.stringify({ approvalStatus }),
+  }),
 };
 
 export function formatPrice(price, currency = 'TSh') {

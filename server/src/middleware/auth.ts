@@ -52,3 +52,43 @@ export function requireRole(...roles: Role[]) {
     next();
   };
 }
+
+export async function requireApprovedSeller(
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) {
+  if (!req.user) {
+    return res.status(401).json({ error: 'Authentication required' });
+  }
+
+  try {
+    const sellerProfile = await prisma.sellerProfile.findUnique({
+      where: { userId: req.user.id },
+      select: { approvalStatus: true },
+    });
+
+    if (!sellerProfile) {
+      return res.status(403).json({ error: 'Seller profile not found' });
+    }
+
+    if (sellerProfile.approvalStatus === 'PENDING') {
+      return res.status(403).json({
+        error: 'Your seller account is pending admin approval',
+        approvalStatus: 'PENDING',
+      });
+    }
+
+    if (sellerProfile.approvalStatus === 'REJECTED') {
+      return res.status(403).json({
+        error: 'Your seller application has been rejected',
+        approvalStatus: 'REJECTED',
+      });
+    }
+
+    next();
+  } catch (error) {
+    console.error('Seller approval check failed:', error);
+    return res.status(500).json({ error: 'Failed to verify seller approval' });
+  }
+}

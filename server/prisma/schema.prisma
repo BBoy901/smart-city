@@ -45,13 +45,14 @@ model CustomerProfile {
 }
 
 model SellerProfile {
-  id          String   @id @default(uuid())
-  userId      String   @unique @map("user_id")
-  description String?
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  shops       Shop[]
+  id             String         @id @default(uuid())
+  userId         String         @unique @map("user_id")
+  description    String?
+  approvalStatus SellerApproval @default(PENDING) @map("approval_status")
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  shops          Shop[]
 
   @@map("seller_profiles")
 }
@@ -290,4 +291,10 @@ enum Availability {
 enum ActiveMode {
   CUSTOMER
   SELLER
+}
+
+enum SellerApproval {
+  PENDING
+  APPROVED
+  REJECTED
 }

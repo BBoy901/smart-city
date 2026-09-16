@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { LanguageProvider } from './context/LanguageContext';
 import BottomNav from './components/BottomNav';
 import Loading from './components/Loading';
 import SplashScreen from './components/SplashScreen';
@@ -12,10 +13,14 @@ import Saved from './pages/Saved';
 import Messages from './pages/Messages';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
+import Notifications from './pages/Notifications';
 import About from './pages/About';
+import Account from './pages/Account';
 import Login from './pages/Login';
+import Language from './pages/Language';
 import ResetPassword from './pages/ResetPassword';
 import Register from './pages/Register';
+import PrivacySecurity from './pages/PrivacySecurity';
 import Onboarding from './pages/Onboarding';
 import ProductDetail from './pages/ProductDetail';
 import ShopProfile from './pages/ShopProfile';
@@ -30,31 +35,90 @@ import AdminLayout from './pages/admin/AdminLayout';
 function AppLayout({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
+  const { isSellerMode } = useAuth();
   const touchStart = useRef(null);
-  const swipeRoutes = ['/', '/search', '/saved', '/messages', '/profile'];
-  const currentRoute = location.pathname === '/explore' ? '/' : location.pathname;
+
+  const customerSwipeRoutes = [
+    '/',
+    '/search',
+    '/saved',
+    '/messages',
+    '/profile',
+  ];
+
+  const sellerSwipeRoutes = [
+    '/seller',
+    '/seller/products',
+    '/seller/add-product',
+    '/messages',
+    '/profile',
+  ];
+
+  const swipeRoutes = isSellerMode
+    ? sellerSwipeRoutes
+    : customerSwipeRoutes;
+
+  const currentRoute =
+    location.pathname === '/explore'
+      ? '/'
+      : location.pathname;
 
   const handleTouchStart = (event) => {
-    if (!swipeRoutes.includes(currentRoute) || event.target.closest('.chat-thread, .chat-composer, .home-category-row')) return;
+    if (
+      !swipeRoutes.includes(currentRoute) ||
+event.target.closest(
+  '.chat-thread, .chat-composer, .home-category-row, .recent-searches'
+)
+    ) {
+      return;
+    }
+
     const touch = event.touches[0];
-    touchStart.current = { x: touch.clientX, y: touch.clientY };
+
+    touchStart.current = {
+      x: touch.clientX,
+      y: touch.clientY,
+    };
   };
 
   const handleTouchEnd = (event) => {
     if (!touchStart.current) return;
+
     const touch = event.changedTouches[0];
+
     const deltaX = touch.clientX - touchStart.current.x;
     const deltaY = touch.clientY - touchStart.current.y;
+
     touchStart.current = null;
-    if (Math.abs(deltaX) < 60 || Math.abs(deltaX) <= Math.abs(deltaY) * 1.3) return;
+
+    if (
+      Math.abs(deltaX) < 60 ||
+      Math.abs(deltaX) <= Math.abs(deltaY) * 1.3
+    ) {
+      return;
+    }
 
     const routeIndex = swipeRoutes.indexOf(currentRoute);
-    const nextIndex = deltaX < 0 ? routeIndex + 1 : routeIndex - 1;
-    if (nextIndex >= 0 && nextIndex < swipeRoutes.length) navigate(swipeRoutes[nextIndex]);
+
+    const nextIndex =
+      deltaX < 0
+        ? routeIndex + 1
+        : routeIndex - 1;
+
+    if (
+      nextIndex >= 0 &&
+      nextIndex < swipeRoutes.length
+    ) {
+      navigate(swipeRoutes[nextIndex]);
+    }
   };
 
   return (
-    <div className="app-container" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+    <div
+      className="app-container"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
       {children}
       <BottomNav />
     </div>
@@ -104,6 +168,7 @@ function AppRoutes() {
       <Route path="/messages" element={<AppLayout><Messages /></AppLayout>} />
       <Route path="/profile" element={<AppLayout><Profile /></AppLayout>} />
       <Route path="/settings" element={<AppLayout><Settings /></AppLayout>} />
+      <Route path="/notifications" element={<AppLayout><Notifications /></AppLayout>} />
       <Route path="/about" element={<AppLayout><About /></AppLayout>} />
       <Route path="/product/:id" element={<AppLayout><ProductDetail /></AppLayout>} />
       <Route path="/shop/:id" element={<AppLayout><ShopProfile /></AppLayout>} />
@@ -116,6 +181,29 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
+
+      <Route
+        path="/settings"
+        element={<AppLayout><Settings /></AppLayout>}
+      />
+
+      <Route
+        path="/account"
+        element={
+          <ProtectedRoute>
+            <AppLayout><Account /></AppLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+  path="/language"
+  element={
+    <AppLayout>
+      <Language />
+    </AppLayout>
+  }
+/>
 
       <Route
         path="/seller/setup"
@@ -140,6 +228,17 @@ function AppRoutes() {
         }
       />
 
+      <Route
+  path="/privacy-security"
+  element={
+    <ProtectedRoute>
+      <AppLayout><PrivacySecurity /></AppLayout>
+    </ProtectedRoute>
+  }
+/>
+
+
+
       <Route path="/admin/*" element={<AdminLayout />} />
 
       <Route
@@ -161,11 +260,13 @@ export default function App() {
     <>
       {showSplash && <SplashScreen onFinish={finishSplash} />}
 
-      <BrowserRouter>
-        <AuthProvider>
-          <AppRoutes />
-        </AuthProvider>
-      </BrowserRouter>
+<BrowserRouter>
+  <LanguageProvider>
+    <AuthProvider>
+      <AppRoutes />
+    </AuthProvider>
+  </LanguageProvider>
+</BrowserRouter>
     </>
   );
 }

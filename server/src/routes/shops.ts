@@ -1,6 +1,11 @@
 import { Router, Response } from 'express';
 import prisma from '../lib/prisma';
-import { authenticate, requireRole, AuthRequest } from '../middleware/auth';
+import {
+  authenticate,
+  requireRole,
+  requireApprovedSeller,
+  AuthRequest,
+} from '../middleware/auth';
 import { upload } from '../middleware/upload';
 import { Role } from '@prisma/client';
 
@@ -47,7 +52,7 @@ router.get('/seller/:sellerId', async (req, res) => {
   res.json(seller);
 });
 
-router.post('/', authenticate, requireRole(Role.SELLER), upload.single('logo'), async (req: AuthRequest, res: Response) => {
+router.post('/', authenticate, requireRole(Role.SELLER), requireApprovedSeller, upload.single('logo'), async (req: AuthRequest, res: Response) => {
   try {
     const seller = await prisma.sellerProfile.findUnique({ where: { userId: req.user!.id } });
     if (!seller) return res.status(404).json({ error: 'Seller profile not found' });
@@ -84,7 +89,7 @@ router.post('/', authenticate, requireRole(Role.SELLER), upload.single('logo'), 
   }
 });
 
-router.patch('/:id', authenticate, requireRole(Role.SELLER), upload.single('logo'), async (req: AuthRequest, res: Response) => {
+router.patch('/:id', authenticate, requireRole(Role.SELLER), requireApprovedSeller, upload.single('logo'), async (req: AuthRequest, res: Response) => {
   const shop = await prisma.shop.findUnique({
     where: { id: String(req.params.id) },
     include: { sellerProfile: true },
@@ -122,7 +127,7 @@ router.patch('/:id', authenticate, requireRole(Role.SELLER), upload.single('logo
   res.json(result);
 });
 
-router.post('/:id/location', authenticate, requireRole(Role.SELLER), async (req: AuthRequest, res: Response) => {
+router.post('/:id/location', authenticate, requireRole(Role.SELLER), requireApprovedSeller, async (req: AuthRequest, res: Response) => {
   const shop = await prisma.shop.findUnique({
     where: { id: String(req.params.id) },
     include: { sellerProfile: true },
@@ -165,7 +170,7 @@ router.post('/:id/location', authenticate, requireRole(Role.SELLER), async (req:
   res.json(location);
 });
 
-router.get('/my/shops', authenticate, requireRole(Role.SELLER), async (req: AuthRequest, res: Response) => {
+router.get('/my/shops', authenticate, requireRole(Role.SELLER), requireApprovedSeller, async (req: AuthRequest, res: Response) => {
   const seller = await prisma.sellerProfile.findUnique({
     where: { userId: req.user!.id },
     include: {
