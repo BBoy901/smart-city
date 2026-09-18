@@ -1,10 +1,34 @@
+import { useState } from 'react';
 import { KeyRound, LockKeyhole, ShieldCheck } from 'lucide-react';
-import { Link } from 'react-router-dom';
 import Header from '../components/Header';
+import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import { api } from '../api/client';
 
 export default function PrivacySecurity() {
   const { t } = useLanguage();
+  const { user } = useAuth();
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetError, setResetError] = useState('');
+  const [resetLink, setResetLink] = useState('');
+
+  const requestReset = async () => {
+    setResetLoading(true);
+    setResetError('');
+    setResetLink('');
+    try {
+      const data = await api.forgotPassword(user?.email);
+      if (data.resetToken) {
+        setResetLink(`${window.location.origin}/reset-password?token=${encodeURIComponent(data.resetToken)}`);
+      } else {
+        setResetError(t('settings.resetPasswordDescription'));
+      }
+    } catch (err) {
+      setResetError(err.message);
+    } finally {
+      setResetLoading(false);
+    }
+  };
 
   return (
     <div className="page settings-page">
@@ -18,9 +42,11 @@ export default function PrivacySecurity() {
           </div>
 
           <div className="settings-list">
-            <Link
-              to="/reset-password"
+            <button
+              type="button"
               className="settings-item"
+              onClick={requestReset}
+              disabled={resetLoading}
             >
               <span className="settings-item-label">
                 <KeyRound size={19} />
@@ -34,9 +60,17 @@ export default function PrivacySecurity() {
               </span>
 
               <span className="settings-item-value">
-                <span>{t('settings.secure')}</span>
+                <span>{resetLoading ? t('settings.saving') : t('settings.secure')}</span>
               </span>
-            </Link>
+            </button>
+
+            {resetError && <div className="alert alert-error">{resetError}</div>}
+            {resetLink && (
+              <div className="reset-link-result">
+                <span>Reset link ready</span>
+                <a href={resetLink}>{resetLink}</a>
+              </div>
+            )}
 
             <div className="settings-item">
               <span className="settings-item-label">

@@ -2,9 +2,12 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../../api/client';
 import Header from '../../components/Header';
+import SellerApprovalBanner from '../../components/SellerApprovalBanner';
+import { useAuth } from '../../context/AuthContext';
 
 export default function SellerSetup() {
   const navigate = useNavigate();
+  const { sellerApprovalStatus } = useAuth();
   const [categories, setCategories] = useState([]);
   const [form, setForm] = useState({
     name: '', description: '', phone: '', businessHours: '',
@@ -54,6 +57,7 @@ export default function SellerSetup() {
   return (
     <div className="page-no-nav" style={{ padding: '16px' }}>
       <Header title="Create Shop" showBack />
+      <SellerApprovalBanner status={sellerApprovalStatus} />
       {error && <div className="alert alert-error">{error}</div>}
 
       <form onSubmit={handleSubmit}>

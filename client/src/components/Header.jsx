@@ -1,10 +1,11 @@
-import { Settings as SettingsIcon } from 'lucide-react';
+import { ChevronLeft, Settings as SettingsIcon } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 export default function Header({
   title,
   right,
   titleRight,
+  showBack = false,
   showSettings = true,
 }) {
   const location = useLocation();
@@ -34,10 +35,29 @@ export default function Header({
   return (
     <header className="header">
       <div className="header-top-row">
-        <Link to="/" className="header-brand">
-          <span className="header-brand-mark" />
-          Smart City
-        </Link>
+        <div className="header-left">
+          {showBack && (
+            <button
+              type="button"
+              className="header-back"
+              onClick={() => navigate(-1)}
+              aria-label="Go back"
+            >
+              <ChevronLeft size={22} />
+            </button>
+          )}
+          <Link to="/" className="header-brand" aria-label="Smart City home">
+            <img
+              src="/smart-city-icon.png"
+              alt=""
+              className="header-brand-logo"
+            />
+            <span className="header-brand-name">
+              <span className="header-brand-smart">Smart</span>
+              <span className="header-brand-city">City</span>
+            </span>
+          </Link>
+        </div>
 
         <div className="header-actions">
           {right}

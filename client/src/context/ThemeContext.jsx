@@ -26,6 +26,10 @@ export function ThemeProvider({ children }) {
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
     document.documentElement.style.colorScheme = theme;
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) {
+      meta.setAttribute('content', theme === 'dark' ? '#0f172a' : '#ff9800');
+    }
   }, [theme]);
 
   return (

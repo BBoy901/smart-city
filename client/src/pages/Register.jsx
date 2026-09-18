@@ -30,16 +30,20 @@ export default function Register() {
   };
 
   return (
-    <div className="page-no-nav" style={{ padding: '32px 24px' }}>
-      <div style={{ textAlign: 'center', marginBottom: 32 }}>
-        <div style={{ fontSize: '2.5rem', marginBottom: 8 }}>🏙️</div>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 700 }}>Join Smart City</h1>
-        <p style={{ color: 'var(--text-secondary)' }}>Discover products & sellers near you</p>
+    <div className="page-no-nav auth-page">
+      <div className="auth-brand">
+        <img src="/smart-city-icon.png" alt="" className="header-brand-logo" />
+        <span className="header-brand-name">
+          <span className="header-brand-smart">Smart</span>
+          <span className="header-brand-city">City</span>
+        </span>
       </div>
+      <h1 className="auth-title">Join Smart City</h1>
+      <p className="auth-subtitle">Discover products and sellers near you</p>
 
       {error && <div className="alert alert-error">{error}</div>}
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="auth-form">
         <div className="form-group">
           <label className="form-label">Full Name</label>
           <input className="form-input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
@@ -54,17 +58,22 @@ export default function Register() {
         </div>
         <div className="form-group">
           <label className="form-label">Password</label>
-          <div className="password-field"><input className="form-input" type={showPassword ? 'text' : 'password'} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required minLength={6} /><button type="button" onClick={() => setShowPassword((visible) => !visible)} aria-label={showPassword ? 'Hide password' : 'Show password'}>{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button></div>
+          <div className="password-field">
+            <input className="form-input" type={showPassword ? 'text' : 'password'} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required minLength={6} />
+            <button type="button" onClick={() => setShowPassword((visible) => !visible)} aria-label={showPassword ? 'Hide password' : 'Show password'}>
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
         </div>
 
         <div className="form-group">
           <label className="form-label">I want to start as</label>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button type="button" className={`btn ${form.initialRole === 'CUSTOMER' ? 'btn-primary' : 'btn-secondary'}`} style={{ flex: 1 }} onClick={() => setForm({ ...form, initialRole: 'CUSTOMER' })}>
-              🛍️ Customer
+          <div className="role-toggle">
+            <button type="button" className={form.initialRole === 'CUSTOMER' ? 'btn btn-primary' : 'btn btn-secondary'} onClick={() => setForm({ ...form, initialRole: 'CUSTOMER' })}>
+              Customer
             </button>
-            <button type="button" className={`btn ${form.initialRole === 'SELLER' ? 'btn-primary' : 'btn-secondary'}`} style={{ flex: 1 }} onClick={() => setForm({ ...form, initialRole: 'SELLER' })}>
-              🏪 Seller
+            <button type="button" className={form.initialRole === 'SELLER' ? 'btn btn-primary' : 'btn btn-secondary'} onClick={() => setForm({ ...form, initialRole: 'SELLER' })}>
+              Seller
             </button>
           </div>
         </div>
@@ -74,8 +83,8 @@ export default function Register() {
         </button>
       </form>
 
-      <p style={{ textAlign: 'center', marginTop: 24, fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-        Already have an account? <Link to="/login" style={{ color: 'var(--primary)', fontWeight: 600 }}>Login</Link>
+      <p className="auth-footer">
+        Already have an account? <Link to="/login">Login</Link>
       </p>
     </div>
   );

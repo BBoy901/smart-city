@@ -1,32 +1,43 @@
 import { useEffect, useState } from 'react';
 
+const SPLASH_KEY = 'smart-city-splash-seen';
+
 export default function SplashScreen({ onFinish }) {
-  const [hide, setHide] = useState(false);
+  const alreadySeen = typeof sessionStorage !== 'undefined' && sessionStorage.getItem(SPLASH_KEY) === '1';
+  const [hide, setHide] = useState(alreadySeen);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setHide(true);
+    if (alreadySeen) {
+      onFinish();
+      return undefined;
+    }
 
-      setTimeout(() => {
-        onFinish();
-      }, 500);
-    }, 3500);
+    const hideTimer = setTimeout(() => setHide(true), 1200);
+    const finishTimer = setTimeout(() => {
+      sessionStorage.setItem(SPLASH_KEY, '1');
+      onFinish();
+    }, 1600);
 
-    return () => clearTimeout(timer);
-  }, [onFinish]);
+    return () => {
+      clearTimeout(hideTimer);
+      clearTimeout(finishTimer);
+    };
+  }, [alreadySeen, onFinish]);
+
+  if (alreadySeen) return null;
 
   return (
     <div className={`splash-screen ${hide ? 'splash-hide' : ''}`}>
-      <div className="splash-content">
-        <div className="splash-logo">🏙️</div>
+      <img
+        src="/smart-city-splash.png"
+        alt="Smart City"
+        className="splash-image"
+      />
 
-        <h1>Smart City</h1>
-
-        <div className="splash-loader">
-          <span></span>
-          <span></span>
-          <span></span>
-        </div>
+      <div className="splash-loader" aria-label="Loading">
+        <span />
+        <span />
+        <span />
       </div>
     </div>
   );

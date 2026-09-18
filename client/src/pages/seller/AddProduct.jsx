@@ -1,10 +1,15 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { api } from '../../api/client';
 import Header from '../../components/Header';
+import SellerApprovalBanner from '../../components/SellerApprovalBanner';
+import { useAuth } from '../../context/AuthContext';
 
 export default function AddProduct() {
   const navigate = useNavigate();
+  const { id } = useParams();
+  const isEdit = Boolean(id);
+  const { sellerApprovalStatus, isApprovedSeller } = useAuth();
   const [shops, setShops] = useState([]);
   const [categories, setCategories] = useState([]);
   const [form, setForm] = useState({
@@ -13,19 +18,43 @@ export default function AddProduct() {
   const [images, setImages] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [pageLoading, setPageLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
-    Promise.all([api.getMyShops(), api.getCategories()])
-      .then(([s, c]) => {
+    Promise.all([
+      api.getMyShops(),
+      api.getCategories(),
+      isEdit ? api.getMyProducts().catch(() => []) : Promise.resolve([]),
+    ])
+      .then(([s, c, products]) => {
         setShops(s);
         setCategories(c);
-        if (s.length > 0) setForm((f) => ({ ...f, shopId: s[0].id }));
+        if (isEdit) {
+          const product = products.find((p) => p.id === id);
+          if (!product) {
+            setNotFound(true);
+            return;
+          }
+          setForm({
+            shopId: product.shopId || product.shop?.id || '',
+            name: product.name || '',
+            description: product.description || '',
+            price: product.price != null ? String(product.price) : '',
+            categoryId: product.categoryId || product.category?.id || '',
+            availability: product.availability || 'IN_STOCK',
+          });
+        } else if (s.length > 0) {
+          setForm((f) => ({ ...f, shopId: s[0].id }));
+        }
       })
-      .catch(console.error);
-  }, []);
+      .catch(console.error)
+      .finally(() => setPageLoading(false));
+  }, [id, isEdit]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!isApprovedSeller) return;
     setError('');
     setLoading(true);
     try {
@@ -33,7 +62,11 @@ export default function AddProduct() {
       Object.entries(form).forEach(([k, v]) => { if (v) fd.append(k, v); });
       images.forEach((img) => fd.append('images', img));
 
-      await api.createProduct(fd);
+      if (isEdit) {
+        await api.updateProduct(id, fd);
+      } else {
+        await api.createProduct(fd);
+      }
       navigate('/seller/products');
     } catch (err) {
       setError(err.message);
@@ -42,10 +75,40 @@ export default function AddProduct() {
     }
   };
 
+  const title = isEdit ? 'Edit Product' : 'Add Product';
+
+  if (pageLoading) {
+    return (
+      <div className="page">
+        <Header title={title} showBack />
+      </div>
+    );
+  }
+
+  if (!isApprovedSeller) {
+    return (
+      <div className="page">
+        <Header title={title} showBack />
+        <SellerApprovalBanner status={sellerApprovalStatus} />
+      </div>
+    );
+  }
+
+  if (notFound) {
+    return (
+      <div className="page">
+        <Header title={title} showBack />
+        <div className="empty-state">
+          <h3>Product not found</h3>
+        </div>
+      </div>
+    );
+  }
+
   if (shops.length === 0) {
     return (
       <div className="page">
-        <Header title="Add Product" showBack />
+        <Header title={title} showBack />
         <div className="empty-state">
           <h3>Create a shop first</h3>
           <button className="btn btn-primary" style={{ marginTop: 16 }} onClick={() => navigate('/seller/setup')}>Create Shop</button>
@@ -56,7 +119,7 @@ export default function AddProduct() {
 
   return (
     <div className="page-no-nav">
-      <Header title="Add Product" showBack />
+      <Header title={title} showBack />
       {error && <div className="alert alert-error">{error}</div>}
 
       <form onSubmit={handleSubmit} className="seller-product-form">
@@ -94,12 +157,12 @@ export default function AddProduct() {
           </select>
         </div>
         <div className="form-group">
-          <label className="form-label">Product Images</label>
+          <label className="form-label">{isEdit ? 'Add more images' : 'Product Images'}</label>
           <input type="file" accept="image/*" multiple onChange={(e) => setImages(Array.from(e.target.files))} />
         </div>
 
         <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
-          {loading ? 'Publishing...' : 'Publish Product'}
+          {loading ? (isEdit ? 'Saving...' : 'Publishing...') : (isEdit ? 'Save Changes' : 'Publish Product')}
         </button>
       </form>
     </div>

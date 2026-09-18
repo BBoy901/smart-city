@@ -4,7 +4,7 @@ function getToken() {
   return localStorage.getItem('token');
 }
 
-async function request(endpoint, options = {}) {
+async function request(endpoint, options = {}, attempt = 1) {
   const token = getToken();
   const headers = { ...options.headers };
   if (token) headers.Authorization = `Bearer ${token}`;
@@ -12,7 +12,16 @@ async function request(endpoint, options = {}) {
     headers['Content-Type'] = 'application/json';
   }
 
-  const res = await fetch(`${API_BASE}${endpoint}`, { ...options, headers });
+  let res;
+  try {
+    res = await fetch(`${API_BASE}${endpoint}`, { ...options, headers });
+  } catch (err) {
+    if (attempt < 2) {
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      return request(endpoint, options, attempt + 1);
+    }
+    throw err;
+  }
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: 'Request failed' }));

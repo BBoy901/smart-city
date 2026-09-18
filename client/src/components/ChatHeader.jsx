@@ -17,8 +17,11 @@ export default function ChatHeader({ name, avatar }) {
     <header className="chat-header">
       <div className="chat-header-top">
         <div className="chat-header-brand">
-          <span className="header-brand-mark" />
-          Smart City
+          <img src="/smart-city-icon.png" alt="" className="header-brand-logo" />
+          <span className="header-brand-name">
+            <span className="header-brand-smart">Smart</span>
+            <span className="header-brand-city">City</span>
+          </span>
         </div>
 
         <button

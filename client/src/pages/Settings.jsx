@@ -4,7 +4,10 @@ import {
   Info,
   Languages,
   LockKeyhole,
+  Monitor,
+  Moon,
   Palette,
+  Sun,
   UserRound,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -16,22 +19,22 @@ export default function Settings() {
   const { appearance, setAppearance } = useTheme();
   const { language, t } = useLanguage();
   const appearanceOptions = [
-  {
-    value: 'light',
-    label: t('settings.appearanceLight'),
-    icon: '☀️',
-  },
-  {
-    value: 'dark',
-    label: t('settings.appearanceDark'),
-    icon: '🌙',
-  },
-  {
-    value: 'system',
-    label: t('settings.appearanceSystem'),
-    icon: '⚙️',
-  },
-];
+    {
+      value: 'light',
+      label: t('settings.appearanceLight'),
+      icon: Sun,
+    },
+    {
+      value: 'dark',
+      label: t('settings.appearanceDark'),
+      icon: Moon,
+    },
+    {
+      value: 'system',
+      label: t('settings.appearanceSystem'),
+      icon: Monitor,
+    },
+  ];
 
   const settingsLinks = [
     {
@@ -91,7 +94,7 @@ export default function Settings() {
                   aria-pressed={isActive}
                 >
                   <span className="appearance-icon">
-                    {option.icon}
+                    <option.icon size={18} />
                   </span>
 
                   <span className="appearance-label">

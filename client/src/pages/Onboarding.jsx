@@ -30,12 +30,16 @@ export default function Onboarding() {
   };
 
   return (
-    <div className="page-no-nav" style={{ padding: '32px 24px' }}>
-      <div className="standalone-brand"><span className="header-brand-mark" />Smart City</div>
-      <div style={{ textAlign: 'center', marginBottom: 32 }}>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 700 }}>What are you interested in?</h1>
-        <p style={{ color: 'var(--text-secondary)', marginTop: 8 }}>Select categories to personalize your feed</p>
+    <div className="page-no-nav auth-page">
+      <div className="auth-brand">
+        <img src="/smart-city-icon.png" alt="" className="header-brand-logo" />
+        <span className="header-brand-name">
+          <span className="header-brand-smart">Smart</span>
+          <span className="header-brand-city">City</span>
+        </span>
       </div>
+      <h1 className="auth-title">What are you interested in?</h1>
+      <p className="auth-subtitle">Select categories to personalize your feed</p>
 
       <div className="chips-row" style={{ justifyContent: 'center', marginBottom: 32 }}>
         {categories.map((c) => (

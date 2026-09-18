@@ -124,229 +124,73 @@ function AdminSellers() {
 
   return (
     <div>
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 12,
-          marginBottom: 8,
-        }}
-      >
-        <h1
-          style={{
-            fontSize: '1.5rem',
-            fontWeight: 700,
-            margin: 0,
-          }}
-        >
-          Pending Sellers
-        </h1>
-
-        <span
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            minWidth: 28,
-            height: 28,
-            padding: '0 8px',
-            borderRadius: 999,
-            background: '#f3f4f6',
-            fontSize: '0.85rem',
-            fontWeight: 700,
-          }}
-        >
-          {sellers.length}
-        </span>
+      <div className="admin-section-heading">
+        <h1 className="admin-page-title admin-page-title-inline">Pending Sellers</h1>
+        <span className="admin-count-badge">{sellers.length}</span>
       </div>
 
-      <p
-        style={{
-          margin: '0 0 24px',
-          color: '#666',
-          fontSize: '0.95rem',
-        }}
-      >
+      <p className="admin-section-copy">
         Review sellers waiting for admin approval.
       </p>
 
       {sellers.length === 0 ? (
-        <div
-          className="admin-list-card"
-          style={{
-            padding: 24,
-            textAlign: 'center',
-          }}
-        >
-          <div
-            style={{
-              fontSize: '2rem',
-              marginBottom: 8,
-            }}
-          >
-            ✓
-          </div>
-
+        <div className="admin-list-card admin-empty-card">
+          <div className="admin-empty-icon">✓</div>
           <strong>All caught up</strong>
-
-          <p
-            style={{
-              margin: '6px 0 0',
-              color: '#777',
-              fontSize: '0.9rem',
-            }}
-          >
-            There are no sellers waiting for approval.
-          </p>
+          <p>There are no sellers waiting for approval.</p>
         </div>
       ) : (
         <div className="admin-list-card">
           {sellers.map((seller, index) => (
             <div
               key={seller.id}
-              style={{
-                padding: '18px 0',
-                borderBottom:
-                  index === sellers.length - 1
-                    ? 'none'
-                    : '1px solid #eee',
-              }}
+              className={`admin-seller-row${index === sellers.length - 1 ? ' is-last' : ''}`}
             >
-              {/* Seller information */}
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'flex-start',
-                  gap: 12,
-                }}
-              >
-                <div
-                  style={{
-                    minWidth: 0,
-                    flex: 1,
-                  }}
-                >
-                  <div
-                    style={{
-                      fontSize: '1rem',
-                      fontWeight: 700,
-                      marginBottom: 5,
-                    }}
-                  >
+              <div className="admin-seller-top">
+                <div className="admin-seller-info">
+                  <div className="admin-seller-name">
                     {seller.user?.name || 'Unnamed seller'}
                   </div>
-
-                  <div
-                    style={{
-                      color: '#666',
-                      fontSize: '0.9rem',
-                      overflowWrap: 'anywhere',
-                    }}
-                  >
+                  <div className="admin-seller-meta">
                     {seller.user?.email || 'No email'}
                   </div>
-
                   {seller.user?.phone && (
-                    <div
-                      style={{
-                        marginTop: 3,
-                        color: '#666',
-                        fontSize: '0.9rem',
-                      }}
-                    >
-                      {seller.user.phone}
-                    </div>
+                    <div className="admin-seller-meta">{seller.user.phone}</div>
                   )}
-
                   {seller.shops?.length > 0 && (
-                    <div
-                      style={{
-                        marginTop: 10,
-                        fontSize: '0.9rem',
-                      }}
-                    >
-                      <span style={{ color: '#777' }}>Shop: </span>
+                    <div className="admin-seller-shop">
+                      <span>Shop: </span>
                       <strong>
-                        {seller.shops
-                          .map((shop) => shop.name)
-                          .join(', ')}
+                        {seller.shops.map((shop) => shop.name).join(', ')}
                       </strong>
                     </div>
                   )}
-
-                  <div
-                    style={{
-                      marginTop: 8,
-                      color: '#888',
-                      fontSize: '0.8rem',
-                    }}
-                  >
+                  <div className="admin-seller-date">
                     Applied{' '}
                     {seller.createdAt
-                      ? new Date(
-                          seller.createdAt
-                        ).toLocaleDateString()
+                      ? new Date(seller.createdAt).toLocaleDateString()
                       : '-'}
                   </div>
                 </div>
-
-                {/* Pending badge */}
-                <span
-                  style={{
-                    flexShrink: 0,
-                    padding: '4px 8px',
-                    borderRadius: 999,
-                    background: '#fff7ed',
-                    color: '#c2410c',
-                    fontSize: '0.72rem',
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                  }}
-                >
-                  Pending
-                </span>
+                <span className="admin-pending-badge">Pending</span>
               </div>
 
-              {/* Actions */}
-              <div
-                style={{
-                  display: 'flex',
-                  gap: 10,
-                  marginTop: 16,
-                }}
-              >
+              <div className="admin-seller-actions">
                 <button
                   type="button"
                   className="btn btn-primary btn-sm"
-                  style={{
-                    flex: 1,
-                  }}
                   disabled={processingId === seller.id}
-                  onClick={() =>
-                    handleApproval(seller.id, 'APPROVED')
-                  }
+                  onClick={() => handleApproval(seller.id, 'APPROVED')}
                 >
-                  {processingId === seller.id
-                    ? 'Processing...'
-                    : 'Approve'}
+                  {processingId === seller.id ? 'Processing...' : 'Approve'}
                 </button>
-
                 <button
                   type="button"
                   className="btn btn-secondary btn-sm"
-                  style={{
-                    flex: 1,
-                  }}
                   disabled={processingId === seller.id}
-                  onClick={() =>
-                    handleApproval(seller.id, 'REJECTED')
-                  }
+                  onClick={() => handleApproval(seller.id, 'REJECTED')}
                 >
-                  {processingId === seller.id
-                    ? 'Processing...'
-                    : 'Reject'}
+                  {processingId === seller.id ? 'Processing...' : 'Reject'}
                 </button>
               </div>
             </div>
@@ -370,7 +214,7 @@ function AdminUsers() {
 
   return (
     <div>
-      <h1 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: 24 }}>{role === 'SELLER' ? 'Sellers' : 'Customers'}</h1>
+      <h1 className="admin-page-title">{role === 'SELLER' ? 'Sellers' : 'Customers'}</h1>
       <table className="admin-table">
         <thead><tr><th>Name</th><th>Email</th><th>Roles</th><th>Status</th><th>Action</th></tr></thead>
         <tbody>
@@ -400,7 +244,7 @@ function AdminProducts() {
 
   return (
     <div>
-      <h1 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: 24 }}>Products</h1>
+      <h1 className="admin-page-title">Products</h1>
       <table className="admin-table">
         <thead><tr><th>Name</th><th>Shop</th><th>Price</th><th>Views</th><th>Status</th><th>Action</th></tr></thead>
         <tbody>
@@ -431,7 +275,7 @@ function AdminShops() {
 
   return (
     <div>
-      <h1 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: 24 }}>Shops</h1>
+      <h1 className="admin-page-title">Shops</h1>
       <table className="admin-table">
         <thead><tr><th>Name</th><th>Owner</th><th>Area</th><th>Products</th><th>Status</th><th>Action</th></tr></thead>
         <tbody>
@@ -456,7 +300,12 @@ export default function AdminLayout() {
   const navigate = useNavigate();
 
   if (!user?.roles?.includes('ADMIN')) {
-    return <div style={{ padding: 48, textAlign: 'center' }}><h2>Admin access required</h2><Link to="/login">Login</Link></div>;
+    return (
+      <div className="admin-access-denied">
+        <h2>Admin access required</h2>
+        <Link to="/login">Login</Link>
+      </div>
+    );
   }
 
   return (
@@ -493,9 +342,9 @@ function AdminCategories() {
 
   return (
     <div>
-      <h1 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: 24 }}>Categories</h1>
-      <form onSubmit={handleCreate} style={{ display: 'flex', gap: 8, marginBottom: 24 }}>
-        <input className="form-input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Category name" required style={{ maxWidth: 300 }} />
+      <h1 className="admin-page-title">Categories</h1>
+      <form onSubmit={handleCreate} className="admin-category-form">
+        <input className="form-input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Category name" required />
         <button type="submit" className="btn btn-primary btn-sm">Add</button>
       </form>
       <table className="admin-table">

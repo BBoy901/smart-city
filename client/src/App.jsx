@@ -32,6 +32,10 @@ import AddProduct from './pages/seller/AddProduct';
 
 import AdminLayout from './pages/admin/AdminLayout';
 
+function AuthShell({ children }) {
+  return <div className="app-container auth-shell">{children}</div>;
+}
+
 function AppLayout({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
@@ -159,15 +163,14 @@ function AppRoutes() {
 
       <Route path="/explore" element={<AppLayout><Home /></AppLayout>} />
       <Route path="/welcome" element={<Welcome />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/reset-password" element={<ResetPassword />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
+      <Route path="/login" element={<AuthShell><Login /></AuthShell>} />
+      <Route path="/reset-password" element={<AuthShell><ResetPassword /></AuthShell>} />
+      <Route path="/register" element={<AuthShell><Register /></AuthShell>} />
+      <Route path="/onboarding" element={<ProtectedRoute><AuthShell><Onboarding /></AuthShell></ProtectedRoute>} />
       <Route path="/search" element={<AppLayout><Search /></AppLayout>} />
       <Route path="/saved" element={<AppLayout><Saved /></AppLayout>} />
       <Route path="/messages" element={<AppLayout><Messages /></AppLayout>} />
       <Route path="/profile" element={<AppLayout><Profile /></AppLayout>} />
-      <Route path="/settings" element={<AppLayout><Settings /></AppLayout>} />
       <Route path="/notifications" element={<AppLayout><Notifications /></AppLayout>} />
       <Route path="/about" element={<AppLayout><About /></AppLayout>} />
       <Route path="/product/:id" element={<AppLayout><ProductDetail /></AppLayout>} />
@@ -207,7 +210,7 @@ function AppRoutes() {
 
       <Route
         path="/seller/setup"
-        element={<ProtectedRoute><SellerSetup /></ProtectedRoute>}
+        element={<ProtectedRoute><AuthShell><SellerSetup /></AuthShell></ProtectedRoute>}
       />
 
       <Route
@@ -221,6 +224,15 @@ function AppRoutes() {
 
       <Route
         path="/seller/add-product"
+        element={
+          <ProtectedRoute requireSeller>
+            <AppLayout><AddProduct /></AppLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/seller/edit-product/:id"
         element={
           <ProtectedRoute requireSeller>
             <AppLayout><AddProduct /></AppLayout>

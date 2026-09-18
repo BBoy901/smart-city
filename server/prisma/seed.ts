@@ -1,4 +1,4 @@
-import { PrismaClient, Role } from '@prisma/client';
+import { PrismaClient, Role, SellerApproval } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
@@ -50,7 +50,12 @@ async function main() {
       phone: '+255712345678',
       roles: [Role.SELLER],
       activeMode: 'SELLER',
-      sellerProfile: { create: { description: 'Quality shoes in Kariakoo since 2010' } },
+      sellerProfile: {
+        create: {
+          description: 'Quality shoes in Kariakoo since 2010',
+          approvalStatus: SellerApproval.APPROVED,
+        },
+      },
     },
     update: {},
     include: { sellerProfile: true },
@@ -58,7 +63,14 @@ async function main() {
 
   let sellerProfile = seller.sellerProfile;
   if (!sellerProfile) {
-    sellerProfile = await prisma.sellerProfile.create({ data: { userId: seller.id } });
+    sellerProfile = await prisma.sellerProfile.create({
+      data: { userId: seller.id, approvalStatus: SellerApproval.APPROVED },
+    });
+  } else if (sellerProfile.approvalStatus !== SellerApproval.APPROVED) {
+    sellerProfile = await prisma.sellerProfile.update({
+      where: { id: sellerProfile.id },
+      data: { approvalStatus: SellerApproval.APPROVED },
+    });
   }
 
   const fashionCat = await prisma.category.findUnique({ where: { slug: 'shoes' } });
@@ -123,7 +135,12 @@ async function main() {
       phone: '+255723456789',
       roles: [Role.SELLER],
       activeMode: 'SELLER',
-      sellerProfile: { create: { description: 'Phones, accessories and electronics' } },
+      sellerProfile: {
+        create: {
+          description: 'Phones, accessories and electronics',
+          approvalStatus: SellerApproval.APPROVED,
+        },
+      },
     },
     update: {},
     include: { sellerProfile: true },
@@ -131,7 +148,14 @@ async function main() {
 
   let seller2Profile = seller2.sellerProfile;
   if (!seller2Profile) {
-    seller2Profile = await prisma.sellerProfile.create({ data: { userId: seller2.id } });
+    seller2Profile = await prisma.sellerProfile.create({
+      data: { userId: seller2.id, approvalStatus: SellerApproval.APPROVED },
+    });
+  } else if (seller2Profile.approvalStatus !== SellerApproval.APPROVED) {
+    seller2Profile = await prisma.sellerProfile.update({
+      where: { id: seller2Profile.id },
+      data: { approvalStatus: SellerApproval.APPROVED },
+    });
   }
 
   const techShop = await prisma.shop.upsert({

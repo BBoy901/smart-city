@@ -33,6 +33,7 @@ keepAccountSecureDescription:
 accountInformation: 'Taarifa za akaunti',
 name: 'Jina',
 email: 'Barua pepe',
+phone: 'Simu',
 saveChanges: 'Hifadhi Mabadiliko',
 saving: 'Inahifadhi...',
 accountUpdated: 'Akaunti imesasishwa kikamilifu.',

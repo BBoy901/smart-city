@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Mail, UserRound } from 'lucide-react';
+import { Mail, Phone, UserRound } from 'lucide-react';
 import Header from '../components/Header';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -12,6 +12,7 @@ export default function Account() {
   const [form, setForm] = useState({
     name: '',
     email: '',
+    phone: '',
   });
 
   const [saving, setSaving] = useState(false);
@@ -24,6 +25,7 @@ export default function Account() {
     setForm({
       name: user.name || '',
       email: user.email || '',
+      phone: user.phone || '',
     });
   }, [user]);
 
@@ -49,7 +51,7 @@ export default function Account() {
     try {
       await api.updateProfile({
         name: form.name.trim(),
-        email: form.email.trim(),
+        phone: form.phone.trim(),
       });
 
       await refreshUser();
@@ -140,8 +142,31 @@ export default function Account() {
                   type="email"
                   className="form-input"
                   value={form.email}
+                  readOnly
+                  disabled
+                />
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label
+                className="form-label"
+                htmlFor="account-phone"
+              >
+                {t('settings.phone')}
+              </label>
+
+              <div className="account-input-wrap">
+                <Phone size={17} />
+
+                <input
+                  id="account-phone"
+                  name="phone"
+                  type="tel"
+                  className="form-input"
+                  value={form.phone}
                   onChange={handleChange}
-                  required
+                  placeholder="+255..."
                 />
               </div>
             </div>

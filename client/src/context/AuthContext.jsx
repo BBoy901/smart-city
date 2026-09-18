@@ -82,11 +82,15 @@ export function AuthProvider({ children }) {
   const isSeller = user?.roles?.includes('SELLER');
   const isAdmin = user?.roles?.includes('ADMIN');
   const isSellerMode = user?.activeMode === 'SELLER';
+  const sellerApprovalStatus = user?.sellerProfile?.approvalStatus || null;
+  const isApprovedSeller =
+    sellerApprovalStatus !== 'PENDING' && sellerApprovalStatus !== 'REJECTED';
 
   return (
     <AuthContext.Provider value={{
       user, loading, login, register, logout, refreshUser, switchMode, addRole,
-      isCustomer, isSeller, isAdmin, isSellerMode, unreadMessages, refreshUnreadMessages,
+      isCustomer, isSeller, isAdmin, isSellerMode, sellerApprovalStatus, isApprovedSeller,
+      unreadMessages, refreshUnreadMessages,
       chatOpen, setChatOpen, isAuthenticated: !!user,
     }}>
       {children}

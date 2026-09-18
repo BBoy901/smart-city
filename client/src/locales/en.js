@@ -31,6 +31,7 @@ keepAccountSecureDescription:
 accountInformation: 'Account information',
 name: 'Name',
 email: 'Email',
+phone: 'Phone',
 saveChanges: 'Save Changes',
 saving: 'Saving...',
 accountUpdated: 'Account updated successfully.',

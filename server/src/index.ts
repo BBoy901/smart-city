@@ -1,7 +1,7 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
-import dotenv from 'dotenv';
 
 import authRoutes from './routes/auth';
 import categoryRoutes from './routes/categories';
@@ -10,8 +10,6 @@ import shopRoutes from './routes/shops';
 import messageRoutes from './routes/messages';
 import adminRoutes from './routes/admin';
 import { sellerProductRoutes } from './routes/seller/products';
-
-dotenv.config();
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3001;
