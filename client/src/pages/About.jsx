@@ -37,7 +37,7 @@ export default function About() {
 
   return (
     <div className="page about-page">
-      <Header title={t('about.title')} showBack />
+      <Header title={t('about.title')}/>
 
       <section className="about-intro">
         <span className="welcome-kicker">

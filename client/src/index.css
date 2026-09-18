@@ -2551,12 +2551,11 @@ button,
 
 /* Admin */
 .admin-layout {
-  max-width: 390px;
   height: 100dvh;
   margin: 0 auto;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 24px;
+  border-radius: 2px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -3679,4 +3678,274 @@ button,
   color: var(--text-secondary);
   font-size: .8125rem;
   line-height: 1.5;
+}
+
+/* Compact product cards on mobile */
+.product-card {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.product-card-image {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  max-height: 170px;
+  overflow: hidden;
+  background: var(--surface-2);
+}
+
+.product-card-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.product-card-body {
+  padding: 10px;
+}
+
+.product-card-detail-row {
+  gap: 6px;
+}
+
+.product-card-name,
+.product-card-price {
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+.product-card-shop-row {
+  margin-top: 5px;
+}
+
+.product-card-seller {
+  font-size: 0.72rem;
+}
+
+.product-card-location {
+  font-size: 0.68rem;
+}
+
+.product-card-actions {
+  gap: 2px;
+  padding: 5px;
+}
+
+.product-card-actions .btn-icon {
+  height: 32px;
+}
+
+.product-card-actions .btn-icon svg {
+  width: 15px;
+  height: 15px;
+}
+
+.feed-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+  padding: 10px;
+}
+
+/* Extra-small phones */
+@media (max-width: 380px) {
+  .product-card-image {
+  aspect-ratio: 1.1 / 1;
+  max-height: 145px;
+}
+
+  .product-card-body {
+    padding: 8px;
+  }
+
+  .product-card-actions .btn-icon {
+    height: 29px;
+  }
+}
+
+/* Admin Settings */
+.admin-settings-page {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding-bottom: 32px;
+}
+
+.admin-settings-heading {
+  margin-bottom: 24px;
+}
+
+.admin-settings-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.admin-settings-card-heading {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.admin-settings-icon {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--surface-secondary, rgba(128, 128, 128, 0.12));
+  color: var(--text);
+  flex-shrink: 0;
+}
+
+.admin-settings-card-heading h2 {
+  margin: 0 0 5px;
+  font-size: 17px;
+  color: var(--text);
+}
+
+.admin-settings-card-heading p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.admin-settings-form {
+  display: grid;
+  gap: 18px;
+  max-width: 600px;
+}
+
+.admin-settings-form label {
+  display: grid;
+  gap: 8px;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.admin-settings-form .form-input {
+  width: 100%;
+  min-height: 44px;
+  box-sizing: border-box;
+}
+
+.admin-settings-form .form-input:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.admin-settings-form small {
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.admin-settings-save {
+  width: fit-content;
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.admin-settings-success,
+.admin-settings-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.admin-settings-success {
+  color: #16a34a;
+}
+
+.admin-settings-error {
+  color: #dc2626;
+}
+
+.admin-appearance-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.admin-appearance-option {
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+}
+
+.admin-appearance-option.active {
+  border: 2px solid var(--primary, #f59e0b);
+  padding: 13px;
+}
+
+.admin-appearance-option > span:nth-child(2) {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.admin-appearance-option > svg {
+  color: var(--primary, #f59e0b);
+}
+
+.appearance-preview {
+  display: block;
+  width: 100%;
+  max-width: 100px;
+  height: 34px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+}
+
+.appearance-preview.light {
+  background: linear-gradient(90deg, #ffffff 50%, #f1f5f9 50%);
+}
+
+.appearance-preview.dark {
+  background: linear-gradient(90deg, #0f172a 50%, #1e293b 50%);
+}
+
+.appearance-preview.system {
+  background: linear-gradient(90deg, #ffffff 50%, #0f172a 50%);
+}
+
+@media (max-width: 600px) {
+  .admin-settings-card {
+    padding: 16px;
+  }
+
+  .admin-appearance-options {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-appearance-option {
+    min-height: 72px;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .appearance-preview {
+    max-width: 72px;
+  }
 }

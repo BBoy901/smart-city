@@ -80,7 +80,7 @@ export default function AddProduct() {
   if (pageLoading) {
     return (
       <div className="page">
-        <Header title={title} showBack />
+        <Header title={title} />
       </div>
     );
   }
@@ -88,7 +88,7 @@ export default function AddProduct() {
   if (!isApprovedSeller) {
     return (
       <div className="page">
-        <Header title={title} showBack />
+        <Header title={title} />
         <SellerApprovalBanner status={sellerApprovalStatus} />
       </div>
     );
@@ -97,7 +97,7 @@ export default function AddProduct() {
   if (notFound) {
     return (
       <div className="page">
-        <Header title={title} showBack />
+        <Header title={title} />
         <div className="empty-state">
           <h3>Product not found</h3>
         </div>
@@ -108,7 +108,7 @@ export default function AddProduct() {
   if (shops.length === 0) {
     return (
       <div className="page">
-        <Header title={title} showBack />
+        <Header title={title} />
         <div className="empty-state">
           <h3>Create a shop first</h3>
           <button className="btn btn-primary" style={{ marginTop: 16 }} onClick={() => navigate('/seller/setup')}>Create Shop</button>
@@ -119,7 +119,7 @@ export default function AddProduct() {
 
   return (
     <div className="page-no-nav">
-      <Header title={title} showBack />
+      <Header title={title} />
       {error && <div className="alert alert-error">{error}</div>}
 
       <form onSubmit={handleSubmit} className="seller-product-form">

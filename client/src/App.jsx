@@ -1,7 +1,17 @@
+
 import { useCallback, useRef, useState } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+  useNavigate,
+} from 'react-router-dom';
+
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { LanguageProvider } from './context/LanguageContext';
+
 import BottomNav from './components/BottomNav';
 import Loading from './components/Loading';
 import SplashScreen from './components/SplashScreen';
@@ -29,6 +39,7 @@ import SellerHome from './pages/seller/SellerHome';
 import SellerSetup from './pages/seller/SellerSetup';
 import SellerProducts from './pages/seller/SellerProducts';
 import AddProduct from './pages/seller/AddProduct';
+import BulkAddProducts from './pages/seller/BulkAddProducts';
 
 import AdminLayout from './pages/admin/AdminLayout';
 
@@ -70,9 +81,9 @@ function AppLayout({ children }) {
   const handleTouchStart = (event) => {
     if (
       !swipeRoutes.includes(currentRoute) ||
-event.target.closest(
-  '.chat-thread, .chat-composer, .home-category-row, .recent-searches'
-)
+      event.target.closest(
+        '.chat-thread, .chat-composer, .home-category-row, .recent-searches'
+      )
     ) {
       return;
     }
@@ -134,7 +145,9 @@ function ProtectedRoute({ children, requireSeller }) {
 
   if (loading) return <Loading />;
   if (!isAuthenticated) return <Navigate to="/login" />;
-  if (requireSeller && !isSeller) return <Navigate to="/seller/setup" />;
+  if (requireSeller && !isSeller) {
+    return <Navigate to="/seller/setup" />;
+  }
 
   return children;
 }
@@ -161,28 +174,75 @@ function AppRoutes() {
         }
       />
 
-      <Route path="/explore" element={<AppLayout><Home /></AppLayout>} />
+      <Route
+        path="/explore"
+        element={<AppLayout><Home /></AppLayout>}
+      />
+
       <Route path="/welcome" element={<Welcome />} />
-      <Route path="/login" element={<AuthShell><Login /></AuthShell>} />
-      <Route path="/reset-password" element={<AuthShell><ResetPassword /></AuthShell>} />
-      <Route path="/register" element={<AuthShell><Register /></AuthShell>} />
-      <Route path="/onboarding" element={<ProtectedRoute><AuthShell><Onboarding /></AuthShell></ProtectedRoute>} />
-      <Route path="/search" element={<AppLayout><Search /></AppLayout>} />
-      <Route path="/saved" element={<AppLayout><Saved /></AppLayout>} />
-      <Route path="/messages" element={<AppLayout><Messages /></AppLayout>} />
-      <Route path="/profile" element={<AppLayout><Profile /></AppLayout>} />
-      <Route path="/notifications" element={<AppLayout><Notifications /></AppLayout>} />
-      <Route path="/about" element={<AppLayout><About /></AppLayout>} />
-      <Route path="/product/:id" element={<AppLayout><ProductDetail /></AppLayout>} />
-      <Route path="/shop/:id" element={<AppLayout><ShopProfile /></AppLayout>} />
 
       <Route
-        path="/seller"
+        path="/login"
+        element={<AuthShell><Login /></AuthShell>}
+      />
+
+      <Route
+        path="/reset-password"
+        element={<AuthShell><ResetPassword /></AuthShell>}
+      />
+
+      <Route
+        path="/register"
+        element={<AuthShell><Register /></AuthShell>}
+      />
+
+      <Route
+        path="/onboarding"
         element={
-          <ProtectedRoute requireSeller>
-            <AppLayout><SellerHome /></AppLayout>
+          <ProtectedRoute>
+            <AuthShell><Onboarding /></AuthShell>
           </ProtectedRoute>
         }
+      />
+
+      <Route
+        path="/search"
+        element={<AppLayout><Search /></AppLayout>}
+      />
+
+      <Route
+        path="/saved"
+        element={<AppLayout><Saved /></AppLayout>}
+      />
+
+      <Route
+        path="/messages"
+        element={<AppLayout><Messages /></AppLayout>}
+      />
+
+      <Route
+        path="/profile"
+        element={<AppLayout><Profile /></AppLayout>}
+      />
+
+      <Route
+        path="/notifications"
+        element={<AppLayout><Notifications /></AppLayout>}
+      />
+
+      <Route
+        path="/about"
+        element={<AppLayout><About /></AppLayout>}
+      />
+
+      <Route
+        path="/product/:id"
+        element={<AppLayout><ProductDetail /></AppLayout>}
+      />
+
+      <Route
+        path="/shop/:id"
+        element={<AppLayout><ShopProfile /></AppLayout>}
       />
 
       <Route
@@ -200,17 +260,35 @@ function AppRoutes() {
       />
 
       <Route
-  path="/language"
-  element={
-    <AppLayout>
-      <Language />
-    </AppLayout>
-  }
-/>
+        path="/language"
+        element={<AppLayout><Language /></AppLayout>}
+      />
+
+      <Route
+        path="/privacy-security"
+        element={
+          <ProtectedRoute>
+            <AppLayout><PrivacySecurity /></AppLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/seller"
+        element={
+          <ProtectedRoute requireSeller>
+            <AppLayout><SellerHome /></AppLayout>
+          </ProtectedRoute>
+        }
+      />
 
       <Route
         path="/seller/setup"
-        element={<ProtectedRoute><AuthShell><SellerSetup /></AuthShell></ProtectedRoute>}
+        element={
+          <ProtectedRoute>
+            <AuthShell><SellerSetup /></AuthShell>
+          </ProtectedRoute>
+        }
       />
 
       <Route
@@ -222,15 +300,17 @@ function AppRoutes() {
         }
       />
 
+      {/* Bulk product creation workspace */}
       <Route
         path="/seller/add-product"
         element={
           <ProtectedRoute requireSeller>
-            <AppLayout><AddProduct /></AppLayout>
+            <AppLayout><BulkAddProducts /></AppLayout>
           </ProtectedRoute>
         }
       />
 
+      {/* Existing product editing remains unchanged */}
       <Route
         path="/seller/edit-product/:id"
         element={
@@ -240,22 +320,13 @@ function AppRoutes() {
         }
       />
 
-      <Route
-  path="/privacy-security"
-  element={
-    <ProtectedRoute>
-      <AppLayout><PrivacySecurity /></AppLayout>
-    </ProtectedRoute>
-  }
-/>
-
-
-
       <Route path="/admin/*" element={<AdminLayout />} />
 
       <Route
         path="*"
-        element={<Navigate to={isAuthenticated ? '/' : '/welcome'} />}
+        element={
+          <Navigate to={isAuthenticated ? '/' : '/welcome'} />
+        }
       />
     </Routes>
   );
@@ -272,13 +343,13 @@ export default function App() {
     <>
       {showSplash && <SplashScreen onFinish={finishSplash} />}
 
-<BrowserRouter>
-  <LanguageProvider>
-    <AuthProvider>
-      <AppRoutes />
-    </AuthProvider>
-  </LanguageProvider>
-</BrowserRouter>
+      <BrowserRouter>
+        <LanguageProvider>
+          <AuthProvider>
+            <AppRoutes />
+          </AuthProvider>
+        </LanguageProvider>
+      </BrowserRouter>
     </>
   );
 }

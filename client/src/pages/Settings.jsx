@@ -65,7 +65,7 @@ export default function Settings() {
 
   return (
     <div className="page settings-page">
-      <Header title={t('settings.title')} showBack />
+      <Header title={t('settings.title')} />
 
       <div className="settings-content">
         {/* Appearance */}

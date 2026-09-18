@@ -1,3 +1,4 @@
+import AdminSettings from './AdminSettings';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../../api/client';
@@ -69,7 +70,11 @@ function AdminDashboard() {
               <strong>{count ?? 0}</strong>
             </Link>
           ))}
-          <div className="admin-manage-card admin-manage-disabled"><Settings size={20} /><span>Settings</span><strong>-</strong></div>
+          <Link className="admin-manage-card" to="/admin/settings">
+  <Settings size={20} />
+  <span>Settings</span>
+  <strong>→</strong>
+</Link>
         </div>
       </section>
     </div>
@@ -316,6 +321,7 @@ export default function AdminLayout() {
       </header>
       <main className="admin-main">
         <Routes>
+          <Route path="settings" element={<AdminSettings />} />
           <Route index element={<AdminDashboard />} />
           <Route path="users" element={<AdminUsers />} />
           <Route path="sellers" element={<AdminSellers />} />

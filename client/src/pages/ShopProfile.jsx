@@ -18,13 +18,13 @@ export default function ShopProfile() {
   }, [id]);
 
   if (loading) return <div className="page"><Loading /></div>;
-  if (!shop) return <div className="page"><Header title="Not Found" showBack /><div className="empty-state"><h3>Shop not found</h3></div></div>;
+  if (!shop) return <div className="page"><Header title="Not Found" /><div className="empty-state"><h3>Shop not found</h3></div></div>;
 
   const sellerUser = shop.sellerProfile?.user;
 
   return (
     <div className="page-no-nav">
-      <Header title={shop.name} showBack />
+      <Header title={shop.name} />
       <div className="seller-banner" />
       <div className="seller-info">
         <div className="seller-avatar">🏪</div>
