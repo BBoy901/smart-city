@@ -1,30 +1,34 @@
-import { useState } from 'react';
-import { Eye, EyeOff } from 'lucide-react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { api } from '../api/client';
+import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { api } from "../api/client";
 
 export default function ResetPassword() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
   const [done, setDone] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const token = searchParams.get('token');
+  const token = searchParams.get("token");
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if (!token) return setError('This reset link is missing a token. Request a new one from Login.');
-    if (password.length < 8) return setError('Password iwe na angalau herufi 8.');
-    if (password !== confirmPassword) return setError('Passwords hazifanani.');
+    if (!token)
+      return setError(
+        "This reset link is missing a token. Request a new one from Login.",
+      );
+    if (password.length < 8)
+      return setError("Password iwe na angalau herufi 8.");
+    if (password !== confirmPassword) return setError("Passwords hazifanani.");
     setLoading(true);
-    setError('');
+    setError("");
     try {
-      await api.resetPassword({ token: searchParams.get('token'), password });
+      await api.resetPassword({ token: searchParams.get("token"), password });
       setDone(true);
     } catch (err) {
       setError(err.message);
@@ -46,13 +50,30 @@ export default function ResetPassword() {
 
       {done ? (
         <>
-          <p className="auth-help">Password yako imebadilishwa. Unaweza kuingia sasa.</p>
-          <button className="btn btn-primary btn-block" onClick={() => navigate('/login')}>Go to Login</button>
+          <p className="auth-help">
+            Password yako imebadilishwa. Unaweza kuingia sasa.
+          </p>
+          <button
+            className="btn btn-primary btn-block"
+            onClick={() => navigate("/login")}
+          >
+            Go to Login
+          </button>
         </>
       ) : !token ? (
         <>
-          <p className="auth-help">This page needs a reset link. Request one from Login with Forgot password.</p>
-          <button className="btn btn-primary btn-block" onClick={() => navigate('/login', { state: { forgotPassword: true } })}>Go to Login</button>
+          <p className="auth-help">
+            This page needs a reset link. Request one from Login with Forgot
+            password.
+          </p>
+          <button
+            className="btn btn-primary btn-block"
+            onClick={() =>
+              navigate("/login", { state: { forgotPassword: true } })
+            }
+          >
+            Go to Login
+          </button>
         </>
       ) : (
         <form onSubmit={handleSubmit} className="auth-form">
@@ -60,8 +81,19 @@ export default function ResetPassword() {
           <div className="form-group">
             <label className="form-label">New password</label>
             <div className="password-field">
-              <input className="form-input" type={showPassword ? 'text' : 'password'} minLength="8" value={password} onChange={(e) => setPassword(e.target.value)} required />
-              <button type="button" onClick={() => setShowPassword((visible) => !visible)} aria-label={showPassword ? 'Hide password' : 'Show password'}>
+              <input
+                className="form-input"
+                type={showPassword ? "text" : "password"}
+                minLength="8"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((visible) => !visible)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
@@ -69,16 +101,33 @@ export default function ResetPassword() {
           <div className="form-group">
             <label className="form-label">Confirm password</label>
             <div className="password-field">
-              <input className="form-input" type={showConfirmPassword ? 'text' : 'password'} minLength="8" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
-              <button type="button" onClick={() => setShowConfirmPassword((visible) => !visible)} aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}>
+              <input
+                className="form-input"
+                type={showConfirmPassword ? "text" : "password"}
+                minLength="8"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword((visible) => !visible)}
+                aria-label={
+                  showConfirmPassword ? "Hide password" : "Show password"
+                }
+              >
                 {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
           </div>
-          <button className="btn btn-primary btn-block" disabled={loading}>{loading ? 'Updating...' : 'Update password'}</button>
+          <button className="btn btn-primary btn-block" disabled={loading}>
+            {loading ? "Updating..." : "Update password"}
+          </button>
         </form>
       )}
-      <Link to="/login" className="auth-back-link">Back to Login</Link>
+      <Link to="/login" className="auth-back-link">
+        Back to Login
+      </Link>
     </div>
   );
 }

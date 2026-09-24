@@ -1,12 +1,12 @@
-import { Settings as SettingsIcon } from 'lucide-react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Settings as SettingsIcon } from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export default function ChatHeader({ name, avatar }) {
   const location = useLocation();
   const navigate = useNavigate();
 
   const handleSettings = () => {
-    navigate('/settings', {
+    navigate("/settings", {
       state: {
         from: `${location.pathname}${location.search}`,
       },
@@ -17,7 +17,11 @@ export default function ChatHeader({ name, avatar }) {
     <header className="chat-header">
       <div className="chat-header-top">
         <div className="chat-header-brand">
-          <img src="/smart-city-icon.png" alt="" className="header-brand-logo" />
+          <img
+            src="/smart-city-icon.png"
+            alt=""
+            className="header-brand-logo"
+          />
           <span className="header-brand-name">
             <span className="header-brand-smart">Smart</span>
             <span className="header-brand-city">City</span>

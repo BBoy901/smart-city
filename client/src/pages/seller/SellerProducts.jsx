@@ -1,20 +1,25 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { api, formatPrice, getImageUrl } from '../../api/client';
-import Header from '../../components/Header';
-import Loading from '../../components/Loading';
-import SellerApprovalBanner from '../../components/SellerApprovalBanner';
-import { useAuth } from '../../context/AuthContext';
-import { Edit, Trash2 } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { api, formatPrice, getImageUrl } from "../../api/client";
+import Header from "../../components/Header";
+import Loading from "../../components/Loading";
+import SellerApprovalBanner from "../../components/SellerApprovalBanner";
+import { useAuth } from "../../context/AuthContext";
+import { Edit, Trash2 } from "lucide-react";
 
 export default function SellerProducts() {
-  const { sellerApprovalStatus, isApprovedSeller } = useAuth();
+  const {
+  sellerApprovalStatus,
+  sellerRejectionReason,
+  isApprovedSeller,
+} = useAuth();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    api.getMyProducts()
+    api
+      .getMyProducts()
       .then(setProducts)
       .catch((err) => {
         setProducts([]);
@@ -24,7 +29,7 @@ export default function SellerProducts() {
   }, []);
 
   const handleDelete = async (id) => {
-    if (!confirm('Delete this product?')) return;
+    if (!confirm("Delete this product?")) return;
     try {
       await api.deleteProduct(id);
       setProducts((prev) => prev.filter((p) => p.id !== id));
@@ -36,13 +41,24 @@ export default function SellerProducts() {
   return (
     <div className="page">
       <Header title="My Products" />
-      <SellerApprovalBanner status={sellerApprovalStatus} />
+      <SellerApprovalBanner
+  status={sellerApprovalStatus}
+  rejectionReason={sellerRejectionReason}
+/>
       {error && <div className="alert alert-error">{error}</div>}
-      {loading ? <Loading /> : products.length === 0 ? (
+      {loading ? (
+        <Loading />
+      ) : products.length === 0 ? (
         <div className="empty-state">
           <h3>No products yet</h3>
           {isApprovedSeller && (
-            <Link to="/seller/add-product" className="btn btn-primary" style={{ marginTop: 16 }}>Add Product</Link>
+            <Link
+              to="/seller/add-product"
+              className="btn btn-primary"
+              style={{ marginTop: 16 }}
+            >
+              Add Product
+            </Link>
           )}
         </div>
       ) : (
@@ -67,7 +83,7 @@ export default function SellerProducts() {
                 )}
 
                 <div className="seller-product-status">
-                  {p.availability.replace('_', ' ')}
+                  {p.availability.replace("_", " ")}
                 </div>
               </div>
 

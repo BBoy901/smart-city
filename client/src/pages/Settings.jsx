@@ -9,76 +9,73 @@ import {
   Palette,
   Sun,
   UserRound,
-} from 'lucide-react';
-import { Link } from 'react-router-dom';
-import Header from '../components/Header';
-import { useTheme } from '../context/ThemeContext';
-import { useLanguage } from '../context/LanguageContext';
+} from "lucide-react";
+import { Link } from "react-router-dom";
+import Header from "../components/Header";
+import { useTheme } from "../context/ThemeContext";
+import { useLanguage } from "../context/LanguageContext";
 
 export default function Settings() {
   const { appearance, setAppearance } = useTheme();
   const { language, t } = useLanguage();
   const appearanceOptions = [
     {
-      value: 'light',
-      label: t('settings.appearanceLight'),
+      value: "light",
+      label: t("settings.appearanceLight"),
       icon: Sun,
     },
     {
-      value: 'dark',
-      label: t('settings.appearanceDark'),
+      value: "dark",
+      label: t("settings.appearanceDark"),
       icon: Moon,
     },
     {
-      value: 'system',
-      label: t('settings.appearanceSystem'),
+      value: "system",
+      label: t("settings.appearanceSystem"),
       icon: Monitor,
     },
   ];
 
   const settingsLinks = [
     {
-      label: t('settings.notifications'),
+      label: t("settings.notifications"),
       icon: Bell,
-      to: '/notifications',
+      to: "/notifications",
     },
     {
-      label: t('settings.language'),
+      label: t("settings.language"),
       icon: Languages,
-      value:
-        language === 'sw'
-          ? t('language.swahili')
-          : t('language.english'),
-      to: '/language',
+      value: language === "sw" ? t("language.swahili") : t("language.english"),
+      to: "/language",
     },
     {
-      label: t('settings.privacySecurity'),
+      label: t("settings.privacySecurity"),
       icon: LockKeyhole,
-      to: '/privacy-security',
+      to: "/privacy-security",
     },
     {
-      label: t('settings.account'),
+      label: t("settings.account"),
       icon: UserRound,
-      to: '/account',
+      to: "/account",
     },
   ];
 
   return (
     <div className="page settings-page">
-      <Header title={t('settings.title')} />
+      <Header title={t("settings.title")} />
 
       <div className="settings-content">
         {/* Appearance */}
         <section className="settings-section">
           <div className="settings-section-heading">
             <Palette size={18} />
-            <span>{t('settings.appearance')}</span>
+            <span>{t("settings.appearance")}</span>
           </div>
 
           <div
             className="appearance-options"
             role="group"
-            aria-label={t('settings.appearance')}
+            aria-label={t("settings.appearance")}
           >
             {appearanceOptions.map((option) => {
               const isActive = appearance === option.value;
@@ -87,9 +84,7 @@ export default function Settings() {
                 <button
                   key={option.value}
                   type="button"
-                  className={`appearance-option ${
-                    isActive ? 'active' : ''
-                  }`}
+                  className={`appearance-option ${isActive ? "active" : ""}`}
                   onClick={() => setAppearance(option.value)}
                   aria-pressed={isActive}
                 >
@@ -97,9 +92,7 @@ export default function Settings() {
                     <option.icon size={18} />
                   </span>
 
-                  <span className="appearance-label">
-                    {option.label}
-                  </span>
+                  <span className="appearance-label">{option.label}</span>
                 </button>
               );
             })}
@@ -109,7 +102,7 @@ export default function Settings() {
         {/* Preferences */}
         <section className="settings-section">
           <div className="settings-section-heading">
-            <span>{t('settings.preferences')}</span>
+            <span>{t("settings.preferences")}</span>
           </div>
 
           <div className="settings-list">
@@ -129,11 +122,7 @@ export default function Settings() {
               );
 
               return (
-                <Link
-                  className="settings-item"
-                  key={label}
-                  to={to}
-                >
+                <Link className="settings-item" key={label} to={to}>
                   {content}
                 </Link>
               );
@@ -142,23 +131,20 @@ export default function Settings() {
         </section>
 
         {/* About */}
-<section className="settings-section">
-  <div className="settings-list settings-about-list">
-    <Link
-      to="/about"
-      className="settings-item settings-about-link"
-    >
-      <span className="settings-item-label">
-        <Info size={19} />
-        <span>{t('settings.about')}</span>
-      </span>
+        <section className="settings-section">
+          <div className="settings-list settings-about-list">
+            <Link to="/about" className="settings-item settings-about-link">
+              <span className="settings-item-label">
+                <Info size={19} />
+                <span>{t("settings.about")}</span>
+              </span>
 
-      <span className="settings-item-value">
-        <ChevronRight size={18} />
-      </span>
-    </Link>
-  </div>
-</section>
+              <span className="settings-item-value">
+                <ChevronRight size={18} />
+              </span>
+            </Link>
+          </div>
+        </section>
       </div>
     </div>
   );

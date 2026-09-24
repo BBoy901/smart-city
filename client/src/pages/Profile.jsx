@@ -1,12 +1,12 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { useLanguage } from '../context/LanguageContext';
-import { api } from '../api/client';
-import Header from '../components/Header';
-import ProductCard from '../components/ProductCard';
-import Loading from '../components/Loading';
-import { Heart, Clock, Store, ArrowRightLeft } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { useLanguage } from "../context/LanguageContext";
+import { api } from "../api/client";
+import Header from "../components/Header";
+import ProductCard from "../components/ProductCard";
+import Loading from "../components/Loading";
+import { Heart, Clock, Store, ArrowRightLeft } from "lucide-react";
 
 export default function Profile() {
   const {
@@ -22,7 +22,7 @@ export default function Profile() {
   const { t } = useLanguage();
   const navigate = useNavigate();
 
-  const [tab, setTab] = useState('saved');
+  const [tab, setTab] = useState("saved");
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -32,9 +32,9 @@ export default function Profile() {
     setLoading(true);
 
     const fetcher =
-      tab === 'saved'
+      tab === "saved"
         ? api.getSaved
-        : tab === 'liked'
+        : tab === "liked"
           ? api.getLiked
           : api.getRecent;
 
@@ -45,37 +45,37 @@ export default function Profile() {
   }, [tab, user]);
 
   const handleSwitchMode = async () => {
-    const newMode = isSellerMode ? 'CUSTOMER' : 'SELLER';
+    const newMode = isSellerMode ? "CUSTOMER" : "SELLER";
 
     await switchMode(newMode);
 
-    navigate(newMode === 'SELLER' ? '/seller' : '/');
+    navigate(newMode === "SELLER" ? "/seller" : "/");
   };
 
   const handleBecomeSeller = async () => {
-    await addRole('SELLER');
-    navigate('/seller/setup');
+    await addRole("SELLER");
+    navigate("/seller/setup");
   };
 
   const handleBecomeCustomer = async () => {
-    await addRole('CUSTOMER');
-    navigate('/onboarding');
+    await addRole("CUSTOMER");
+    navigate("/onboarding");
   };
 
   if (!user) {
     return (
       <div className="page">
-        <Header title={t('settings.profile')} />
+        <Header title={t("settings.profile")} />
 
         <div className="empty-state">
-          <h3>{t('settings.loginToViewProfile')}</h3>
+          <h3>{t("settings.loginToViewProfile")}</h3>
 
           <Link
             to="/login"
             className="btn btn-primary"
             style={{ marginTop: 16 }}
           >
-            {t('settings.login')}
+            {t("settings.login")}
           </Link>
         </div>
       </div>
@@ -84,26 +84,20 @@ export default function Profile() {
 
   return (
     <div className="page">
-      <Header title={t('settings.profile')} />
+      <Header title={t("settings.profile")} />
 
       <div className="profile-header">
-        <div className="profile-avatar">
-          {user.name?.[0]?.toUpperCase()}
-        </div>
+        <div className="profile-avatar">{user.name?.[0]?.toUpperCase()}</div>
 
-        <div className="profile-name">
-          {user.name}
-        </div>
+        <div className="profile-name">{user.name}</div>
 
-        <div className="profile-email">
-          {user.email}
-        </div>
+        <div className="profile-email">{user.email}</div>
 
         <div style={{ marginTop: 12 }}>
           <span className="mode-badge">
             {isSellerMode
-              ? `🏪 ${t('settings.sellerMode')}`
-              : `🛍️ ${t('settings.customerMode')}`}
+              ? `🏪 ${t("settings.sellerMode")}`
+              : `🛍️ ${t("settings.customerMode")}`}
           </span>
         </div>
 
@@ -116,8 +110,8 @@ export default function Profile() {
             <ArrowRightLeft size={16} />
 
             {isSellerMode
-              ? t('settings.switchToCustomer')
-              : t('settings.switchToSeller')}
+              ? t("settings.switchToCustomer")
+              : t("settings.switchToSeller")}
           </button>
         )}
 
@@ -129,7 +123,7 @@ export default function Profile() {
           >
             <Store size={16} />
 
-            {t('settings.becomeSeller')}
+            {t("settings.becomeSeller")}
           </button>
         )}
 
@@ -139,40 +133,31 @@ export default function Profile() {
             style={{ marginTop: 12 }}
             onClick={handleBecomeCustomer}
           >
-            🛍️ {t('settings.becomeCustomer')}
+            🛍️ {t("settings.becomeCustomer")}
           </button>
         )}
       </div>
 
-      <div
-        className="tabs"
-        style={{ margin: '0 16px' }}
-      >
+      <div className="tabs" style={{ margin: "0 16px" }}>
         <button
-          className={`tab ${
-            tab === 'saved' ? 'active' : ''
-          }`}
-          onClick={() => setTab('saved')}
+          className={`tab ${tab === "saved" ? "active" : ""}`}
+          onClick={() => setTab("saved")}
         >
-          {t('settings.saved')}
+          {t("settings.saved")}
         </button>
 
         <button
-          className={`tab ${
-            tab === 'liked' ? 'active' : ''
-          }`}
-          onClick={() => setTab('liked')}
+          className={`tab ${tab === "liked" ? "active" : ""}`}
+          onClick={() => setTab("liked")}
         >
-          {t('settings.liked')}
+          {t("settings.liked")}
         </button>
 
         <button
-          className={`tab ${
-            tab === 'recent' ? 'active' : ''
-          }`}
-          onClick={() => setTab('recent')}
+          className={`tab ${tab === "recent" ? "active" : ""}`}
+          onClick={() => setTab("recent")}
         >
-          {t('settings.recent')}
+          {t("settings.recent")}
         </button>
       </div>
 
@@ -180,34 +165,31 @@ export default function Profile() {
         <Loading />
       ) : items.length === 0 ? (
         <div className="empty-state">
-          {tab === 'saved' && (
+          {tab === "saved" && (
             <>
               <Heart size={48} />
-              <h3>{t('settings.noSavedProducts')}</h3>
+              <h3>{t("settings.noSavedProducts")}</h3>
             </>
           )}
 
-          {tab === 'liked' && (
+          {tab === "liked" && (
             <>
               <Heart size={48} />
-              <h3>{t('settings.noLikedProducts')}</h3>
+              <h3>{t("settings.noLikedProducts")}</h3>
             </>
           )}
 
-          {tab === 'recent' && (
+          {tab === "recent" && (
             <>
               <Clock size={48} />
-              <h3>{t('settings.noRecentlyViewed')}</h3>
+              <h3>{t("settings.noRecentlyViewed")}</h3>
             </>
           )}
         </div>
       ) : (
         <div className="feed-grid">
           {items.map((p) => (
-            <ProductCard
-              key={p.id}
-              product={p}
-            />
+            <ProductCard key={p.id} product={p} />
           ))}
         </div>
       )}
@@ -217,10 +199,10 @@ export default function Profile() {
           className="btn btn-danger btn-block"
           onClick={() => {
             logout();
-            navigate('/');
+            navigate("/");
           }}
         >
-          {t('settings.logout')}
+          {t("settings.logout")}
         </button>
       </div>
     </div>

@@ -1,5 +1,5 @@
-import { ChevronLeft, Settings as SettingsIcon } from 'lucide-react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { ChevronLeft, Settings as SettingsIcon } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 export default function Header({
   title,
@@ -10,7 +10,7 @@ export default function Header({
 }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const isSettingsPage = location.pathname === '/settings';
+  const isSettingsPage = location.pathname === "/settings";
 
   const handleSettings = () => {
     if (isSettingsPage) {
@@ -25,7 +25,7 @@ export default function Header({
       return;
     }
 
-    navigate('/settings', {
+    navigate("/settings", {
       state: {
         from: `${location.pathname}${location.search}`,
       },
@@ -76,7 +76,7 @@ export default function Header({
         </div>
       </div>
 
-      {title && title !== 'Smart City' && (
+      {title && title !== "Smart City" && (
         <div className="header-title-row">
           <h1 className="header-title">{title}</h1>
           {titleRight}

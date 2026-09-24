@@ -1,4 +1,4 @@
-import { v2 as cloudinary } from 'cloudinary';
+import { v2 as cloudinary } from "cloudinary";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -6,17 +6,20 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-export function uploadImageBuffer(buffer: Buffer, folder: string): Promise<{ secure_url: string }> {
+export function uploadImageBuffer(
+  buffer: Buffer,
+  folder: string,
+): Promise<{ secure_url: string }> {
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
-      { folder, resource_type: 'image' },
+      { folder, resource_type: "image" },
       (error, result) => {
         if (error || !result?.secure_url) {
-          reject(error || new Error('Image upload failed'));
+          reject(error || new Error("Image upload failed"));
           return;
         }
         resolve({ secure_url: result.secure_url });
-      }
+      },
     );
 
     stream.end(buffer);

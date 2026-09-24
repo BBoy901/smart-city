@@ -1,31 +1,23 @@
+import Cropper from "react-easy-crop";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { api } from "../../api/client";
+import Header from "../../components/Header";
+import Loading from "../../components/Loading";
+import SellerApprovalBanner from "../../components/SellerApprovalBanner";
+import { useAuth } from "../../context/AuthContext";
+import { Plus, Trash2, ImagePlus, X, Package, Crop } from "lucide-react";
 
-import Cropper from 'react-easy-crop';
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { api } from '../../api/client';
-import Header from '../../components/Header';
-import Loading from '../../components/Loading';
-import SellerApprovalBanner from '../../components/SellerApprovalBanner';
-import { useAuth } from '../../context/AuthContext';
-import {
-  Plus,
-  Trash2,
-  ImagePlus,
-  X,
-  Package,
-  Crop,
-} from 'lucide-react';
+const MAX_IMAGES = 10;
 
-const MAX_IMAGES = 5;
-
-const createProduct = (shopId = '') => ({
+const createProduct = (shopId = "") => ({
   localId: `${Date.now()}-${Math.random()}`,
   shopId,
-  name: '',
-  description: '',
-  price: '',
-  categoryId: '',
-  availability: 'IN_STOCK',
+  name: "",
+  description: "",
+  price: "",
+  categoryId: "",
+  availability: "IN_STOCK",
   images: [],
 });
 
@@ -48,8 +40,8 @@ function createImage(url) {
 
 async function getCroppedImage(imageSrc, pixelCrop, originalFile) {
   const image = await createImage(imageSrc);
-  const canvas = document.createElement('canvas');
-  const context = canvas.getContext('2d');
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d");
 
   canvas.width = pixelCrop.width;
   canvas.height = pixelCrop.height;
@@ -63,30 +55,30 @@ async function getCroppedImage(imageSrc, pixelCrop, originalFile) {
     0,
     0,
     pixelCrop.width,
-    pixelCrop.height
+    pixelCrop.height,
   );
 
   const blob = await new Promise((resolve, reject) => {
     canvas.toBlob(
       (result) => {
         if (result) resolve(result);
-        else reject(new Error('Could not crop this image.'));
+        else reject(new Error("Could not crop this image."));
       },
-      'image/jpeg',
-      0.92
+      "image/jpeg",
+      0.92,
     );
   });
 
-  const baseName = originalFile.name.replace(/\.[^/.]+$/, '');
+  const baseName = originalFile.name.replace(/\.[^/.]+$/, "");
 
   return new File([blob], `${baseName}-cropped.jpg`, {
-    type: 'image/jpeg',
+    type: "image/jpeg",
     lastModified: Date.now(),
   });
 }
 
 function ProductImagePreview({ file, onCrop, onRemove, disabled }) {
-  const [previewUrl, setPreviewUrl] = useState('');
+  const [previewUrl, setPreviewUrl] = useState("");
 
   useEffect(() => {
     const url = URL.createObjectURL(file);
@@ -99,17 +91,17 @@ function ProductImagePreview({ file, onCrop, onRemove, disabled }) {
     <div
       style={{
         width: 116,
-        border: '1px solid var(--border)',
+        border: "1px solid var(--border)",
         borderRadius: 12,
-        overflow: 'hidden',
-        background: 'var(--surface)',
+        overflow: "hidden",
+        background: "var(--surface)",
       }}
     >
       <div
         style={{
-          width: '100%',
+          width: "100%",
           height: 90,
-          background: 'var(--background-secondary)',
+          background: "var(--background-secondary)",
         }}
       >
         {previewUrl && (
@@ -117,10 +109,10 @@ function ProductImagePreview({ file, onCrop, onRemove, disabled }) {
             src={previewUrl}
             alt={file.name}
             style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              display: 'block',
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              display: "block",
             }}
           />
         )}
@@ -131,16 +123,16 @@ function ProductImagePreview({ file, onCrop, onRemove, disabled }) {
           title={file.name}
           style={{
             fontSize: 11,
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
             marginBottom: 7,
           }}
         >
           {file.name}
         </div>
 
-        <div style={{ display: 'flex', gap: 5 }}>
+        <div style={{ display: "flex", gap: 5 }}>
           <button
             type="button"
             title="Crop image"
@@ -149,16 +141,16 @@ function ProductImagePreview({ file, onCrop, onRemove, disabled }) {
             onClick={onCrop}
             style={{
               flex: 1,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
               gap: 4,
-              padding: '6px 4px',
-              border: '1px solid var(--border)',
+              padding: "6px 4px",
+              border: "1px solid var(--border)",
               borderRadius: 7,
-              background: 'transparent',
-              color: 'var(--text)',
-              cursor: disabled ? 'not-allowed' : 'pointer',
+              background: "transparent",
+              color: "var(--text)",
+              cursor: disabled ? "not-allowed" : "pointer",
             }}
           >
             <Crop size={14} />
@@ -172,15 +164,15 @@ function ProductImagePreview({ file, onCrop, onRemove, disabled }) {
             disabled={disabled}
             onClick={onRemove}
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '6px 7px',
-              border: '1px solid var(--border)',
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "6px 7px",
+              border: "1px solid var(--border)",
               borderRadius: 7,
-              background: 'transparent',
-              color: 'var(--text-secondary)',
-              cursor: disabled ? 'not-allowed' : 'pointer',
+              background: "transparent",
+              color: "var(--text-secondary)",
+              cursor: disabled ? "not-allowed" : "pointer",
             }}
           >
             <X size={14} />
@@ -193,19 +185,23 @@ function ProductImagePreview({ file, onCrop, onRemove, disabled }) {
 
 export default function BulkAddProducts() {
   const navigate = useNavigate();
-  const { sellerApprovalStatus, isApprovedSeller } = useAuth();
+  const {
+  sellerApprovalStatus,
+  sellerRejectionReason,
+  isApprovedSeller,
+} = useAuth();
 
   const [shops, setShops] = useState([]);
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([createProduct()]);
   const [loading, setLoading] = useState(true);
   const [publishing, setPublishing] = useState(false);
-  const [progress, setProgress] = useState('');
-  const [error, setError] = useState('');
+  const [progress, setProgress] = useState("");
+  const [error, setError] = useState("");
   const [failedProducts, setFailedProducts] = useState([]);
 
   const [cropTarget, setCropTarget] = useState(null);
-  const [cropImage, setCropImage] = useState('');
+  const [cropImage, setCropImage] = useState("");
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
@@ -229,13 +225,13 @@ export default function BulkAddProducts() {
       htmlOverflow: html.style.overflow,
     };
 
-    body.style.position = 'fixed';
+    body.style.position = "fixed";
     body.style.top = `-${scrollY}px`;
-    body.style.left = '0';
-    body.style.right = '0';
-    body.style.width = '100%';
-    body.style.overflow = 'hidden';
-    html.style.overflow = 'hidden';
+    body.style.left = "0";
+    body.style.right = "0";
+    body.style.width = "100%";
+    body.style.overflow = "hidden";
+    html.style.overflow = "hidden";
 
     return () => {
       body.style.position = previous.position;
@@ -273,7 +269,7 @@ export default function BulkAddProducts() {
         }
       } catch (err) {
         if (!cancelled) {
-          setError(err.message || 'Failed to load shop and category data.');
+          setError(err.message || "Failed to load shop and category data.");
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -296,33 +292,26 @@ export default function BulkAddProducts() {
   const updateProduct = (localId, updates) => {
     setProducts((current) =>
       current.map((product) =>
-        product.localId === localId
-          ? { ...product, ...updates }
-          : product
-      )
+        product.localId === localId ? { ...product, ...updates } : product,
+      ),
     );
   };
 
   const addProduct = () => {
-    setProducts((current) => [
-      ...current,
-      createProduct(shops[0]?.id || ''),
-    ]);
+    setProducts((current) => [...current, createProduct(shops[0]?.id || "")]);
   };
 
   const removeProduct = (localId) => {
     setProducts((current) => {
       const remaining = current.filter(
-        (product) => product.localId !== localId
+        (product) => product.localId !== localId,
       );
 
-      return remaining.length
-        ? remaining
-        : [createProduct(shops[0]?.id || '')];
+      return remaining.length ? remaining : [createProduct(shops[0]?.id || "")];
     });
 
     setFailedProducts((current) =>
-      current.filter((product) => product.localId !== localId)
+      current.filter((product) => product.localId !== localId),
     );
   };
 
@@ -335,24 +324,26 @@ export default function BulkAddProducts() {
     const remainingSlots = MAX_IMAGES - product.images.length;
 
     if (remainingSlots <= 0) {
-      setError('Kila bidhaa inaruhusiwa picha zisizozidi 5.');
+      setError(
+  `Each product can have a maximum of ${MAX_IMAGES} images.`,
+);
       return;
     }
 
     const imageFiles = selectedImages.filter((file) =>
-      file.type.startsWith('image/')
+      file.type.startsWith("image/"),
     );
 
     const acceptedImages = imageFiles.slice(0, remainingSlots);
 
     if (imageFiles.length !== selectedImages.length) {
-      setError('Baadhi ya files ulizochagua si picha, kwa hiyo zimerukwa.');
+      setError("Baadhi ya files ulizochagua si picha, kwa hiyo zimerukwa.");
     } else if (imageFiles.length > remainingSlots) {
       setError(
-        `Umechagua picha nyingi. Picha ${remainingSlots} tu zimeongezwa ili kufikia kikomo cha 5.`
-      );
+  `Only ${remainingSlots} images were added to reach the limit of ${MAX_IMAGES}.`,
+);
     } else {
-      setError('');
+      setError("");
     }
 
     if (acceptedImages.length > 0) {
@@ -386,7 +377,7 @@ export default function BulkAddProducts() {
 
   const closeCropper = () => {
     setCropTarget(null);
-    setCropImage('');
+    setCropImage("");
     setCroppedAreaPixels(null);
     setSavingCrop(false);
   };
@@ -400,11 +391,11 @@ export default function BulkAddProducts() {
       const croppedFile = await getCroppedImage(
         cropImage,
         croppedAreaPixels,
-        cropTarget.file
+        cropTarget.file,
       );
 
       const product = products.find(
-        (item) => item.localId === cropTarget.localId
+        (item) => item.localId === cropTarget.localId,
       );
 
       if (!product) {
@@ -421,7 +412,7 @@ export default function BulkAddProducts() {
 
       closeCropper();
     } catch (err) {
-      setError(err.message || 'Failed to crop image.');
+      setError(err.message || "Failed to crop image.");
       setSavingCrop(false);
     }
   };
@@ -434,17 +425,15 @@ export default function BulkAddProducts() {
 
     if (publishing) return;
 
-    setError('');
-    setProgress('');
+    setError("");
+    setProgress("");
     setFailedProducts([]);
 
     const completeProducts = products.filter(isComplete);
     const skippedCount = products.length - completeProducts.length;
 
     if (completeProducts.length === 0) {
-      setError(
-        'Jaza jina la bidhaa na uchague shop kwa angalau bidhaa moja.'
-      );
+      setError("Jaza jina la bidhaa na uchague shop kwa angalau bidhaa moja.");
       return;
     }
 
@@ -457,30 +446,30 @@ export default function BulkAddProducts() {
       const product = completeProducts[index];
 
       setProgress(
-        `Inatuma bidhaa ${index + 1} kati ya ${completeProducts.length}: ${product.name}`
+        `Inatuma bidhaa ${index + 1} kati ya ${completeProducts.length}: ${product.name}`,
       );
 
       const formData = new FormData();
 
-      formData.append('shopId', product.shopId);
-      formData.append('name', product.name.trim());
+      formData.append("shopId", product.shopId);
+      formData.append("name", product.name.trim());
 
       if (product.description.trim()) {
-        formData.append('description', product.description.trim());
+        formData.append("description", product.description.trim());
       }
 
-      if (product.price !== '') {
-        formData.append('price', product.price);
+      if (product.price !== "") {
+        formData.append("price", product.price);
       }
 
       if (product.categoryId) {
-        formData.append('categoryId', product.categoryId);
+        formData.append("categoryId", product.categoryId);
       }
 
-      formData.append('availability', product.availability);
+      formData.append("availability", product.availability);
 
       product.images.forEach((image) => {
-        formData.append('images', image);
+        formData.append("images", image);
       });
 
       try {
@@ -489,7 +478,7 @@ export default function BulkAddProducts() {
       } catch (err) {
         failed.push({
           ...product,
-          error: err.message || 'Failed to publish product.',
+          error: err.message || "Failed to publish product.",
         });
       }
     }
@@ -500,20 +489,20 @@ export default function BulkAddProducts() {
 
       setProgress(
         `${successCount} bidhaa zimetumwa. ${failed.length} hazikutumwa. ` +
-          'Bidhaa zilizoshindikana zimebaki hapa ili ujaribu tena.'
+          "Bidhaa zilizoshindikana zimebaki hapa ili ujaribu tena.",
       );
     } else {
       setProgress(
         `${successCount} bidhaa zimetumwa kikamilifu.` +
           (skippedCount > 0
             ? ` Bidhaa ${skippedCount} ambazo hazijakamilika zimerukwa.`
-            : '')
+            : ""),
       );
 
-      setProducts([createProduct(shops[0]?.id || '')]);
+      setProducts([createProduct(shops[0]?.id || "")]);
 
       setTimeout(() => {
-        navigate('/seller/products');
+        navigate("/seller/products");
       }, 1000);
     }
 
@@ -533,7 +522,10 @@ export default function BulkAddProducts() {
     return (
       <div className="page">
         <Header title="Add Products" />
-        <SellerApprovalBanner status={sellerApprovalStatus} />
+        <SellerApprovalBanner
+  status={sellerApprovalStatus}
+  rejectionReason={sellerRejectionReason}
+/>
       </div>
     );
   }
@@ -544,23 +536,20 @@ export default function BulkAddProducts() {
         <Header title="Add Products" />
 
         <div className="section">
-          <div
-            className="card"
-            style={{ padding: 24, textAlign: 'center' }}
-          >
+          <div className="card" style={{ padding: 24, textAlign: "center" }}>
             <Package
               size={42}
               style={{
-                margin: '0 auto 12px',
-                color: 'var(--primary)',
+                margin: "0 auto 12px",
+                color: "var(--primary)",
               }}
             />
 
             <h3>No shop found</h3>
             <p
               style={{
-                color: 'var(--text-secondary)',
-                margin: '8px 0 16px',
+                color: "var(--text-secondary)",
+                margin: "8px 0 16px",
               }}
             >
               Create your shop before adding products.
@@ -569,7 +558,7 @@ export default function BulkAddProducts() {
             <button
               type="button"
               className="btn btn-primary"
-              onClick={() => navigate('/seller/setup')}
+              onClick={() => navigate("/seller/setup")}
             >
               Create Shop
             </button>
@@ -588,12 +577,12 @@ export default function BulkAddProducts() {
           <h2 style={{ marginBottom: 6 }}>Bulk Add Products</h2>
           <p
             style={{
-              color: 'var(--text-secondary)',
+              color: "var(--text-secondary)",
               fontSize: 14,
             }}
           >
-            Add multiple products in one session. Each product can have up to
-            5 photos. Select photos in batches, preview them, crop or remove
+            Add multiple products in one session. Each product can have up to 10
+            photos. Select photos in batches, preview them, crop or remove
             individual photos, then publish.
           </p>
         </div>
@@ -605,11 +594,7 @@ export default function BulkAddProducts() {
         )}
 
         {progress && (
-          <div
-            className="alert"
-            role="status"
-            style={{ marginBottom: 16 }}
-          >
+          <div className="alert" role="status" style={{ marginBottom: 16 }}>
             {progress}
           </div>
         )}
@@ -623,29 +608,25 @@ export default function BulkAddProducts() {
             >
               <div
                 style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
                   gap: 12,
                   marginBottom: 16,
                 }}
               >
                 <div>
-                  <h3 style={{ marginBottom: 4 }}>
-                    Product {index + 1}
-                  </h3>
+                  <h3 style={{ marginBottom: 4 }}>Product {index + 1}</h3>
 
                   <span
                     style={{
                       fontSize: 12,
                       color: isComplete(product)
-                        ? 'var(--primary)'
-                        : 'var(--text-secondary)',
+                        ? "var(--primary)"
+                        : "var(--text-secondary)",
                     }}
                   >
-                    {isComplete(product)
-                      ? 'Ready to publish'
-                      : 'Incomplete'}
+                    {isComplete(product) ? "Ready to publish" : "Incomplete"}
                   </span>
                 </div>
 
@@ -769,47 +750,43 @@ export default function BulkAddProducts() {
                   }
                 >
                   <option value="IN_STOCK">In Stock</option>
+                  <option value="LOW_STOCK">Low Stock</option>
                   <option value="OUT_OF_STOCK">Out of Stock</option>
                 </select>
               </div>
 
               <div className="form-group">
-                <label className="form-label">
-                  Product Photos (maximum 5)
-                </label>
+                <label className="form-label">Product Photos (maximum 10)</label>
 
                 <label
                   className="btn btn-secondary"
                   style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                     gap: 8,
                     cursor:
                       publishing || product.images.length >= MAX_IMAGES
-                        ? 'not-allowed'
-                        : 'pointer',
+                        ? "not-allowed"
+                        : "pointer",
                     marginBottom: 10,
-                    opacity:
-                      product.images.length >= MAX_IMAGES ? 0.6 : 1,
+                    opacity: product.images.length >= MAX_IMAGES ? 0.6 : 1,
                   }}
                 >
                   <ImagePlus size={18} />
                   {product.images.length >= MAX_IMAGES
-                    ? 'Maximum Photos Selected'
-                    : 'Select Photos'}
+                    ? "Maximum Photos Selected"
+                    : "Select Photos"}
 
                   <input
                     type="file"
                     accept="image/*"
                     multiple
-                    disabled={
-                      publishing || product.images.length >= MAX_IMAGES
-                    }
-                    style={{ display: 'none' }}
+                    disabled={publishing || product.images.length >= MAX_IMAGES}
+                    style={{ display: "none" }}
                     onChange={(event) => {
                       updateImages(product.localId, event.target.files);
-                      event.target.value = '';
+                      event.target.value = "";
                     }}
                   />
                 </label>
@@ -817,8 +794,8 @@ export default function BulkAddProducts() {
                 <p
                   style={{
                     fontSize: 12,
-                    color: 'var(--text-secondary)',
-                    margin: '0 0 12px',
+                    color: "var(--text-secondary)",
+                    margin: "0 0 12px",
                   }}
                 >
                   You can select multiple photos at once and add more later.
@@ -828,8 +805,8 @@ export default function BulkAddProducts() {
                 {product.images.length > 0 && (
                   <div
                     style={{
-                      display: 'flex',
-                      flexWrap: 'wrap',
+                      display: "flex",
+                      flexWrap: "wrap",
                       gap: 10,
                     }}
                   >
@@ -838,9 +815,7 @@ export default function BulkAddProducts() {
                         key={`${product.localId}-${imageIndex}-${image.name}-${image.lastModified}`}
                         file={image}
                         disabled={publishing}
-                        onCrop={() =>
-                          openCropper(product.localId, imageIndex)
-                        }
+                        onCrop={() => openCropper(product.localId, imageIndex)}
                         onRemove={() =>
                           removeImage(product.localId, imageIndex)
                         }
@@ -852,7 +827,7 @@ export default function BulkAddProducts() {
                 <p
                   style={{
                     fontSize: 12,
-                    color: 'var(--text-secondary)',
+                    color: "var(--text-secondary)",
                     marginTop: 10,
                   }}
                 >
@@ -861,12 +836,12 @@ export default function BulkAddProducts() {
               </div>
 
               {failedProducts.some(
-                (failed) => failed.localId === product.localId
+                (failed) => failed.localId === product.localId,
               ) && (
                 <div className="alert alert-error" role="alert">
                   {
                     failedProducts.find(
-                      (failed) => failed.localId === product.localId
+                      (failed) => failed.localId === product.localId,
                     )?.error
                   }
                 </div>
@@ -877,12 +852,12 @@ export default function BulkAddProducts() {
           <div
             className="bulk-product-actions"
             style={{
-              display: 'flex',
-              flexWrap: 'wrap',
+              display: "flex",
+              flexWrap: "wrap",
               gap: 12,
               marginTop: 24,
               marginBottom: 24,
-              alignItems: 'stretch',
+              alignItems: "stretch",
             }}
           >
             <button
@@ -891,15 +866,15 @@ export default function BulkAddProducts() {
               disabled={publishing}
               onClick={addProduct}
               style={{
-                flex: '1 1 180px',
+                flex: "1 1 180px",
                 minHeight: 48,
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
                 gap: 8,
                 borderRadius: 12,
                 fontWeight: 600,
-                padding: '12px 18px',
+                padding: "12px 18px",
               }}
             >
               <Plus size={18} />
@@ -911,23 +886,20 @@ export default function BulkAddProducts() {
               className="btn btn-primary"
               disabled={publishing}
               style={{
-                flex: '2 1 220px',
+                flex: "2 1 220px",
                 minHeight: 48,
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
                 gap: 8,
                 borderRadius: 12,
                 fontWeight: 600,
-                padding: '12px 18px',
+                padding: "12px 18px",
               }}
             >
               {publishing ? (
                 <>
-                  <span
-                    className="button-spinner"
-                    aria-hidden="true"
-                  />
+                  <span className="button-spinner" aria-hidden="true" />
                   Publishing...
                 </>
               ) : (
@@ -947,34 +919,34 @@ export default function BulkAddProducts() {
           aria-modal="true"
           aria-label="Crop product photo"
           style={{
-            position: 'fixed',
+            position: "fixed",
             inset: 0,
             zIndex: 9999,
-            background: 'rgba(0, 0, 0, 0.78)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
+            background: "rgba(0, 0, 0, 0.78)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
             padding: 16,
-            overscrollBehavior: 'none',
-            touchAction: 'none',
+            overscrollBehavior: "none",
+            touchAction: "none",
           }}
         >
           <div
             className="card"
             style={{
-              width: '100%',
+              width: "100%",
               maxWidth: 560,
               padding: 16,
-              background: 'var(--surface)',
-              overscrollBehavior: 'none',
-              touchAction: 'none',
+              background: "var(--surface)",
+              overscrollBehavior: "none",
+              touchAction: "none",
             }}
           >
             <div
               style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
                 marginBottom: 14,
                 gap: 10,
               }}
@@ -994,14 +966,14 @@ export default function BulkAddProducts() {
 
             <div
               style={{
-                position: 'relative',
+                position: "relative",
                 height: 320,
-                width: '100%',
-                background: '#111',
+                width: "100%",
+                background: "#111",
                 borderRadius: 10,
-                overflow: 'hidden',
-                overscrollBehavior: 'none',
-                touchAction: 'none',
+                overflow: "hidden",
+                overscrollBehavior: "none",
+                touchAction: "none",
               }}
             >
               <Cropper
@@ -1028,17 +1000,17 @@ export default function BulkAddProducts() {
                 onChange={(event) => setZoom(Number(event.target.value))}
                 disabled={savingCrop}
                 style={{
-                  width: '100%',
-                  touchAction: 'pan-x',
+                  width: "100%",
+                  touchAction: "pan-x",
                 }}
               />
             </div>
 
             <div
               style={{
-                display: 'flex',
-                justifyContent: 'flex-end',
-                flexWrap: 'wrap',
+                display: "flex",
+                justifyContent: "flex-end",
+                flexWrap: "wrap",
                 gap: 10,
                 marginTop: 16,
               }}
@@ -1058,7 +1030,7 @@ export default function BulkAddProducts() {
                 onClick={saveCroppedImage}
                 disabled={savingCrop || !croppedAreaPixels}
               >
-                {savingCrop ? 'Saving...' : 'Save Crop'}
+                {savingCrop ? "Saving..." : "Save Crop"}
               </button>
             </div>
           </div>

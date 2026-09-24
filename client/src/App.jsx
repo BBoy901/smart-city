@@ -1,5 +1,4 @@
-
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from "react";
 import {
   BrowserRouter,
   Routes,
@@ -7,41 +6,41 @@ import {
   Navigate,
   useLocation,
   useNavigate,
-} from 'react-router-dom';
+} from "react-router-dom";
 
-import { AuthProvider, useAuth } from './context/AuthContext';
-import { LanguageProvider } from './context/LanguageContext';
+import { AuthProvider, useAuth } from "./context/AuthContext";
+import { LanguageProvider } from "./context/LanguageContext";
 
-import BottomNav from './components/BottomNav';
-import Loading from './components/Loading';
-import SplashScreen from './components/SplashScreen';
+import BottomNav from "./components/BottomNav";
+import Loading from "./components/Loading";
+import SplashScreen from "./components/SplashScreen";
 
-import Welcome from './pages/Welcome';
-import Home from './pages/Home';
-import Search from './pages/Search';
-import Saved from './pages/Saved';
-import Messages from './pages/Messages';
-import Profile from './pages/Profile';
-import Settings from './pages/Settings';
-import Notifications from './pages/Notifications';
-import About from './pages/About';
-import Account from './pages/Account';
-import Login from './pages/Login';
-import Language from './pages/Language';
-import ResetPassword from './pages/ResetPassword';
-import Register from './pages/Register';
-import PrivacySecurity from './pages/PrivacySecurity';
-import Onboarding from './pages/Onboarding';
-import ProductDetail from './pages/ProductDetail';
-import ShopProfile from './pages/ShopProfile';
+import Welcome from "./pages/Welcome";
+import Home from "./pages/Home";
+import Search from "./pages/Search";
+import Saved from "./pages/Saved";
+import Messages from "./pages/Messages";
+import Profile from "./pages/Profile";
+import Settings from "./pages/Settings";
+import Notifications from "./pages/Notifications";
+import About from "./pages/About";
+import Account from "./pages/Account";
+import Login from "./pages/Login";
+import Language from "./pages/Language";
+import ResetPassword from "./pages/ResetPassword";
+import Register from "./pages/Register";
+import PrivacySecurity from "./pages/PrivacySecurity";
+import Onboarding from "./pages/Onboarding";
+import ProductDetail from "./pages/ProductDetail";
+import ShopProfile from "./pages/ShopProfile";
 
-import SellerHome from './pages/seller/SellerHome';
-import SellerSetup from './pages/seller/SellerSetup';
-import SellerProducts from './pages/seller/SellerProducts';
-import AddProduct from './pages/seller/AddProduct';
-import BulkAddProducts from './pages/seller/BulkAddProducts';
+import SellerHome from "./pages/seller/SellerHome";
+import SellerSetup from "./pages/seller/SellerSetup";
+import SellerProducts from "./pages/seller/SellerProducts";
+import AddProduct from "./pages/seller/AddProduct";
+import BulkAddProducts from "./pages/seller/BulkAddProducts";
 
-import AdminLayout from './pages/admin/AdminLayout';
+import AdminLayout from "./pages/admin/AdminLayout";
 
 function AuthShell({ children }) {
   return <div className="app-container auth-shell">{children}</div>;
@@ -54,35 +53,31 @@ function AppLayout({ children }) {
   const touchStart = useRef(null);
 
   const customerSwipeRoutes = [
-    '/',
-    '/search',
-    '/saved',
-    '/messages',
-    '/profile',
+    "/",
+    "/search",
+    "/saved",
+    "/messages",
+    "/profile",
   ];
 
   const sellerSwipeRoutes = [
-    '/seller',
-    '/seller/products',
-    '/seller/add-product',
-    '/messages',
-    '/profile',
+    "/seller",
+    "/seller/products",
+    "/seller/add-product",
+    "/messages",
+    "/profile",
   ];
 
-  const swipeRoutes = isSellerMode
-    ? sellerSwipeRoutes
-    : customerSwipeRoutes;
+  const swipeRoutes = isSellerMode ? sellerSwipeRoutes : customerSwipeRoutes;
 
   const currentRoute =
-    location.pathname === '/explore'
-      ? '/'
-      : location.pathname;
+    location.pathname === "/explore" ? "/" : location.pathname;
 
   const handleTouchStart = (event) => {
     if (
       !swipeRoutes.includes(currentRoute) ||
       event.target.closest(
-        '.chat-thread, .chat-composer, .home-category-row, .recent-searches'
+        ".chat-thread, .chat-composer, .home-category-row, .recent-searches",
       )
     ) {
       return;
@@ -106,24 +101,15 @@ function AppLayout({ children }) {
 
     touchStart.current = null;
 
-    if (
-      Math.abs(deltaX) < 60 ||
-      Math.abs(deltaX) <= Math.abs(deltaY) * 1.3
-    ) {
+    if (Math.abs(deltaX) < 60 || Math.abs(deltaX) <= Math.abs(deltaY) * 1.3) {
       return;
     }
 
     const routeIndex = swipeRoutes.indexOf(currentRoute);
 
-    const nextIndex =
-      deltaX < 0
-        ? routeIndex + 1
-        : routeIndex - 1;
+    const nextIndex = deltaX < 0 ? routeIndex + 1 : routeIndex - 1;
 
-    if (
-      nextIndex >= 0 &&
-      nextIndex < swipeRoutes.length
-    ) {
+    if (nextIndex >= 0 && nextIndex < swipeRoutes.length) {
       navigate(swipeRoutes[nextIndex]);
     }
   };
@@ -168,107 +154,173 @@ function AppRoutes() {
       <Route
         path="/"
         element={
-          isAuthenticated && isSellerMode
-            ? <Navigate to="/seller" />
-            : <AppLayout><Home /></AppLayout>
+          isAuthenticated && isSellerMode ? (
+            <Navigate to="/seller" />
+          ) : (
+            <AppLayout>
+              <Home />
+            </AppLayout>
+          )
         }
       />
 
       <Route
         path="/explore"
-        element={<AppLayout><Home /></AppLayout>}
+        element={
+          <AppLayout>
+            <Home />
+          </AppLayout>
+        }
       />
 
       <Route path="/welcome" element={<Welcome />} />
 
       <Route
         path="/login"
-        element={<AuthShell><Login /></AuthShell>}
+        element={
+          <AuthShell>
+            <Login />
+          </AuthShell>
+        }
       />
 
       <Route
         path="/reset-password"
-        element={<AuthShell><ResetPassword /></AuthShell>}
+        element={
+          <AuthShell>
+            <ResetPassword />
+          </AuthShell>
+        }
       />
 
       <Route
         path="/register"
-        element={<AuthShell><Register /></AuthShell>}
+        element={
+          <AuthShell>
+            <Register />
+          </AuthShell>
+        }
       />
 
       <Route
         path="/onboarding"
         element={
           <ProtectedRoute>
-            <AuthShell><Onboarding /></AuthShell>
+            <AuthShell>
+              <Onboarding />
+            </AuthShell>
           </ProtectedRoute>
         }
       />
 
       <Route
         path="/search"
-        element={<AppLayout><Search /></AppLayout>}
+        element={
+          <AppLayout>
+            <Search />
+          </AppLayout>
+        }
       />
 
       <Route
         path="/saved"
-        element={<AppLayout><Saved /></AppLayout>}
+        element={
+          <AppLayout>
+            <Saved />
+          </AppLayout>
+        }
       />
 
       <Route
         path="/messages"
-        element={<AppLayout><Messages /></AppLayout>}
+        element={
+          <AppLayout>
+            <Messages />
+          </AppLayout>
+        }
       />
 
       <Route
         path="/profile"
-        element={<AppLayout><Profile /></AppLayout>}
+        element={
+          <AppLayout>
+            <Profile />
+          </AppLayout>
+        }
       />
 
       <Route
         path="/notifications"
-        element={<AppLayout><Notifications /></AppLayout>}
+        element={
+          <AppLayout>
+            <Notifications />
+          </AppLayout>
+        }
       />
 
       <Route
         path="/about"
-        element={<AppLayout><About /></AppLayout>}
+        element={
+          <AppLayout>
+            <About />
+          </AppLayout>
+        }
       />
 
       <Route
         path="/product/:id"
-        element={<AppLayout><ProductDetail /></AppLayout>}
+        element={
+          <AppLayout>
+            <ProductDetail />
+          </AppLayout>
+        }
       />
 
       <Route
         path="/shop/:id"
-        element={<AppLayout><ShopProfile /></AppLayout>}
+        element={
+          <AppLayout>
+            <ShopProfile />
+          </AppLayout>
+        }
       />
 
       <Route
         path="/settings"
-        element={<AppLayout><Settings /></AppLayout>}
+        element={
+          <AppLayout>
+            <Settings />
+          </AppLayout>
+        }
       />
 
       <Route
         path="/account"
         element={
           <ProtectedRoute>
-            <AppLayout><Account /></AppLayout>
+            <AppLayout>
+              <Account />
+            </AppLayout>
           </ProtectedRoute>
         }
       />
 
       <Route
         path="/language"
-        element={<AppLayout><Language /></AppLayout>}
+        element={
+          <AppLayout>
+            <Language />
+          </AppLayout>
+        }
       />
 
       <Route
         path="/privacy-security"
         element={
           <ProtectedRoute>
-            <AppLayout><PrivacySecurity /></AppLayout>
+            <AppLayout>
+              <PrivacySecurity />
+            </AppLayout>
           </ProtectedRoute>
         }
       />
@@ -277,7 +329,9 @@ function AppRoutes() {
         path="/seller"
         element={
           <ProtectedRoute requireSeller>
-            <AppLayout><SellerHome /></AppLayout>
+            <AppLayout>
+              <SellerHome />
+            </AppLayout>
           </ProtectedRoute>
         }
       />
@@ -286,7 +340,9 @@ function AppRoutes() {
         path="/seller/setup"
         element={
           <ProtectedRoute>
-            <AuthShell><SellerSetup /></AuthShell>
+            <AuthShell>
+              <SellerSetup />
+            </AuthShell>
           </ProtectedRoute>
         }
       />
@@ -295,7 +351,9 @@ function AppRoutes() {
         path="/seller/products"
         element={
           <ProtectedRoute requireSeller>
-            <AppLayout><SellerProducts /></AppLayout>
+            <AppLayout>
+              <SellerProducts />
+            </AppLayout>
           </ProtectedRoute>
         }
       />
@@ -305,7 +363,9 @@ function AppRoutes() {
         path="/seller/add-product"
         element={
           <ProtectedRoute requireSeller>
-            <AppLayout><BulkAddProducts /></AppLayout>
+            <AppLayout>
+              <BulkAddProducts />
+            </AppLayout>
           </ProtectedRoute>
         }
       />
@@ -315,7 +375,9 @@ function AppRoutes() {
         path="/seller/edit-product/:id"
         element={
           <ProtectedRoute requireSeller>
-            <AppLayout><AddProduct /></AppLayout>
+            <AppLayout>
+              <AddProduct />
+            </AppLayout>
           </ProtectedRoute>
         }
       />
@@ -324,9 +386,7 @@ function AppRoutes() {
 
       <Route
         path="*"
-        element={
-          <Navigate to={isAuthenticated ? '/' : '/welcome'} />
-        }
+        element={<Navigate to={isAuthenticated ? "/" : "/welcome"} />}
       />
     </Routes>
   );

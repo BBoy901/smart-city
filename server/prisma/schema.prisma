@@ -8,27 +8,29 @@ datasource db {
 }
 
 model User {
-  id              String                    @id @default(uuid())
-  email           String                    @unique
-  passwordHash    String                    @map("password_hash")
-  name            String
-  phone           String?
-  avatarUrl       String?                   @map("avatar_url")
-  roles           Role[]                    @default([CUSTOMER])
-  activeMode      ActiveMode                @default(CUSTOMER) @map("active_mode")
-  isActive        Boolean                   @default(true) @map("is_active")
-  createdAt       DateTime                  @default(now()) @map("created_at")
-  updatedAt       DateTime                  @updatedAt @map("updated_at")
-  conversations   ConversationParticipant[]
-  customerProfile CustomerProfile?
-  likes           Like[]
-  sentMessages    Message[]                 @relation("SentMessages")
-  productViews    ProductView[]
-  recentlyViewed  RecentlyViewed[]
-  savedProducts   SavedProduct[]
-  searchLogs      SearchLog[]
-  sellerProfile   SellerProfile?
-  preferences     UserPreference[]
+  id                  String                      @id @default(uuid())
+  email               String                      @unique
+  passwordHash        String                      @map("password_hash")
+  name                String
+  phone               String?
+  avatarUrl           String?                     @map("avatar_url")
+  roles               Role[]                      @default([CUSTOMER])
+  activeMode          ActiveMode                  @default(CUSTOMER) @map("active_mode")
+  isActive            Boolean                     @default(true) @map("is_active")
+  createdAt           DateTime                    @default(now()) @map("created_at")
+  updatedAt           DateTime                    @updatedAt @map("updated_at")
+  conversations       ConversationParticipant[]
+  customerProfile     CustomerProfile?
+  likes               Like[]
+  sentMessages        Message[]                   @relation("SentMessages")
+  productViews        ProductView[]
+  recentlyViewed      RecentlyViewed[]
+  savedProducts       SavedProduct[]
+  searchLogs          SearchLog[]
+  sellerProfile       SellerProfile?
+  preferences         UserPreference[]
+  hiddenMessages      MessageHiddenForUser[]
+  hiddenConversations ConversationHiddenForUser[]
 
   @@map("users")
 }
@@ -45,14 +47,15 @@ model CustomerProfile {
 }
 
 model SellerProfile {
-  id             String         @id @default(uuid())
-  userId         String         @unique @map("user_id")
-  description    String?
-  approvalStatus SellerApproval @default(PENDING) @map("approval_status")
-  createdAt      DateTime       @default(now()) @map("created_at")
-  updatedAt      DateTime       @updatedAt @map("updated_at")
-  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  shops          Shop[]
+  id              String         @id @default(uuid())
+  userId          String         @unique @map("user_id")
+  description     String?
+  approvalStatus  SellerApproval @default(PENDING) @map("approval_status")
+  rejectionReason String?        @map("rejection_reason")
+  createdAt       DateTime       @default(now()) @map("created_at")
+  updatedAt       DateTime       @updatedAt @map("updated_at")
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  shops           Shop[]
 
   @@map("seller_profiles")
 }
@@ -124,28 +127,30 @@ model ShopCategory {
 }
 
 model Product {
-  id             String           @id @default(uuid())
-  shopId         String           @map("shop_id")
-  categoryId     String?          @map("category_id")
-  name           String
-  description    String?
-  price          Float?
-  currency       String           @default("TSh")
-  availability   Availability     @default(IN_STOCK)
-  videoUrl       String?          @map("video_url")
-  isActive       Boolean          @default(true) @map("is_active")
-  viewCount      Int              @default(0) @map("view_count")
-  likeCount      Int              @default(0) @map("like_count")
-  saveCount      Int              @default(0) @map("save_count")
-  createdAt      DateTime         @default(now()) @map("created_at")
-  updatedAt      DateTime         @updatedAt @map("updated_at")
-  likes          Like[]
-  images         ProductImage[]
-  views          ProductView[]
-  category       Category?        @relation(fields: [categoryId], references: [id])
-  shop           Shop             @relation(fields: [shopId], references: [id], onDelete: Cascade)
-  recentlyViewed RecentlyViewed[]
-  savedProducts  SavedProduct[]
+  id                    String           @id @default(uuid())
+  shopId                String           @map("shop_id")
+  categoryId            String?          @map("category_id")
+  name                  String
+  description           String?
+  price                 Float?
+  currency              String           @default("TSh")
+  availability          Availability     @default(IN_STOCK)
+  videoUrl              String?          @map("video_url")
+  isActive              Boolean          @default(true) @map("is_active")
+  viewCount             Int              @default(0) @map("view_count")
+  likeCount             Int              @default(0) @map("like_count")
+  saveCount             Int              @default(0) @map("save_count")
+  createdAt             DateTime         @default(now()) @map("created_at")
+  updatedAt             DateTime         @updatedAt @map("updated_at")
+  likes                 Like[]
+  images                ProductImage[]
+  views                 ProductView[]
+  category              Category?        @relation(fields: [categoryId], references: [id])
+  shop                  Shop             @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  recentlyViewed        RecentlyViewed[]
+  savedProducts         SavedProduct[]
+  originalConversations Conversation[]   @relation("ConversationOriginalProduct")
+  sharedMessages        Message[]
 
   @@index([name])
   @@index([shopId])
@@ -228,12 +233,16 @@ model ProductView {
 }
 
 model Conversation {
-  id           String                    @id @default(uuid())
-  createdAt    DateTime                  @default(now()) @map("created_at")
-  updatedAt    DateTime                  @updatedAt @map("updated_at")
-  participants ConversationParticipant[]
-  messages     Message[]
+  id              String                      @id @default(uuid())
+  productId       String?                     @map("product_id")
+  createdAt       DateTime                    @default(now()) @map("created_at")
+  updatedAt       DateTime                    @updatedAt @map("updated_at")
+  participants    ConversationParticipant[]
+  messages        Message[]
+  originalProduct Product?                    @relation("ConversationOriginalProduct", fields: [productId], references: [id], onDelete: SetNull)
+  hiddenForUsers  ConversationHiddenForUser[]
 
+  @@index([productId])
   @@map("conversations")
 }
 
@@ -250,17 +259,47 @@ model ConversationParticipant {
 }
 
 model Message {
-  id             String       @id @default(uuid())
-  conversationId String       @map("conversation_id")
-  senderId       String       @map("sender_id")
+  id             String                 @id @default(uuid())
+  conversationId String                 @map("conversation_id")
+  senderId       String                 @map("sender_id")
+  type           MessageType            @default(TEXT)
   content        String
-  isRead         Boolean      @default(false) @map("is_read")
-  createdAt      DateTime     @default(now()) @map("created_at")
-  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  sender         User         @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  imageUrl       String?                @map("image_url")
+  productId      String?                @map("product_id")
+  isRead         Boolean                @default(false) @map("is_read")
+  createdAt      DateTime               @default(now()) @map("created_at")
+  conversation   Conversation           @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender         User                   @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  product        Product?               @relation(fields: [productId], references: [id], onDelete: SetNull)
+  hiddenForUsers MessageHiddenForUser[]
 
   @@index([conversationId])
+  @@index([productId])
   @@map("messages")
+}
+
+model MessageHiddenForUser {
+  messageId String   @map("messageId")
+  userId    String   @map("userId")
+  createdAt DateTime @default(now()) @map("createdAt")
+  message   Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([messageId, userId])
+  @@index([userId])
+  @@map("message_hidden_for_user")
+}
+
+model ConversationHiddenForUser {
+  conversationId String       @map("conversationId")
+  userId         String       @map("userId")
+  hiddenAt       DateTime     @default(now()) @map("hiddenAt")
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([conversationId, userId])
+  @@index([userId])
+  @@map("conversation_hidden_for_user")
 }
 
 model SearchLog {
@@ -297,4 +336,10 @@ enum SellerApproval {
   PENDING
   APPROVED
   REJECTED
+}
+
+enum MessageType {
+  TEXT
+  PHOTO
+  PRODUCT
 }

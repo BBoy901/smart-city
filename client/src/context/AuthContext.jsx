@@ -1,5 +1,11 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { api } from '../api/client';
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
+import { api } from "../api/client";
 
 const AuthContext = createContext(null);
 
@@ -10,32 +16,48 @@ export function AuthProvider({ children }) {
   const [chatOpen, setChatOpen] = useState(false);
 
   const refreshUnreadMessages = useCallback(async () => {
-    if (!localStorage.getItem('token')) { setUnreadMessages(0); return; }
+    if (!localStorage.getItem("token")) {
+      setUnreadMessages(0);
+      return;
+    }
     try {
       const conversations = await api.getConversations();
-      setUnreadMessages(conversations.reduce((total, conversation) => total + (conversation.unreadCount || 0), 0));
+      setUnreadMessages(
+        conversations.reduce(
+          (total, conversation) => total + (conversation.unreadCount || 0),
+          0,
+        ),
+      );
     } catch {
       setUnreadMessages(0);
     }
   }, []);
 
   const loadUser = useCallback(async () => {
-    const token = localStorage.getItem('token');
-    if (!token) { setLoading(false); return; }
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setLoading(false);
+      return;
+    }
     try {
       const data = await api.getMe();
       setUser(data);
     } catch {
-      localStorage.removeItem('token');
+      localStorage.removeItem("token");
     } finally {
       setLoading(false);
     }
   }, []);
 
-  useEffect(() => { loadUser(); }, [loadUser]);
+  useEffect(() => {
+    loadUser();
+  }, [loadUser]);
 
   useEffect(() => {
-    if (!user) { setUnreadMessages(0); return undefined; }
+    if (!user) {
+      setUnreadMessages(0);
+      return undefined;
+    }
     refreshUnreadMessages();
     const timer = setInterval(refreshUnreadMessages, 30000);
     return () => clearInterval(timer);
@@ -43,20 +65,20 @@ export function AuthProvider({ children }) {
 
   const login = async (email, password) => {
     const { token, user: u } = await api.login({ email, password });
-    localStorage.setItem('token', token);
+    localStorage.setItem("token", token);
     setUser(u);
     return u;
   };
 
   const register = async (data) => {
     const { token, user: u } = await api.register(data);
-    localStorage.setItem('token', token);
+    localStorage.setItem("token", token);
     setUser(u);
     return u;
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
+    localStorage.removeItem("token");
     setUser(null);
   };
 
@@ -78,21 +100,40 @@ export function AuthProvider({ children }) {
     return updated;
   };
 
-  const isCustomer = user?.roles?.includes('CUSTOMER');
-  const isSeller = user?.roles?.includes('SELLER');
-  const isAdmin = user?.roles?.includes('ADMIN');
-  const isSellerMode = user?.activeMode === 'SELLER';
+  const isCustomer = user?.roles?.includes("CUSTOMER");
+  const isSeller = user?.roles?.includes("SELLER");
+  const isAdmin = user?.roles?.includes("ADMIN");
+  const isSellerMode = user?.activeMode === "SELLER";
   const sellerApprovalStatus = user?.sellerProfile?.approvalStatus || null;
+  const sellerRejectionReason = user?.sellerProfile?.rejectionReason || null;
   const isApprovedSeller =
-    sellerApprovalStatus !== 'PENDING' && sellerApprovalStatus !== 'REJECTED';
+    sellerApprovalStatus !== "PENDING" && sellerApprovalStatus !== "REJECTED";
 
   return (
-    <AuthContext.Provider value={{
-      user, loading, login, register, logout, refreshUser, switchMode, addRole,
-      isCustomer, isSeller, isAdmin, isSellerMode, sellerApprovalStatus, isApprovedSeller,
-      unreadMessages, refreshUnreadMessages,
-      chatOpen, setChatOpen, isAuthenticated: !!user,
-    }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        login,
+        register,
+        logout,
+        refreshUser,
+        switchMode,
+        addRole,
+        isCustomer,
+        isSeller,
+        isAdmin,
+        isSellerMode,
+        sellerApprovalStatus,
+        sellerRejectionReason,
+        isApprovedSeller,
+        unreadMessages,
+        refreshUnreadMessages,
+        chatOpen,
+        setChatOpen,
+        isAuthenticated: !!user,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -100,6 +141,6 @@ export function AuthProvider({ children }) {
 
 export function useAuth() {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
+  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
   return ctx;
 }

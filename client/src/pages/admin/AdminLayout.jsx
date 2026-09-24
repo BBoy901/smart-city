@@ -1,49 +1,106 @@
-import AdminSettings from './AdminSettings';
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { api } from '../../api/client';
-import { useAuth } from '../../context/AuthContext';
-import Loading from '../../components/Loading';
-import { Users, Package, Store, Tag, Settings, LogOut, Power } from 'lucide-react';
-import { Link, Routes, Route, useSearchParams } from 'react-router-dom';
+import AdminSettings from "./AdminSettings";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { api } from "../../api/client";
+import { useAuth } from "../../context/AuthContext";
+import Loading from "../../components/Loading";
+import {
+  Users,
+  Package,
+  Store,
+  Tag,
+  Settings,
+  LogOut,
+  Power,
+} from "lucide-react";
+import { Link, Routes, Route, useSearchParams } from "react-router-dom";
 
 function AdminDashboard() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.getAdminStats().then(setStats).catch(console.error).finally(() => setLoading(false));
+    api
+      .getAdminStats()
+      .then(setStats)
+      .catch(console.error)
+      .finally(() => setLoading(false));
   }, []);
 
   if (loading) return <Loading />;
   const o = stats?.overview || {};
   const manageItems = [
-    { to: '/admin/users', icon: Users, label: 'Customers', count: o.totalCustomers },
-    { to: '/admin/users?role=SELLER', icon: Store, label: 'Sellers', count: o.totalSellers },
-    { to: '/admin/sellers', icon: Users, label: 'Pending Sellers', count: o.pendingSellers },
-    { to: '/admin/products', icon: Package, label: 'Products', count: o.totalProducts },
-    { to: '/admin/categories', icon: Tag, label: 'Categories', count: o.totalCategories },
-    { to: '/admin/shops', icon: Store, label: 'Shops', count: o.totalShops },
+    {
+      to: "/admin/users",
+      icon: Users,
+      label: "Customers",
+      count: o.totalCustomers,
+    },
+    {
+      to: "/admin/users?role=SELLER",
+      icon: Store,
+      label: "Sellers",
+      count: o.totalSellers,
+    },
+    {
+      to: "/admin/sellers",
+      icon: Users,
+      label: "Pending Sellers",
+      count: o.pendingSellers,
+    },
+    {
+      to: "/admin/products",
+      icon: Package,
+      label: "Products",
+      count: o.totalProducts,
+    },
+    {
+      to: "/admin/categories",
+      icon: Tag,
+      label: "Categories",
+      count: o.totalCategories,
+    },
+    { to: "/admin/shops", icon: Store, label: "Shops", count: o.totalShops },
   ];
 
   return (
     <div>
       <div className="admin-eyebrow">Kariakoo Pilot · Overview</div>
       <div className="stat-grid admin-overview-grid">
-        <div className="stat-card"><div className="stat-card-value">{o.totalCustomers}</div><div className="stat-card-label">Customers</div></div>
-        <div className="stat-card"><div className="stat-card-value">{o.totalSellers}</div><div className="stat-card-label">Sellers</div></div>
-        <div className="stat-card"><div className="stat-card-value">{o.totalProducts}</div><div className="stat-card-label">Products listed</div></div>
-        <div className="stat-card"><div className="stat-card-value">{o.totalMessages}</div><div className="stat-card-label">Messages sent</div></div>
+        <div className="stat-card">
+          <div className="stat-card-value">{o.totalCustomers}</div>
+          <div className="stat-card-label">Customers</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-card-value">{o.totalSellers}</div>
+          <div className="stat-card-label">Sellers</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-card-value">{o.totalProducts}</div>
+          <div className="stat-card-label">Products listed</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-card-value">{o.totalMessages}</div>
+          <div className="stat-card-label">Messages sent</div>
+        </div>
       </div>
 
       <div className="admin-dashboard-section">
         <h2 className="admin-section-title">Most searched products</h2>
         <div className="admin-list-card admin-search-list">
-          {(stats?.topSearches?.length ? stats.topSearches : stats?.topProducts?.map((p) => ({ query: p.name, count: p.viewCount })))?.map((item, index) => (
+          {(stats?.topSearches?.length
+            ? stats.topSearches
+            : stats?.topProducts?.map((p) => ({
+                query: p.name,
+                count: p.viewCount,
+              }))
+          )?.map((item, index) => (
             <div className="admin-ranking-row" key={`${item.query}-${index}`}>
               <span className="admin-rank">{index + 1}</span>
               <span className="admin-ranking-name">{item.query}</span>
-              <span className="admin-ranking-meta">{item.count} {item.count === 1 ? 'search' : 'searches'}</span>
+              <span className="admin-ranking-meta">
+                {item.count} {item.count === 1 ? "search" : "searches"}
+              </span>
             </div>
           ))}
         </div>
@@ -54,7 +111,9 @@ function AdminDashboard() {
         <div className="admin-category-list">
           {stats?.popularCategories?.slice(0, 6).map((category) => (
             <div className="admin-category-item" key={category.id}>
-              <span>{category.icon} {category.name}</span>
+              <span>
+                {category.icon} {category.name}
+              </span>
             </div>
           ))}
         </div>
@@ -71,10 +130,10 @@ function AdminDashboard() {
             </Link>
           ))}
           <Link className="admin-manage-card" to="/admin/settings">
-  <Settings size={20} />
-  <span>Settings</span>
-  <strong>→</strong>
-</Link>
+            <Settings size={20} />
+            <span>Settings</span>
+            <strong>→</strong>
+          </Link>
         </div>
       </section>
     </div>
@@ -92,7 +151,7 @@ function AdminSellers() {
       const data = await api.getPendingSellers();
       setSellers(data);
     } catch (error) {
-      console.error('Failed to load pending sellers:', error);
+      console.error("Failed to load pending sellers:", error);
     } finally {
       setLoading(false);
     }
@@ -103,25 +162,39 @@ function AdminSellers() {
   }, []);
 
   const handleApproval = async (id, approvalStatus) => {
-    try {
-      setProcessingId(id);
+  let rejectionReason;
 
-      await api.approveSeller(id, approvalStatus);
+  if (approvalStatus === "REJECTED") {
+    rejectionReason = window.prompt(
+      "Please enter the reason for rejecting this seller:",
+    );
 
-      setSellers((prev) => prev.filter((seller) => seller.id !== id));
-    } catch (error) {
-      console.error(
-        `Failed to ${approvalStatus.toLowerCase()} seller:`,
-        error
-      );
-
-      alert(
-        `Failed to ${approvalStatus.toLowerCase()} seller. Please try again.`
-      );
-    } finally {
-      setProcessingId(null);
+    if (rejectionReason === null) {
+      return;
     }
-  };
+
+    if (!rejectionReason.trim()) {
+      alert("A rejection reason is required.");
+      return;
+    }
+  }
+
+  try {
+    setProcessingId(id);
+
+    await api.approveSeller(id, approvalStatus, rejectionReason);
+
+    setSellers((prev) => prev.filter((seller) => seller.id !== id));
+  } catch (error) {
+    console.error(`Failed to ${approvalStatus.toLowerCase()} seller:`, error);
+
+    alert(
+      `Failed to ${approvalStatus.toLowerCase()} seller. Please try again.`,
+    );
+  } finally {
+    setProcessingId(null);
+  }
+};
 
   if (loading) {
     return <Loading />;
@@ -130,7 +203,9 @@ function AdminSellers() {
   return (
     <div>
       <div className="admin-section-heading">
-        <h1 className="admin-page-title admin-page-title-inline">Pending Sellers</h1>
+        <h1 className="admin-page-title admin-page-title-inline">
+          Pending Sellers
+        </h1>
         <span className="admin-count-badge">{sellers.length}</span>
       </div>
 
@@ -149,15 +224,15 @@ function AdminSellers() {
           {sellers.map((seller, index) => (
             <div
               key={seller.id}
-              className={`admin-seller-row${index === sellers.length - 1 ? ' is-last' : ''}`}
+              className={`admin-seller-row${index === sellers.length - 1 ? " is-last" : ""}`}
             >
               <div className="admin-seller-top">
                 <div className="admin-seller-info">
                   <div className="admin-seller-name">
-                    {seller.user?.name || 'Unnamed seller'}
+                    {seller.user?.name || "Unnamed seller"}
                   </div>
                   <div className="admin-seller-meta">
-                    {seller.user?.email || 'No email'}
+                    {seller.user?.email || "No email"}
                   </div>
                   {seller.user?.phone && (
                     <div className="admin-seller-meta">{seller.user.phone}</div>
@@ -166,15 +241,15 @@ function AdminSellers() {
                     <div className="admin-seller-shop">
                       <span>Shop: </span>
                       <strong>
-                        {seller.shops.map((shop) => shop.name).join(', ')}
+                        {seller.shops.map((shop) => shop.name).join(", ")}
                       </strong>
                     </div>
                   )}
                   <div className="admin-seller-date">
-                    Applied{' '}
+                    Applied{" "}
                     {seller.createdAt
                       ? new Date(seller.createdAt).toLocaleDateString()
-                      : '-'}
+                      : "-"}
                   </div>
                 </div>
                 <span className="admin-pending-badge">Pending</span>
@@ -185,17 +260,17 @@ function AdminSellers() {
                   type="button"
                   className="btn btn-primary btn-sm"
                   disabled={processingId === seller.id}
-                  onClick={() => handleApproval(seller.id, 'APPROVED')}
+                  onClick={() => handleApproval(seller.id, "APPROVED")}
                 >
-                  {processingId === seller.id ? 'Processing...' : 'Approve'}
+                  {processingId === seller.id ? "Processing..." : "Approve"}
                 </button>
                 <button
                   type="button"
                   className="btn btn-secondary btn-sm"
                   disabled={processingId === seller.id}
-                  onClick={() => handleApproval(seller.id, 'REJECTED')}
+                  onClick={() => handleApproval(seller.id, "REJECTED")}
                 >
-                  {processingId === seller.id ? 'Processing...' : 'Reject'}
+                  {processingId === seller.id ? "Processing..." : "Reject"}
                 </button>
               </div>
             </div>
@@ -209,27 +284,51 @@ function AdminSellers() {
 function AdminUsers() {
   const [users, setUsers] = useState([]);
   const [searchParams] = useSearchParams();
-  const role = searchParams.get('role');
-  useEffect(() => { api.getAdminUsers(role ? { role } : {}).then(setUsers).catch(console.error); }, [role]);
+  const role = searchParams.get("role");
+  useEffect(() => {
+    api
+      .getAdminUsers(role ? { role } : {})
+      .then(setUsers)
+      .catch(console.error);
+  }, [role]);
 
   const toggle = async (id, isActive) => {
     await api.toggleUserStatus(id, !isActive);
-    setUsers((prev) => prev.map((u) => u.id === id ? { ...u, isActive: !isActive } : u));
+    setUsers((prev) =>
+      prev.map((u) => (u.id === id ? { ...u, isActive: !isActive } : u)),
+    );
   };
 
   return (
     <div>
-      <h1 className="admin-page-title">{role === 'SELLER' ? 'Sellers' : 'Customers'}</h1>
+      <h1 className="admin-page-title">
+        {role === "SELLER" ? "Sellers" : "Customers"}
+      </h1>
       <table className="admin-table">
-        <thead><tr><th>Name</th><th>Email</th><th>Roles</th><th>Status</th><th>Action</th></tr></thead>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Roles</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
         <tbody>
           {users.map((u) => (
             <tr key={u.id}>
               <td>{u.name}</td>
               <td>{u.email}</td>
-              <td>{u.roles.join(', ')}</td>
-              <td>{u.isActive ? '✅ Active' : '❌ Disabled'}</td>
-              <td><button className="btn btn-sm btn-secondary" onClick={() => toggle(u.id, u.isActive)}>{u.isActive ? 'Disable' : 'Enable'}</button></td>
+              <td>{u.roles.join(", ")}</td>
+              <td>{u.isActive ? "✅ Active" : "❌ Disabled"}</td>
+              <td>
+                <button
+                  className="btn btn-sm btn-secondary"
+                  onClick={() => toggle(u.id, u.isActive)}
+                >
+                  {u.isActive ? "Disable" : "Enable"}
+                </button>
+              </td>
             </tr>
           ))}
         </tbody>
@@ -240,27 +339,47 @@ function AdminUsers() {
 
 function AdminProducts() {
   const [products, setProducts] = useState([]);
-  useEffect(() => { api.getAdminProducts().then(setProducts).catch(console.error); }, []);
+  useEffect(() => {
+    api.getAdminProducts().then(setProducts).catch(console.error);
+  }, []);
 
   const toggle = async (id, isActive) => {
     await api.toggleProductStatus(id, !isActive);
-    setProducts((prev) => prev.map((p) => p.id === id ? { ...p, isActive: !isActive } : p));
+    setProducts((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, isActive: !isActive } : p)),
+    );
   };
 
   return (
     <div>
       <h1 className="admin-page-title">Products</h1>
       <table className="admin-table">
-        <thead><tr><th>Name</th><th>Shop</th><th>Price</th><th>Views</th><th>Status</th><th>Action</th></tr></thead>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Shop</th>
+            <th>Price</th>
+            <th>Views</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
         <tbody>
           {products.map((p) => (
             <tr key={p.id}>
               <td>{p.name}</td>
               <td>{p.shop?.name}</td>
-              <td>{p.price ? `TSh ${p.price.toLocaleString()}` : '-'}</td>
+              <td>{p.price ? `TSh ${p.price.toLocaleString()}` : "-"}</td>
               <td>{p.viewCount}</td>
-              <td>{p.isActive ? '✅' : '❌'}</td>
-              <td><button className="btn btn-sm btn-secondary" onClick={() => toggle(p.id, p.isActive)}>{p.isActive ? 'Disable' : 'Enable'}</button></td>
+              <td>{p.isActive ? "✅" : "❌"}</td>
+              <td>
+                <button
+                  className="btn btn-sm btn-secondary"
+                  onClick={() => toggle(p.id, p.isActive)}
+                >
+                  {p.isActive ? "Disable" : "Enable"}
+                </button>
+              </td>
             </tr>
           ))}
         </tbody>
@@ -271,27 +390,47 @@ function AdminProducts() {
 
 function AdminShops() {
   const [shops, setShops] = useState([]);
-  useEffect(() => { api.getAdminShops().then(setShops).catch(console.error); }, []);
+  useEffect(() => {
+    api.getAdminShops().then(setShops).catch(console.error);
+  }, []);
 
   const toggle = async (id, isActive) => {
     await api.toggleShopStatus(id, !isActive);
-    setShops((prev) => prev.map((s) => s.id === id ? { ...s, isActive: !isActive } : s));
+    setShops((prev) =>
+      prev.map((s) => (s.id === id ? { ...s, isActive: !isActive } : s)),
+    );
   };
 
   return (
     <div>
       <h1 className="admin-page-title">Shops</h1>
       <table className="admin-table">
-        <thead><tr><th>Name</th><th>Owner</th><th>Area</th><th>Products</th><th>Status</th><th>Action</th></tr></thead>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Owner</th>
+            <th>Area</th>
+            <th>Products</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
         <tbody>
           {shops.map((s) => (
             <tr key={s.id}>
               <td>{s.name}</td>
               <td>{s.sellerProfile?.user?.name}</td>
-              <td>{s.location?.area || '-'}</td>
+              <td>{s.location?.area || "-"}</td>
               <td>{s._count?.products}</td>
-              <td>{s.isActive ? '✅' : '❌'}</td>
-              <td><button className="btn btn-sm btn-secondary" onClick={() => toggle(s.id, s.isActive)}>{s.isActive ? 'Disable' : 'Enable'}</button></td>
+              <td>{s.isActive ? "✅" : "❌"}</td>
+              <td>
+                <button
+                  className="btn btn-sm btn-secondary"
+                  onClick={() => toggle(s.id, s.isActive)}
+                >
+                  {s.isActive ? "Disable" : "Enable"}
+                </button>
+              </td>
             </tr>
           ))}
         </tbody>
@@ -304,7 +443,7 @@ export default function AdminLayout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  if (!user?.roles?.includes('ADMIN')) {
+  if (!user?.roles?.includes("ADMIN")) {
     return (
       <div className="admin-access-denied">
         <h2>Admin access required</h2>
@@ -316,8 +455,20 @@ export default function AdminLayout() {
   return (
     <div className="admin-layout">
       <header className="admin-header">
-        <div className="admin-brand"><span className="admin-brand-mark" />Smart City <span className="admin-role">ADMIN</span></div>
-        <button className="admin-logout" title="Log out" onClick={() => { logout(); navigate('/'); }}><Power size={18} /></button>
+        <div className="admin-brand">
+          <span className="admin-brand-mark" />
+          Smart City <span className="admin-role">ADMIN</span>
+        </div>
+        <button
+          className="admin-logout"
+          title="Log out"
+          onClick={() => {
+            logout();
+            navigate("/");
+          }}
+        >
+          <Power size={18} />
+        </button>
       </header>
       <main className="admin-main">
         <Routes>
@@ -336,28 +487,50 @@ export default function AdminLayout() {
 
 function AdminCategories() {
   const [categories, setCategories] = useState([]);
-  const [name, setName] = useState('');
-  useEffect(() => { api.getAdminCategories().then(setCategories).catch(console.error); }, []);
+  const [name, setName] = useState("");
+  useEffect(() => {
+    api.getAdminCategories().then(setCategories).catch(console.error);
+  }, []);
 
   const handleCreate = async (e) => {
     e.preventDefault();
-    const cat = await api.createCategory({ name, icon: '📦' });
+    const cat = await api.createCategory({ name, icon: "📦" });
     setCategories((prev) => [...prev, cat]);
-    setName('');
+    setName("");
   };
 
   return (
     <div>
       <h1 className="admin-page-title">Categories</h1>
       <form onSubmit={handleCreate} className="admin-category-form">
-        <input className="form-input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Category name" required />
-        <button type="submit" className="btn btn-primary btn-sm">Add</button>
+        <input
+          className="form-input"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Category name"
+          required
+        />
+        <button type="submit" className="btn btn-primary btn-sm">
+          Add
+        </button>
       </form>
       <table className="admin-table">
-        <thead><tr><th>Name</th><th>Products</th><th>Status</th></tr></thead>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Products</th>
+            <th>Status</th>
+          </tr>
+        </thead>
         <tbody>
           {categories.map((c) => (
-            <tr key={c.id}><td>{c.icon} {c.name}</td><td>{c._count?.products}</td><td>{c.isActive ? '✅' : '❌'}</td></tr>
+            <tr key={c.id}>
+              <td>
+                {c.icon} {c.name}
+              </td>
+              <td>{c._count?.products}</td>
+              <td>{c.isActive ? "✅" : "❌"}</td>
+            </tr>
           ))}
         </tbody>
       </table>

@@ -1,25 +1,22 @@
-import { useState, useEffect } from 'react';
-import {
-  Search as SearchIcon,
-  MapPin,
-} from 'lucide-react';
-import { api, formatPrice, getImageUrl } from '../api/client';
-import { useAuth } from '../context/AuthContext';
-import ProductCard from '../components/ProductCard';
-import Header from '../components/Header';
-import Loading from '../components/Loading';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import { Search as SearchIcon, MapPin } from "lucide-react";
+import { api, formatPrice, getImageUrl } from "../api/client";
+import { useAuth } from "../context/AuthContext";
+import ProductCard from "../components/ProductCard";
+import Header from "../components/Header";
+import Loading from "../components/Loading";
+import { Link } from "react-router-dom";
 
 export default function SearchPage() {
   const { isAuthenticated } = useAuth();
 
-  const [query, setQuery] = useState('');
-  const [category, setCategory] = useState('');
-  const [area, setArea] = useState('');
+  const [query, setQuery] = useState("");
+  const [category, setCategory] = useState("");
+  const [area, setArea] = useState("");
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState([]);
-  const [tab, setTab] = useState('all');
+  const [tab, setTab] = useState("all");
 
   const [highlightResults, setHighlightResults] = useState({
     products: [],
@@ -31,10 +28,7 @@ export default function SearchPage() {
   const [showHints, setShowHints] = useState(false);
 
   useEffect(() => {
-    api
-      .getCategories()
-      .then(setCategories)
-      .catch(console.error);
+    api.getCategories().then(setCategories).catch(console.error);
   }, []);
 
   useEffect(() => {
@@ -42,9 +36,7 @@ export default function SearchPage() {
       api
         .getRecentSearches()
         .then((searches) => {
-          setRecentSearches(
-            searches.map((search) => search.query)
-          );
+          setRecentSearches(searches.map((search) => search.query));
         })
         .catch(() => {
           setRecentSearches([]);
@@ -55,11 +47,7 @@ export default function SearchPage() {
 
     try {
       setRecentSearches(
-        JSON.parse(
-          localStorage.getItem(
-            'smart-city-recent-searches'
-          ) || '[]'
-        )
+        JSON.parse(localStorage.getItem("smart-city-recent-searches") || "[]"),
       );
     } catch {
       setRecentSearches([]);
@@ -120,11 +108,7 @@ export default function SearchPage() {
     };
   }, [query, tab, showHints]);
 
-  const handleSearch = async (
-    e,
-    searchValue = query,
-    searchType = tab
-  ) => {
+  const handleSearch = async (e, searchValue = query, searchType = tab) => {
     e?.preventDefault();
 
     if (!searchValue && !category && !area) {
@@ -149,8 +133,7 @@ export default function SearchPage() {
           searchValue.trim(),
           ...recentSearches.filter(
             (search) =>
-              search.toLowerCase() !==
-              searchValue.trim().toLowerCase()
+              search.toLowerCase() !== searchValue.trim().toLowerCase(),
           ),
         ].slice(0, 8);
 
@@ -158,8 +141,8 @@ export default function SearchPage() {
 
         if (!isAuthenticated) {
           localStorage.setItem(
-            'smart-city-recent-searches',
-            JSON.stringify(nextSearches)
+            "smart-city-recent-searches",
+            JSON.stringify(nextSearches),
           );
         }
       }
@@ -185,10 +168,7 @@ export default function SearchPage() {
     setTab(nextTab);
     setShowHints(true);
 
-    if (
-      results &&
-      (query.trim() || category || area)
-    ) {
+    if (results && (query.trim() || category || area)) {
       handleSearch(undefined, query, nextTab);
     }
   };
@@ -200,9 +180,7 @@ export default function SearchPage() {
       setResults((prev) => ({
         ...prev,
         products: prev.products?.map((p) =>
-          p.id === id
-            ? { ...p, isLiked: liked }
-            : p
+          p.id === id ? { ...p, isLiked: liked } : p,
         ),
       }));
     } catch {
@@ -217,9 +195,7 @@ export default function SearchPage() {
       setResults((prev) => ({
         ...prev,
         products: prev.products?.map((p) =>
-          p.id === id
-            ? { ...p, isSaved: saved }
-            : p
+          p.id === id ? { ...p, isSaved: saved } : p,
         ),
       }));
     } catch {
@@ -251,7 +227,7 @@ export default function SearchPage() {
               setShowHints(true);
             }}
             onKeyDown={(e) => {
-              if (e.key === 'Enter') {
+              if (e.key === "Enter") {
                 handleSearch(e);
               }
             }}
@@ -270,16 +246,11 @@ export default function SearchPage() {
               className="form-input"
               placeholder="Area (e.g. Kariakoo)"
               value={area}
-              onChange={(e) =>
-                setArea(e.target.value)
-              }
+              onChange={(e) => setArea(e.target.value)}
             />
           </div>
 
-          <button
-            type="submit"
-            className="btn btn-primary search-area-button"
-          >
+          <button type="submit" className="btn btn-primary search-area-button">
             Search
           </button>
         </div>
@@ -287,13 +258,11 @@ export default function SearchPage() {
 
       {/* Search tabs */}
       <div className="search-tabs">
-        {['all', 'products', 'sellers'].map((t) => (
+        {["all", "products", "sellers"].map((t) => (
           <button
             type="button"
             key={t}
-            className={`search-tab ${
-              tab === t ? 'active' : ''
-            }`}
+            className={`search-tab ${tab === t ? "active" : ""}`}
             onClick={() => handleTabChange(t)}
           >
             {t.charAt(0).toUpperCase() + t.slice(1)}
@@ -302,46 +271,40 @@ export default function SearchPage() {
       </div>
 
       {/* Recent searches */}
-      {!results &&
-        showHints &&
-        recentSearches.length > 0 && (
-          <section className="recent-searches">
-            <div className="recent-searches-heading">
-              <span>Recent searches</span>
+      {!results && showHints && recentSearches.length > 0 && (
+        <section className="recent-searches">
+          <div className="recent-searches-heading">
+            <span>Recent searches</span>
 
+            <button
+              type="button"
+              onClick={() => {
+                setRecentSearches([]);
+
+                if (!isAuthenticated) {
+                  localStorage.removeItem("smart-city-recent-searches");
+                }
+              }}
+            >
+              Clear
+            </button>
+          </div>
+
+          <div className="recent-search-list">
+            {recentSearches.map((search) => (
               <button
                 type="button"
-                onClick={() => {
-                  setRecentSearches([]);
-
-                  if (!isAuthenticated) {
-                    localStorage.removeItem(
-                      'smart-city-recent-searches'
-                    );
-                  }
-                }}
+                className="recent-search-item"
+                key={search}
+                onClick={() => applyRecentSearch(search)}
               >
-                Clear
+                <SearchIcon size={14} />
+                <span>{search}</span>
               </button>
-            </div>
-
-            <div className="recent-search-list">
-              {recentSearches.map((search) => (
-                <button
-                  type="button"
-                  className="recent-search-item"
-                  key={search}
-                  onClick={() =>
-                    applyRecentSearch(search)
-                  }
-                >
-                  <SearchIcon size={14} />
-                  <span>{search}</span>
-                </button>
-              ))}
-            </div>
-          </section>
-        )}
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Search highlights */}
       {!results &&
@@ -352,87 +315,70 @@ export default function SearchPage() {
           <div className="search-highlights">
             <div className="search-highlights-heading">
               <span>
-                {tab === 'sellers'
-                  ? 'Seller highlights'
-                  : tab === 'products'
-                    ? 'Product highlights'
-                    : 'Matching highlights'}{' '}
+                {tab === "sellers"
+                  ? "Seller highlights"
+                  : tab === "products"
+                    ? "Product highlights"
+                    : "Matching highlights"}{" "}
                 for “{query.trim()}”
               </span>
 
               {highlightLoading && (
-                <span className="search-loading">
-                  Searching...
-                </span>
+                <span className="search-loading">Searching...</span>
               )}
             </div>
 
-            {highlightResults.products.map(
-              (product) => {
-                const image =
-                  product.images?.[0]?.url;
+            {highlightResults.products.map((product) => {
+              const image = product.images?.[0]?.url;
 
-                return (
-                  <Link
-                    key={product.id}
-                    to={`/product/${product.id}`}
-                    className="search-highlight-item"
-                  >
-                    <div className="search-highlight-image">
-                      {image ? (
-                        <img
-                          src={getImageUrl(image)}
-                          alt={product.name}
-                        />
-                      ) : (
-                        <span>📦</span>
-                      )}
-                    </div>
-
-                    <div className="search-highlight-info">
-                      <strong>
-                        {product.name}
-                      </strong>
-
-                      <b>
-                        {formatPrice(product.price)}
-                      </b>
-
-                      <small>
-                        {product.shop?.name} ·{' '}
-                        {product.shop?.location?.area ||
-                          'Location available'}
-                      </small>
-                    </div>
-                  </Link>
-                );
-              }
-            )}
-
-            {highlightResults.sellers.map(
-              (shop) => (
+              return (
                 <Link
-                  key={shop.id}
-                  to={`/shop/${shop.id}`}
+                  key={product.id}
+                  to={`/product/${product.id}`}
                   className="search-highlight-item"
                 >
                   <div className="search-highlight-image">
-                    <span>🏪</span>
+                    {image ? (
+                      <img src={getImageUrl(image)} alt={product.name} />
+                    ) : (
+                      <span>📦</span>
+                    )}
                   </div>
 
                   <div className="search-highlight-info">
-                    <strong>{shop.name}</strong>
+                    <strong>{product.name}</strong>
+
+                    <b>{formatPrice(product.price)}</b>
 
                     <small>
-                      {shop.location?.area ||
-                        'Seller location available'}{' '}
-                      · {shop.products?.length || 0}{' '}
-                      products
+                      {product.shop?.name} ·{" "}
+                      {product.shop?.location?.area || "Location available"}
                     </small>
                   </div>
                 </Link>
-              )
-            )}
+              );
+            })}
+
+            {highlightResults.sellers.map((shop) => (
+              <Link
+                key={shop.id}
+                to={`/shop/${shop.id}`}
+                className="search-highlight-item"
+              >
+                <div className="search-highlight-image">
+                  <span>🏪</span>
+                </div>
+
+                <div className="search-highlight-info">
+                  <strong>{shop.name}</strong>
+
+                  <small>
+                    {shop.location?.area || "Seller location available"} ·{" "}
+                    {shop.products?.length || 0} products
+                  </small>
+                </div>
+              </Link>
+            ))}
           </div>
         )}
 
@@ -440,23 +386,23 @@ export default function SearchPage() {
       {loading && <Loading />}
 
       {/* Initial search state */}
-{!results && !query.trim() && (
-  <div className="search-empty-state">
-    <div className="search-empty-illustration" aria-hidden="true">
-      <SearchIcon size={42} />
-      <span className="search-spark spark-one" />
-      <span className="search-spark spark-two" />
-      <span className="search-spark spark-three" />
-    </div>
+      {!results && !query.trim() && (
+        <div className="search-empty-state">
+          <div className="search-empty-illustration" aria-hidden="true">
+            <SearchIcon size={42} />
+            <span className="search-spark spark-one" />
+            <span className="search-spark spark-two" />
+            <span className="search-spark spark-three" />
+          </div>
 
-    <h3>Search for products or sellers</h3>
-    <p>
-      Use the search bar above to find
-      <br />
-      what you’re looking for
-    </p>
-  </div>
-)}
+          <h3>Search for products or sellers</h3>
+          <p>
+            Use the search bar above to find
+            <br />
+            what you’re looking for
+          </p>
+        </div>
+      )}
 
       {/* Results */}
       {results && !loading && (
@@ -467,9 +413,7 @@ export default function SearchPage() {
               <div className="search-results-heading">
                 <h3>Products</h3>
 
-                <span>
-                  {results.products.length}
-                </span>
+                <span>{results.products.length}</span>
               </div>
 
               <div className="feed-grid search-results-grid">
@@ -491,9 +435,7 @@ export default function SearchPage() {
               <div className="search-results-heading">
                 <h3>Sellers</h3>
 
-                <span>
-                  {results.sellers.length}
-                </span>
+                <span>{results.sellers.length}</span>
               </div>
 
               <div className="search-seller-list">
@@ -511,14 +453,11 @@ export default function SearchPage() {
                         {shop.location.area}
                         {shop.location.street
                           ? `, ${shop.location.street}`
-                          : ''}
+                          : ""}
                       </div>
                     )}
 
-                    <div>
-                      {shop.products?.length || 0}{' '}
-                      products
-                    </div>
+                    <div>{shop.products?.length || 0} products</div>
                   </Link>
                 ))}
               </div>
@@ -526,15 +465,12 @@ export default function SearchPage() {
           )}
 
           {/* No results */}
-          {!results.products?.length &&
-            !results.sellers?.length && (
-              <div className="empty-state">
-                <h3>No results found</h3>
-                <p>
-                  Try different keywords or filters
-                </p>
-              </div>
-            )}
+          {!results.products?.length && !results.sellers?.length && (
+            <div className="empty-state">
+              <h3>No results found</h3>
+              <p>Try different keywords or filters</p>
+            </div>
+          )}
         </div>
       )}
     </div>

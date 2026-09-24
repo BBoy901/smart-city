@@ -12,12 +12,12 @@ Smart City helps customers discover products, find sellers, see locations, and c
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
+| Layer    | Technology                                 |
+| -------- | ------------------------------------------ |
 | Frontend | React 19, Vite, React Router, Lucide Icons |
-| Backend | Node.js, Express, TypeScript |
-| Database | PostgreSQL with Prisma ORM |
-| Auth | JWT |
+| Backend  | Node.js, Express, TypeScript               |
+| Database | PostgreSQL with Prisma ORM                 |
+| Auth     | JWT                                        |
 
 ## Project Structure
 
@@ -73,16 +73,17 @@ App runs at `http://localhost:5173`
 
 ## Demo Accounts
 
-| Role | Email | Password |
-|------|-------|----------|
-| Admin | admin@smartcity.co.tz | admin123 |
-| Seller | seller@kariakoo.co.tz | seller123 |
-| Seller (Tech) | tech@kariakoo.co.tz | seller123 |
-| Customer | customer@example.com | customer123 |
+| Role          | Email                 | Password    |
+| ------------- | --------------------- | ----------- |
+| Admin         | admin@smartcity.co.tz | admin123    |
+| Seller        | seller@kariakoo.co.tz | seller123   |
+| Seller (Tech) | tech@kariakoo.co.tz   | seller123   |
+| Customer      | customer@example.com  | customer123 |
 
 ## Features (MVP)
 
 ### Customer
+
 - Guest browsing & product discovery feed
 - Personalized feed based on preferences
 - Product search with filters (category, area, price)
@@ -92,6 +93,7 @@ App runs at `http://localhost:5173`
 - Customer/Seller dual-role on one account
 
 ### Seller
+
 - Shop profile creation with location
 - Product management (add, edit, delete, publish instantly)
 - Image uploads
@@ -99,6 +101,7 @@ App runs at `http://localhost:5173`
 - Seller dashboard
 
 ### Admin
+
 - Platform analytics (users, products, views, searches)
 - User management (enable/disable)
 - Product & shop moderation
@@ -106,20 +109,20 @@ App runs at `http://localhost:5173`
 
 ## API Endpoints
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/auth/register` | Register account |
-| POST | `/api/auth/login` | Login |
-| GET | `/api/products/feed` | Product discovery feed |
-| GET | `/api/products/search` | Search products & sellers |
-| GET | `/api/products/:id` | Product details |
-| POST | `/api/products/:id/like` | Like/unlike product |
-| POST | `/api/products/:id/save` | Save/unsave product |
-| GET | `/api/shops/:id` | Shop/seller profile |
-| POST | `/api/seller/products` | Create product |
-| GET | `/api/messages` | List conversations |
-| POST | `/api/messages/:id/messages` | Send message |
-| GET | `/api/admin/stats` | Platform analytics |
+| Method | Endpoint                     | Description               |
+| ------ | ---------------------------- | ------------------------- |
+| POST   | `/api/auth/register`         | Register account          |
+| POST   | `/api/auth/login`            | Login                     |
+| GET    | `/api/products/feed`         | Product discovery feed    |
+| GET    | `/api/products/search`       | Search products & sellers |
+| GET    | `/api/products/:id`          | Product details           |
+| POST   | `/api/products/:id/like`     | Like/unlike product       |
+| POST   | `/api/products/:id/save`     | Save/unsave product       |
+| GET    | `/api/shops/:id`             | Shop/seller profile       |
+| POST   | `/api/seller/products`       | Create product            |
+| GET    | `/api/messages`              | List conversations        |
+| POST   | `/api/messages/:id/messages` | Send message              |
+| GET    | `/api/admin/stats`           | Platform analytics        |
 
 ## Design Philosophy
 

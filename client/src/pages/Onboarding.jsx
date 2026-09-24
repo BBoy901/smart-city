@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { api } from '../api/client';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { api } from "../api/client";
 
 export default function Onboarding() {
   const navigate = useNavigate();
@@ -13,17 +13,19 @@ export default function Onboarding() {
   }, []);
 
   const toggle = (id) => {
-    setSelected((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
+    setSelected((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
   };
 
   const handleSubmit = async () => {
     setLoading(true);
     try {
       if (selected.length > 0) await api.setPreferences(selected);
-      navigate('/');
+      navigate("/");
     } catch (err) {
       console.error(err);
-      navigate('/');
+      navigate("/");
     } finally {
       setLoading(false);
     }
@@ -39,18 +41,35 @@ export default function Onboarding() {
         </span>
       </div>
       <h1 className="auth-title">What are you interested in?</h1>
-      <p className="auth-subtitle">Select categories to personalize your feed</p>
+      <p className="auth-subtitle">
+        Select categories to personalize your feed
+      </p>
 
-      <div className="chips-row" style={{ justifyContent: 'center', marginBottom: 32 }}>
+      <div
+        className="chips-row"
+        style={{ justifyContent: "center", marginBottom: 32 }}
+      >
         {categories.map((c) => (
-          <button key={c.id} className={`chip ${selected.includes(c.id) ? 'active' : ''}`} onClick={() => toggle(c.id)}>
+          <button
+            key={c.id}
+            className={`chip ${selected.includes(c.id) ? "active" : ""}`}
+            onClick={() => toggle(c.id)}
+          >
             {c.name}
           </button>
         ))}
       </div>
 
-      <button className="btn btn-primary btn-block" onClick={handleSubmit} disabled={loading}>
-        {loading ? 'Saving...' : selected.length > 0 ? 'Continue' : 'Skip for now'}
+      <button
+        className="btn btn-primary btn-block"
+        onClick={handleSubmit}
+        disabled={loading}
+      >
+        {loading
+          ? "Saving..."
+          : selected.length > 0
+            ? "Continue"
+            : "Skip for now"}
       </button>
     </div>
   );

@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken';
+import jwt from "jsonwebtoken";
 
 export interface JwtPayload {
   userId: string;
@@ -6,11 +6,11 @@ export interface JwtPayload {
   roles: string[];
 }
 
-const JWT_SECRET = process.env.JWT_SECRET || 'smart-city-development-secret';
+const JWT_SECRET = process.env.JWT_SECRET || "smart-city-development-secret";
 
 export function generateToken(payload: JwtPayload): string {
   return jwt.sign(payload, JWT_SECRET, {
-    expiresIn: '7d',
+    expiresIn: "7d",
   });
 }
 

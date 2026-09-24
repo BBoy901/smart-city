@@ -1,9 +1,9 @@
-import { Bell } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import Header from '../components/Header';
-import { useLanguage } from '../context/LanguageContext';
+import { Bell } from "lucide-react";
+import { useEffect, useState } from "react";
+import Header from "../components/Header";
+import { useLanguage } from "../context/LanguageContext";
 
-const STORAGE_KEY = 'smart-city-notifications';
+const STORAGE_KEY = "smart-city-notifications";
 
 const defaultPreferences = {
   messages: true,
@@ -27,10 +27,7 @@ export default function Notifications() {
   });
 
   useEffect(() => {
-    localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify(preferences)
-    );
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(preferences));
   }, [preferences]);
 
   const togglePreference = (key) => {
@@ -42,33 +39,31 @@ export default function Notifications() {
 
   const notificationOptions = [
     {
-      key: 'messages',
-      title: t('settings.messagesTitle'),
-      description: t('settings.messagesDescription'),
+      key: "messages",
+      title: t("settings.messagesTitle"),
+      description: t("settings.messagesDescription"),
     },
     {
-      key: 'products',
-      title: t('settings.productsTitle'),
-      description: t('settings.productsDescription'),
+      key: "products",
+      title: t("settings.productsTitle"),
+      description: t("settings.productsDescription"),
     },
     {
-      key: 'marketing',
-      title: t('settings.marketingTitle'),
-      description: t('settings.marketingDescription'),
+      key: "marketing",
+      title: t("settings.marketingTitle"),
+      description: t("settings.marketingDescription"),
     },
   ];
 
   return (
     <div className="page settings-page">
-      <Header title={t('settings.notifications')} />
+      <Header title={t("settings.notifications")} />
 
       <div className="settings-content">
         <section className="settings-section">
           <div className="settings-section-heading">
             <Bell size={18} />
-            <span>
-              {t('settings.notificationPreferences')}
-            </span>
+            <span>{t("settings.notificationPreferences")}</span>
           </div>
 
           <div className="settings-list">
@@ -76,10 +71,7 @@ export default function Notifications() {
               const enabled = preferences[option.key];
 
               return (
-                <div
-                  className="settings-item"
-                  key={option.key}
-                >
+                <div className="settings-item" key={option.key}>
                   <div className="settings-item-label notification-label">
                     <span>
                       <strong>{option.title}</strong>
@@ -89,12 +81,8 @@ export default function Notifications() {
 
                   <button
                     type="button"
-                    className={`settings-toggle ${
-                      enabled ? 'active' : ''
-                    }`}
-                    onClick={() =>
-                      togglePreference(option.key)
-                    }
+                    className={`settings-toggle ${enabled ? "active" : ""}`}
+                    onClick={() => togglePreference(option.key)}
                     aria-pressed={enabled}
                     aria-label={
                       enabled

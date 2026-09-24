@@ -1,31 +1,31 @@
-import { useEffect, useState } from 'react';
-import { Mail, Phone, UserRound } from 'lucide-react';
-import Header from '../components/Header';
-import { useAuth } from '../context/AuthContext';
-import { useLanguage } from '../context/LanguageContext';
-import { api } from '../api/client';
+import { useEffect, useState } from "react";
+import { Mail, Phone, UserRound } from "lucide-react";
+import Header from "../components/Header";
+import { useAuth } from "../context/AuthContext";
+import { useLanguage } from "../context/LanguageContext";
+import { api } from "../api/client";
 
 export default function Account() {
   const { user, refreshUser } = useAuth();
   const { t } = useLanguage();
 
   const [form, setForm] = useState({
-    name: '',
-    email: '',
-    phone: '',
+    name: "",
+    email: "",
+    phone: "",
   });
 
   const [saving, setSaving] = useState(false);
-  const [success, setSuccess] = useState('');
-  const [error, setError] = useState('');
+  const [success, setSuccess] = useState("");
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (!user) return;
 
     setForm({
-      name: user.name || '',
-      email: user.email || '',
-      phone: user.phone || '',
+      name: user.name || "",
+      email: user.email || "",
+      phone: user.phone || "",
     });
   }, [user]);
 
@@ -37,16 +37,16 @@ export default function Account() {
       [name]: value,
     }));
 
-    setSuccess('');
-    setError('');
+    setSuccess("");
+    setError("");
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
     setSaving(true);
-    setSuccess('');
-    setError('');
+    setSuccess("");
+    setError("");
 
     try {
       await api.updateProfile({
@@ -56,11 +56,9 @@ export default function Account() {
 
       await refreshUser();
 
-      setSuccess(t('settings.accountUpdated'));
+      setSuccess(t("settings.accountUpdated"));
     } catch (err) {
-      setError(
-        err.message || t('settings.unableToUpdateAccount')
-      );
+      setError(err.message || t("settings.unableToUpdateAccount"));
     } finally {
       setSaving(false);
     }
@@ -72,43 +70,27 @@ export default function Account() {
 
   return (
     <div className="page settings-page">
-      <Header title={t('settings.account')} />
+      <Header title={t("settings.account")} />
 
       <div className="settings-content">
         <section className="settings-section">
           <div className="settings-section-heading">
             <UserRound size={18} />
-            <span>
-              {t('settings.accountInformation')}
-            </span>
+            <span>{t("settings.accountInformation")}</span>
           </div>
 
-          <form
-            className="account-form"
-            onSubmit={handleSubmit}
-          >
+          <form className="account-form" onSubmit={handleSubmit}>
             <div className="account-avatar">
-              {user.name?.[0]?.toUpperCase() || '?'}
+              {user.name?.[0]?.toUpperCase() || "?"}
             </div>
 
-            {success && (
-              <div className="alert alert-success">
-                {success}
-              </div>
-            )}
+            {success && <div className="alert alert-success">{success}</div>}
 
-            {error && (
-              <div className="alert alert-error">
-                {error}
-              </div>
-            )}
+            {error && <div className="alert alert-error">{error}</div>}
 
             <div className="form-group">
-              <label
-                className="form-label"
-                htmlFor="account-name"
-              >
-                {t('settings.name')}
+              <label className="form-label" htmlFor="account-name">
+                {t("settings.name")}
               </label>
 
               <div className="account-input-wrap">
@@ -126,11 +108,8 @@ export default function Account() {
             </div>
 
             <div className="form-group">
-              <label
-                className="form-label"
-                htmlFor="account-email"
-              >
-                {t('settings.email')}
+              <label className="form-label" htmlFor="account-email">
+                {t("settings.email")}
               </label>
 
               <div className="account-input-wrap">
@@ -149,11 +128,8 @@ export default function Account() {
             </div>
 
             <div className="form-group">
-              <label
-                className="form-label"
-                htmlFor="account-phone"
-              >
-                {t('settings.phone')}
+              <label className="form-label" htmlFor="account-phone">
+                {t("settings.phone")}
               </label>
 
               <div className="account-input-wrap">
@@ -176,9 +152,7 @@ export default function Account() {
               className="btn btn-primary btn-block"
               disabled={saving}
             >
-              {saving
-                ? t('settings.saving')
-                : t('settings.saveChanges')}
+              {saving ? t("settings.saving") : t("settings.saveChanges")}
             </button>
           </form>
         </section>

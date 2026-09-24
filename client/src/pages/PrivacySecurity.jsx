@@ -1,27 +1,29 @@
-import { useState } from 'react';
-import { KeyRound, LockKeyhole, ShieldCheck } from 'lucide-react';
-import Header from '../components/Header';
-import { useAuth } from '../context/AuthContext';
-import { useLanguage } from '../context/LanguageContext';
-import { api } from '../api/client';
+import { useState } from "react";
+import { KeyRound, LockKeyhole, ShieldCheck } from "lucide-react";
+import Header from "../components/Header";
+import { useAuth } from "../context/AuthContext";
+import { useLanguage } from "../context/LanguageContext";
+import { api } from "../api/client";
 
 export default function PrivacySecurity() {
   const { t } = useLanguage();
   const { user } = useAuth();
   const [resetLoading, setResetLoading] = useState(false);
-  const [resetError, setResetError] = useState('');
-  const [resetLink, setResetLink] = useState('');
+  const [resetError, setResetError] = useState("");
+  const [resetLink, setResetLink] = useState("");
 
   const requestReset = async () => {
     setResetLoading(true);
-    setResetError('');
-    setResetLink('');
+    setResetError("");
+    setResetLink("");
     try {
       const data = await api.forgotPassword(user?.email);
       if (data.resetToken) {
-        setResetLink(`${window.location.origin}/reset-password?token=${encodeURIComponent(data.resetToken)}`);
+        setResetLink(
+          `${window.location.origin}/reset-password?token=${encodeURIComponent(data.resetToken)}`,
+        );
       } else {
-        setResetError(t('settings.resetPasswordDescription'));
+        setResetError(t("settings.resetPasswordDescription"));
       }
     } catch (err) {
       setResetError(err.message);
@@ -32,13 +34,13 @@ export default function PrivacySecurity() {
 
   return (
     <div className="page settings-page">
-      <Header title={t('settings.privacySecurity')} />
+      <Header title={t("settings.privacySecurity")} />
 
       <div className="settings-content">
         <section className="settings-section">
           <div className="settings-section-heading">
             <ShieldCheck size={18} />
-            <span>{t('settings.security')}</span>
+            <span>{t("settings.security")}</span>
           </div>
 
           <div className="settings-list">
@@ -52,19 +54,21 @@ export default function PrivacySecurity() {
                 <KeyRound size={19} />
 
                 <span>
-                  <strong>{t('settings.resetPassword')}</strong>
-                  <small>
-                    {t('settings.resetPasswordDescription')}
-                  </small>
+                  <strong>{t("settings.resetPassword")}</strong>
+                  <small>{t("settings.resetPasswordDescription")}</small>
                 </span>
               </span>
 
               <span className="settings-item-value">
-                <span>{resetLoading ? t('settings.saving') : t('settings.secure')}</span>
+                <span>
+                  {resetLoading ? t("settings.saving") : t("settings.secure")}
+                </span>
               </span>
             </button>
 
-            {resetError && <div className="alert alert-error">{resetError}</div>}
+            {resetError && (
+              <div className="alert alert-error">{resetError}</div>
+            )}
             {resetLink && (
               <div className="reset-link-result">
                 <span>Reset link ready</span>
@@ -77,16 +81,14 @@ export default function PrivacySecurity() {
                 <LockKeyhole size={19} />
 
                 <span>
-                  <strong>{t('settings.accountProtection')}</strong>
-                  <small>
-                    {t('settings.accountProtectionDescription')}
-                  </small>
+                  <strong>{t("settings.accountProtection")}</strong>
+                  <small>{t("settings.accountProtectionDescription")}</small>
                 </span>
               </span>
 
               <span className="security-status">
                 <ShieldCheck size={16} />
-                {t('settings.protected')}
+                {t("settings.protected")}
               </span>
             </div>
           </div>
@@ -97,13 +99,9 @@ export default function PrivacySecurity() {
             <ShieldCheck size={20} />
 
             <div>
-              <strong>
-                {t('settings.keepAccountSecure')}
-              </strong>
+              <strong>{t("settings.keepAccountSecure")}</strong>
 
-              <p>
-                {t('settings.keepAccountSecureDescription')}
-              </p>
+              <p>{t("settings.keepAccountSecureDescription")}</p>
             </div>
           </div>
         </section>

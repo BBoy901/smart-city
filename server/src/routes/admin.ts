@@ -1,7 +1,7 @@
-import { Router, Response } from 'express';
-import { Role } from '@prisma/client';
-import prisma from '../lib/prisma';
-import { authenticate, requireRole, AuthRequest } from '../middleware/auth';
+import { Router, Response } from "express";
+import { Role } from "@prisma/client";
+import prisma from "../lib/prisma";
+import { authenticate, requireRole, AuthRequest } from "../middleware/auth";
 
 const router = Router();
 router.use(authenticate, requireRole(Role.ADMIN));
@@ -9,10 +9,10 @@ router.use(authenticate, requireRole(Role.ADMIN));
 /**
  * Get sellers waiting for admin approval
  */
-router.get('/sellers/pending', async (_req, res: Response) => {
+router.get("/sellers/pending", async (_req, res: Response) => {
   const sellers = await prisma.sellerProfile.findMany({
     where: {
-      approvalStatus: 'PENDING',
+      approvalStatus: "PENDING",
     },
     include: {
       user: {
@@ -33,7 +33,7 @@ router.get('/sellers/pending', async (_req, res: Response) => {
       },
     },
     orderBy: {
-      createdAt: 'asc',
+      createdAt: "asc",
     },
   });
 
@@ -43,12 +43,23 @@ router.get('/sellers/pending', async (_req, res: Response) => {
 /**
  * Approve or reject a seller
  */
-router.patch('/sellers/:id/approval', async (req, res: Response) => {
-  const { approvalStatus } = req.body;
 
-  if (!['APPROVED', 'REJECTED'].includes(approvalStatus)) {
+router.patch("/sellers/:id/approval", async (req, res: Response) => {
+  const { approvalStatus, rejectionReason } = req.body;
+
+  if (!["APPROVED", "REJECTED"].includes(approvalStatus)) {
     return res.status(400).json({
-      error: 'Approval status must be APPROVED or REJECTED',
+      error: "Approval status must be APPROVED or REJECTED",
+    });
+  }
+
+  if (
+    approvalStatus === "REJECTED" &&
+    (typeof rejectionReason !== "string" ||
+      !rejectionReason.trim())
+  ) {
+    return res.status(400).json({
+      error: "A rejection reason is required",
     });
   }
 
@@ -58,7 +69,7 @@ router.patch('/sellers/:id/approval', async (req, res: Response) => {
 
   if (!seller) {
     return res.status(404).json({
-      error: 'Seller profile not found',
+      error: "Seller profile not found",
     });
   }
 
@@ -66,6 +77,10 @@ router.patch('/sellers/:id/approval', async (req, res: Response) => {
     where: { id: seller.id },
     data: {
       approvalStatus,
+      rejectionReason:
+        approvalStatus === "REJECTED"
+          ? rejectionReason.trim()
+          : null,
     },
     include: {
       user: {
@@ -79,13 +94,13 @@ router.patch('/sellers/:id/approval', async (req, res: Response) => {
     },
   });
 
-  res.json(updatedSeller);
+  return res.json(updatedSeller);
 });
 
 /**
  * Admin dashboard statistics
  */
-router.get('/stats', async (_req, res: Response) => {
+router.get("/stats", async (_req, res: Response) => {
   const [
     totalCustomers,
     totalSellers,
@@ -120,7 +135,7 @@ router.get('/stats', async (_req, res: Response) => {
 
     prisma.sellerProfile.count({
       where: {
-        approvalStatus: 'PENDING',
+        approvalStatus: "PENDING",
       },
     }),
 
@@ -144,7 +159,7 @@ router.get('/stats', async (_req, res: Response) => {
 
     prisma.product.findMany({
       orderBy: {
-        viewCount: 'desc',
+        viewCount: "desc",
       },
       take: 10,
       select: {
@@ -157,13 +172,13 @@ router.get('/stats', async (_req, res: Response) => {
     }),
 
     prisma.searchLog.groupBy({
-      by: ['query'],
+      by: ["query"],
       _count: {
         query: true,
       },
       orderBy: {
         _count: {
-          query: 'desc',
+          query: "desc",
         },
       },
       take: 10,
@@ -180,7 +195,7 @@ router.get('/stats', async (_req, res: Response) => {
       },
       orderBy: {
         products: {
-          _count: 'desc',
+          _count: "desc",
         },
       },
       take: 10,
@@ -188,7 +203,7 @@ router.get('/stats', async (_req, res: Response) => {
 
     prisma.user.findMany({
       orderBy: {
-        createdAt: 'desc',
+        createdAt: "desc",
       },
       take: 10,
       select: {
@@ -232,13 +247,8 @@ router.get('/stats', async (_req, res: Response) => {
 /**
  * Get admin users
  */
-router.get('/users', async (req, res: Response) => {
-  const {
-    role,
-    search,
-    limit = 50,
-    offset = 0,
-  } = req.query;
+router.get("/users", async (req, res: Response) => {
+  const { role, search, limit = 50, offset = 0 } = req.query;
 
   const where: any = {};
 
@@ -253,13 +263,13 @@ router.get('/users', async (req, res: Response) => {
       {
         name: {
           contains: String(search),
-          mode: 'insensitive',
+          mode: "insensitive",
         },
       },
       {
         email: {
           contains: String(search),
-          mode: 'insensitive',
+          mode: "insensitive",
         },
       },
     ];
@@ -290,7 +300,7 @@ router.get('/users', async (req, res: Response) => {
     skip: Number(offset),
 
     orderBy: {
-      createdAt: 'desc',
+      createdAt: "desc",
     },
   });
 
@@ -300,7 +310,7 @@ router.get('/users', async (req, res: Response) => {
 /**
  * Enable / disable user
  */
-router.patch('/users/:id/status', async (req, res: Response) => {
+router.patch("/users/:id/status", async (req, res: Response) => {
   const { isActive } = req.body;
 
   const user = await prisma.user.update({
@@ -325,7 +335,7 @@ router.patch('/users/:id/status', async (req, res: Response) => {
 /**
  * Get all products for admin
  */
-router.get('/products', async (req, res: Response) => {
+router.get("/products", async (req, res: Response) => {
   const products = await prisma.product.findMany({
     include: {
       images: true,
@@ -340,7 +350,7 @@ router.get('/products', async (req, res: Response) => {
     },
 
     orderBy: {
-      createdAt: 'desc',
+      createdAt: "desc",
     },
 
     take: Number(req.query.limit) || 50,
@@ -353,7 +363,7 @@ router.get('/products', async (req, res: Response) => {
 /**
  * Enable / disable product
  */
-router.patch('/products/:id/status', async (req, res: Response) => {
+router.patch("/products/:id/status", async (req, res: Response) => {
   const { isActive } = req.body;
 
   const product = await prisma.product.update({
@@ -372,7 +382,7 @@ router.patch('/products/:id/status', async (req, res: Response) => {
 /**
  * Get categories
  */
-router.get('/categories', async (_req, res: Response) => {
+router.get("/categories", async (_req, res: Response) => {
   const categories = await prisma.category.findMany({
     include: {
       _count: {
@@ -383,7 +393,7 @@ router.get('/categories', async (_req, res: Response) => {
     },
 
     orderBy: {
-      name: 'asc',
+      name: "asc",
     },
   });
 
@@ -393,12 +403,10 @@ router.get('/categories', async (_req, res: Response) => {
 /**
  * Create category
  */
-router.post('/categories', async (req, res: Response) => {
+router.post("/categories", async (req, res: Response) => {
   const { name, icon } = req.body;
 
-  const slug = name
-    .toLowerCase()
-    .replace(/\s+/g, '-');
+  const slug = name.toLowerCase().replace(/\s+/g, "-");
 
   const category = await prisma.category.create({
     data: {
@@ -414,12 +422,8 @@ router.post('/categories', async (req, res: Response) => {
 /**
  * Update category
  */
-router.patch('/categories/:id', async (req, res: Response) => {
-  const {
-    name,
-    icon,
-    isActive,
-  } = req.body;
+router.patch("/categories/:id", async (req, res: Response) => {
+  const { name, icon, isActive } = req.body;
 
   const category = await prisma.category.update({
     where: {
@@ -439,7 +443,7 @@ router.patch('/categories/:id', async (req, res: Response) => {
 /**
  * Get shops
  */
-router.get('/shops', async (_req, res: Response) => {
+router.get("/shops", async (_req, res: Response) => {
   const shops = await prisma.shop.findMany({
     include: {
       location: true,
@@ -463,7 +467,7 @@ router.get('/shops', async (_req, res: Response) => {
     },
 
     orderBy: {
-      createdAt: 'desc',
+      createdAt: "desc",
     },
   });
 
@@ -473,7 +477,7 @@ router.get('/shops', async (_req, res: Response) => {
 /**
  * Enable / disable shop
  */
-router.patch('/shops/:id/status', async (req, res: Response) => {
+router.patch("/shops/:id/status", async (req, res: Response) => {
   const { isActive } = req.body;
 
   const shop = await prisma.shop.update({

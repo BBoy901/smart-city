@@ -1,29 +1,29 @@
-import { useEffect, useState } from 'react';
-import { api } from '../../api/client';
-import { useAuth } from '../../context/AuthContext';
-import { useTheme } from '../../context/ThemeContext';
-import { User, Palette, Save, CheckCircle, AlertCircle } from 'lucide-react';
+import { useEffect, useState } from "react";
+import { api } from "../../api/client";
+import { useAuth } from "../../context/AuthContext";
+import { useTheme } from "../../context/ThemeContext";
+import { User, Palette, Save, CheckCircle, AlertCircle } from "lucide-react";
 
 export default function AdminSettings() {
   const { user } = useAuth();
   const { appearance, setAppearance } = useTheme();
 
-  const [name, setName] = useState(user?.name || '');
-  const [phone, setPhone] = useState(user?.phone || '');
+  const [name, setName] = useState(user?.name || "");
+  const [phone, setPhone] = useState(user?.phone || "");
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    setName(user?.name || '');
-    setPhone(user?.phone || '');
+    setName(user?.name || "");
+    setPhone(user?.phone || "");
   }, [user]);
 
   const handleSave = async (e) => {
     e.preventDefault();
     setSaving(true);
-    setMessage('');
-    setError('');
+    setMessage("");
+    setError("");
 
     try {
       await api.updateProfile({
@@ -31,9 +31,9 @@ export default function AdminSettings() {
         phone: phone.trim(),
       });
 
-      setMessage('Profile updated successfully.');
+      setMessage("Profile updated successfully.");
     } catch (err) {
-      setError(err.message || 'Failed to update profile.');
+      setError(err.message || "Failed to update profile.");
     } finally {
       setSaving(false);
     }
@@ -77,7 +77,7 @@ export default function AdminSettings() {
             Email address
             <input
               className="form-input"
-              value={user?.email || ''}
+              value={user?.email || ""}
               disabled
               readOnly
             />
@@ -115,7 +115,7 @@ export default function AdminSettings() {
             disabled={saving || !name.trim()}
           >
             <Save size={17} />
-            {saving ? 'Saving...' : 'Save changes'}
+            {saving ? "Saving..." : "Save changes"}
           </button>
         </form>
       </section>
@@ -133,15 +133,15 @@ export default function AdminSettings() {
 
         <div className="admin-appearance-options">
           {[
-            { value: 'light', label: 'Light' },
-            { value: 'dark', label: 'Dark' },
-            { value: 'system', label: 'System' },
+            { value: "light", label: "Light" },
+            { value: "dark", label: "Dark" },
+            { value: "system", label: "System" },
           ].map((option) => (
             <button
               key={option.value}
               type="button"
               className={`admin-appearance-option ${
-                appearance === option.value ? 'active' : ''
+                appearance === option.value ? "active" : ""
               }`}
               onClick={() => setAppearance(option.value)}
               aria-pressed={appearance === option.value}

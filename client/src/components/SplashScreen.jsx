@@ -1,9 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
-const SPLASH_KEY = 'smart-city-splash-seen';
+const SPLASH_KEY = "smart-city-splash-seen";
 
 export default function SplashScreen({ onFinish }) {
-  const alreadySeen = typeof sessionStorage !== 'undefined' && sessionStorage.getItem(SPLASH_KEY) === '1';
+  const alreadySeen =
+    typeof sessionStorage !== "undefined" &&
+    sessionStorage.getItem(SPLASH_KEY) === "1";
   const [hide, setHide] = useState(alreadySeen);
 
   useEffect(() => {
@@ -14,7 +16,7 @@ export default function SplashScreen({ onFinish }) {
 
     const hideTimer = setTimeout(() => setHide(true), 1200);
     const finishTimer = setTimeout(() => {
-      sessionStorage.setItem(SPLASH_KEY, '1');
+      sessionStorage.setItem(SPLASH_KEY, "1");
       onFinish();
     }, 1600);
 
@@ -27,7 +29,7 @@ export default function SplashScreen({ onFinish }) {
   if (alreadySeen) return null;
 
   return (
-    <div className={`splash-screen ${hide ? 'splash-hide' : ''}`}>
+    <div className={`splash-screen ${hide ? "splash-hide" : ""}`}>
       <img
         src="/smart-city-splash.png"
         alt="Smart City"

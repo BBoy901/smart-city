@@ -1,10 +1,10 @@
-import { createContext, useContext, useEffect, useState } from 'react';
-import en from '../locales/en';
-import sw from '../locales/sw';
+import { createContext, useContext, useEffect, useState } from "react";
+import en from "../locales/en";
+import sw from "../locales/sw";
 
 const LanguageContext = createContext(null);
 
-const STORAGE_KEY = 'smart-city-language';
+const STORAGE_KEY = "smart-city-language";
 
 const translations = {
   en,
@@ -13,7 +13,7 @@ const translations = {
 
 export function LanguageProvider({ children }) {
   const [language, setLanguage] = useState(
-    () => localStorage.getItem(STORAGE_KEY) || 'en'
+    () => localStorage.getItem(STORAGE_KEY) || "en",
   );
 
   useEffect(() => {
@@ -22,7 +22,7 @@ export function LanguageProvider({ children }) {
   }, [language]);
 
   const t = (key) => {
-    const keys = key.split('.');
+    const keys = key.split(".");
     let value = translations[language];
 
     for (const part of keys) {
@@ -52,7 +52,7 @@ export function useLanguage() {
   const context = useContext(LanguageContext);
 
   if (!context) {
-    throw new Error('useLanguage must be used within LanguageProvider');
+    throw new Error("useLanguage must be used within LanguageProvider");
   }
 
   return context;
