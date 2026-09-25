@@ -410,6 +410,12 @@ const api = {
       body: JSON.stringify(data),
     }),
 
+  updateCategory: (id, data) =>
+    request(`/admin/categories/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }),
+
   getAdminShops: () => request("/admin/shops"),
 
   toggleShopStatus: (id, isActive) =>

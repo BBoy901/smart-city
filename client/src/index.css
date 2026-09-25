@@ -110,6 +110,8 @@
 
 html {
   font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
@@ -365,7 +367,7 @@ select:focus-visible {
   display: inline-flex;
   align-items: baseline;
   font-family: "Space Grotesk", sans-serif;
-  font-size: 1.08rem;
+  font-size: clamp(16px, 1.5vw, 21px);
   font-weight: 800;
   line-height: 1;
   letter-spacing: -0.35px;
@@ -440,7 +442,7 @@ select:focus-visible {
   padding: 0;
   color: var(--text);
   font-family: "Space Grotesk", sans-serif;
-  font-size: 1.25rem;
+  font-size: clamp(18px, 2vw, 26px);
   font-weight: 700;
   line-height: 1.25;
 }
@@ -561,6 +563,10 @@ select:focus-visible {
 
 .nav-item.active svg {
   stroke-width: 2.5;
+}
+
+.nav-item span {
+  font-size: clamp(11px, 1.1vw, 14px);
 }
 
 .nav-item svg {
@@ -3678,10 +3684,6 @@ button,
   max-width: 300px;
 }
 
-.nav-item {
-  position: relative;
-}
-
 .nav-badge {
   position: absolute;
   top: 1px;
@@ -4926,5 +4928,20 @@ button,
 
   .search-tabs {
     margin-inline: 12px;
+  }
+}
+
+/* Responsive typography */
+@media (max-width: 480px) {
+  .header-brand-name {
+    font-size: 17px;
+  }
+
+  .header-title {
+    font-size: 20px;
+  }
+
+  .nav-item span {
+    font-size: 11px;
   }
 }

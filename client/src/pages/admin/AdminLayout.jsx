@@ -488,20 +488,88 @@ export default function AdminLayout() {
 function AdminCategories() {
   const [categories, setCategories] = useState([]);
   const [name, setName] = useState("");
+  const [editingId, setEditingId] = useState(null);
+  const [editingName, setEditingName] = useState("");
+  const [editingIcon, setEditingIcon] = useState("");
+  const [editingActive, setEditingActive] = useState(true);
+  const [savingId, setSavingId] = useState(null);
+
+  const loadCategories = async () => {
+    try {
+      const data = await api.getAdminCategories();
+      setCategories(data);
+    } catch (error) {
+      console.error("Failed to load categories:", error);
+    }
+  };
+
   useEffect(() => {
-    api.getAdminCategories().then(setCategories).catch(console.error);
+    loadCategories();
   }, []);
 
   const handleCreate = async (e) => {
     e.preventDefault();
-    const cat = await api.createCategory({ name, icon: "📦" });
-    setCategories((prev) => [...prev, cat]);
-    setName("");
+
+    try {
+      const cat = await api.createCategory({ name: name.trim(), icon: "📦" });
+      setCategories((prev) => [...prev, cat]);
+      setName("");
+    } catch (error) {
+      console.error("Failed to create category:", error);
+      alert(error.message || "Failed to create category.");
+    }
+  };
+
+  const startEdit = (category) => {
+    setEditingId(category.id);
+    setEditingName(category.name || "");
+    setEditingIcon(category.icon || "📦");
+    setEditingActive(Boolean(category.isActive));
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditingName("");
+    setEditingIcon("");
+    setEditingActive(true);
+  };
+
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+
+    if (!editingName.trim()) {
+      alert("Category name is required.");
+      return;
+    }
+
+    try {
+      setSavingId(editingId);
+
+      const updated = await api.updateCategory(editingId, {
+        name: editingName.trim(),
+        icon: editingIcon.trim() || "📦",
+        isActive: editingActive,
+      });
+
+      setCategories((prev) =>
+        prev.map((category) =>
+          category.id === updated.id ? { ...category, ...updated } : category,
+        ),
+      );
+
+      cancelEdit();
+    } catch (error) {
+      console.error("Failed to update category:", error);
+      alert(error.message || "Failed to update category.");
+    } finally {
+      setSavingId(null);
+    }
   };
 
   return (
     <div>
       <h1 className="admin-page-title">Categories</h1>
+
       <form onSubmit={handleCreate} className="admin-category-form">
         <input
           className="form-input"
@@ -514,22 +582,89 @@ function AdminCategories() {
           Add
         </button>
       </form>
+
       <table className="admin-table">
         <thead>
           <tr>
             <th>Name</th>
             <th>Products</th>
             <th>Status</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
           {categories.map((c) => (
             <tr key={c.id}>
-              <td>
-                {c.icon} {c.name}
-              </td>
-              <td>{c._count?.products}</td>
-              <td>{c.isActive ? "✅" : "❌"}</td>
+              {editingId === c.id ? (
+                <>
+                  <td>
+                    <div className="admin-category-edit">
+                      <input
+                        className="form-input"
+                        value={editingName}
+                        onChange={(e) => setEditingName(e.target.value)}
+                        aria-label="Category name"
+                        required
+                      />
+                      <input
+                        className="form-input"
+                        value={editingIcon}
+                        onChange={(e) => setEditingIcon(e.target.value)}
+                        aria-label="Category icon"
+                        maxLength={8}
+                      />
+                    </div>
+                  </td>
+                  <td>{c._count?.products ?? 0}</td>
+                  <td>
+                    <label>
+                      <input
+                        type="checkbox"
+                        checked={editingActive}
+                        onChange={(e) => setEditingActive(e.target.checked)}
+                      />{" "}
+                      Active
+                    </label>
+                  </td>
+                  <td>
+                    <div className="admin-category-actions">
+                      <button
+                        type="button"
+                        className="btn btn-primary btn-sm"
+                        onClick={handleUpdate}
+                        disabled={savingId === c.id}
+                      >
+                        {savingId === c.id ? "Saving..." : "Save"}
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-secondary btn-sm"
+                        onClick={cancelEdit}
+                        disabled={savingId === c.id}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </td>
+                </>
+              ) : (
+                <>
+                  <td>
+                    {c.icon} {c.name}
+                  </td>
+                  <td>{c._count?.products ?? 0}</td>
+                  <td>{c.isActive ? "✅" : "❌"}</td>
+                  <td>
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-secondary"
+                      onClick={() => startEdit(c)}
+                    >
+                      Edit
+                    </button>
+                  </td>
+                </>
+              )}
             </tr>
           ))}
         </tbody>
