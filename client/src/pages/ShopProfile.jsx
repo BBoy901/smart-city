@@ -76,6 +76,7 @@ export default function ShopProfile() {
       <div className="tabs" style={{ margin: "16px" }}>
         {["products", "about", "location"].map((t) => (
           <button
+            type="button"
             key={t}
             className={`tab ${tab === t ? "active" : ""}`}
             onClick={() => setTab(t)}

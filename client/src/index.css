@@ -595,6 +595,7 @@ select:focus-visible {
    ================================= */
 
 button,
+.btn,
 .btn-primary,
 .btn-secondary,
 .btn-danger,
@@ -604,10 +605,12 @@ button,
   -webkit-tap-highlight-color: transparent;
 }
 
+.btn,
 .btn-primary,
 .btn-secondary,
 .btn-danger,
-.btn-ghost {
+.btn-ghost,
+.btn-outline {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -624,6 +627,24 @@ button,
     color var(--transition),
     transform var(--transition-fast),
     box-shadow var(--transition);
+}
+
+.btn-outline {
+  border: 1px solid var(--border-strong);
+  background: transparent;
+  color: var(--text);
+}
+
+.btn-outline:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-light);
+}
+
+.btn-sm {
+  min-height: 40px;
+  padding: 0 var(--space-4);
+  font-size: 0.875rem;
 }
 
 .btn-primary {
@@ -675,7 +696,8 @@ button,
 .btn-primary:active,
 .btn-secondary:active,
 .btn-danger:active,
-.btn-ghost:active {
+.btn-ghost:active,
+.btn-outline:active {
   transform: scale(0.98);
 }
 
@@ -1125,7 +1147,7 @@ button,
 /* Main search */
 
 .search-main {
-  padding: 20px 16px 12px;
+  padding: 12px 16px 10px;
 }
 
 .search-main-field {
@@ -1133,7 +1155,7 @@ button,
   align-items: center;
   gap: 10px;
   width: 100%;
-  min-height: 50px;
+  min-height: 52px;
   padding: 0 14px;
   border: 1px solid var(--border-strong);
   border-radius: var(--radius);
@@ -1162,7 +1184,7 @@ button,
   background: transparent;
   color: var(--text);
   font: inherit;
-  font-size: 0.9375rem;
+  font-size: 1rem;
 }
 
 .search-main-field input::placeholder {
@@ -1175,7 +1197,7 @@ button,
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 0 16px 16px;
+  padding: 0 16px 14px;
 }
 
 .search-area-field {
@@ -1206,9 +1228,9 @@ button,
 
 .search-tabs {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 4px;
-  margin: 0 16px 16px;
+  margin: 0 16px 14px;
   padding: 4px;
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -1216,10 +1238,10 @@ button,
 }
 
 .search-tab {
-  min-height: 40px;
+  min-height: 42px;
   border-radius: var(--radius-sm);
   color: var(--text-secondary);
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   font-weight: 600;
   transition:
     color var(--transition),
@@ -1265,7 +1287,7 @@ button,
   overflow-x: auto;
   padding-bottom: 2px;
   scrollbar-width: none;
-  touch-action: pan-x;
+  touch-action: pan-x pan-y;
   overscroll-behavior-x: contain;
 }
 
@@ -1349,6 +1371,8 @@ button,
   overflow-x: auto;
   padding: 2px 2px 6px;
   scrollbar-width: none;
+  touch-action: pan-x pan-y;
+  overscroll-behavior-x: contain;
 }
 
 .popular-search-list::-webkit-scrollbar {
@@ -1461,7 +1485,7 @@ button,
   gap: var(--space-2);
   margin-bottom: var(--space-3);
   color: var(--text);
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   font-weight: 700;
 }
 
@@ -1516,7 +1540,7 @@ button,
 }
 
 .search-highlight-info strong {
-  font-size: 0.8125rem;
+  font-size: 0.9rem;
   font-weight: 700;
   line-height: 1.35;
 }
@@ -1524,7 +1548,7 @@ button,
 .search-highlight-info b {
   margin-top: 3px;
   color: var(--primary);
-  font-size: 0.8rem;
+  font-size: 0.875rem;
   font-weight: 700;
   line-height: 1.3;
 }
@@ -1532,7 +1556,7 @@ button,
 .search-highlight-info small {
   margin-top: 3px;
   color: var(--text-muted);
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   line-height: 1.3;
 }
 
@@ -1616,13 +1640,13 @@ button,
   gap: 4px;
   margin-top: 5px !important;
   color: var(--text-secondary) !important;
-  font-size: 0.75rem !important;
+  font-size: 0.8125rem !important;
 }
 
 .search-seller-card > div:nth-child(3) {
   margin-top: 6px !important;
   color: var(--text-muted) !important;
-  font-size: 0.7rem !important;
+  font-size: 0.75rem !important;
 }
 
 /* Existing generic search bar */
@@ -1946,8 +1970,8 @@ button,
 .message-bubble.sent {
   margin-left: auto;
   border-bottom-right-radius: 4px;
-  background: var(--primary);
-  color: #fff;
+  background: var(--surface-2);
+  color: var(--text);
 }
 
 .message-bubble.received {
@@ -3896,6 +3920,8 @@ button,
   overflow-x: auto;
   padding: 0 16px 12px;
   scrollbar-width: none;
+  touch-action: pan-x pan-y;
+  overscroll-behavior-x: contain;
 }
 
 .home-section-row {
@@ -3972,7 +3998,10 @@ button,
 
 .btn:disabled,
 .btn-primary:disabled,
-.btn-secondary:disabled {
+.btn-secondary:disabled,
+.btn-danger:disabled,
+.btn-ghost:disabled,
+.btn-outline:disabled {
   opacity: 0.55;
   cursor: not-allowed;
   transform: none;
@@ -4845,4 +4874,65 @@ button,
 /* Preserve the existing seller bar layout. */
 .bottom-nav--seller {
   display: flex;
+}
+
+/* Keep the seller Messages unread badge attached to the Messages icon. */
+.bottom-nav--seller .nav-icon-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.bottom-nav--seller .nav-icon-wrap .nav-badge {
+  top: -5px;
+  right: -10px;
+  left: auto;
+  margin-left: 0;
+  transform: none;
+}
+
+
+
+/* Mobile interaction and search refinements */
+@media (max-width: 380px) {
+  .search-main {
+    padding-inline: 12px;
+  }
+
+  .search-area-row {
+    padding-inline: 12px;
+    gap: 8px;
+  }
+
+  .search-area-button {
+    min-width: 82px;
+    padding-inline: 12px;
+  }
+
+  .search-highlight-item {
+    gap: 10px;
+  }
+
+  .search-highlight-image {
+    width: 44px;
+    height: 44px;
+  }
+
+  .search-highlight-info strong {
+    font-size: 0.875rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .search-area-row {
+    align-items: stretch;
+  }
+
+  .search-area-button {
+    min-width: 76px;
+    padding-inline: 10px;
+  }
+
+  .search-tabs {
+    margin-inline: 12px;
+  }
 }

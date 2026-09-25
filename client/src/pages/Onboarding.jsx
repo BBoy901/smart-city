@@ -50,7 +50,7 @@ export default function Onboarding() {
         style={{ justifyContent: "center", marginBottom: 32 }}
       >
         {categories.map((c) => (
-          <button
+          <button type="button"
             key={c.id}
             className={`chip ${selected.includes(c.id) ? "active" : ""}`}
             onClick={() => toggle(c.id)}
@@ -60,7 +60,7 @@ export default function Onboarding() {
         ))}
       </div>
 
-      <button
+      <button type="button"
         className="btn btn-primary btn-block"
         onClick={handleSubmit}
         disabled={loading}

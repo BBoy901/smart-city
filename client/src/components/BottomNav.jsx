@@ -42,9 +42,15 @@ export default function BottomNav() {
             end={to === "/seller"}
             className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}
           >
-            <Icon aria-hidden="true" />
+            {label === "Messages" ? (
+              <span className="nav-icon-wrap">
+                <Icon aria-hidden="true" />
+                {messageBadge}
+              </span>
+            ) : (
+              <Icon aria-hidden="true" />
+            )}
             <span>{label}</span>
-            {label === "Messages" && messageBadge}
           </NavLink>
         ))}
       </nav>

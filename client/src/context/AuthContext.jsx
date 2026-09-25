@@ -63,6 +63,24 @@ export function AuthProvider({ children }) {
     return () => clearInterval(timer);
   }, [user, refreshUnreadMessages]);
 
+  useEffect(() => {
+    if (!user) {
+      return undefined;
+    }
+
+    const updatePresence = () => {
+      api.updatePresence().catch(() => {});
+    };
+
+    // Mark online immediately after login/load.
+    updatePresence();
+
+    // Keep the user online while the app is open.
+    const timer = setInterval(updatePresence, 15000);
+
+    return () => clearInterval(timer);
+  }, [user]);
+
   const login = async (email, password) => {
     const { token, user: u } = await api.login({ email, password });
     localStorage.setItem("token", token);

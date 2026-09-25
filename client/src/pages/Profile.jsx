@@ -102,7 +102,7 @@ export default function Profile() {
         </div>
 
         {isCustomer && isSeller && (
-          <button
+          <button type="button"
             className="btn btn-secondary btn-sm"
             style={{ marginTop: 12 }}
             onClick={handleSwitchMode}
@@ -116,7 +116,7 @@ export default function Profile() {
         )}
 
         {!isSeller && isCustomer && (
-          <button
+          <button type="button"
             className="btn btn-outline btn-sm"
             style={{ marginTop: 12 }}
             onClick={handleBecomeSeller}
@@ -128,7 +128,7 @@ export default function Profile() {
         )}
 
         {!isCustomer && isSeller && (
-          <button
+          <button type="button"
             className="btn btn-outline btn-sm"
             style={{ marginTop: 12 }}
             onClick={handleBecomeCustomer}
@@ -139,21 +139,21 @@ export default function Profile() {
       </div>
 
       <div className="tabs" style={{ margin: "0 16px" }}>
-        <button
+        <button type="button"
           className={`tab ${tab === "saved" ? "active" : ""}`}
           onClick={() => setTab("saved")}
         >
           {t("settings.saved")}
         </button>
 
-        <button
+        <button type="button"
           className={`tab ${tab === "liked" ? "active" : ""}`}
           onClick={() => setTab("liked")}
         >
           {t("settings.liked")}
         </button>
 
-        <button
+        <button type="button"
           className={`tab ${tab === "recent" ? "active" : ""}`}
           onClick={() => setTab("recent")}
         >
@@ -195,7 +195,7 @@ export default function Profile() {
       )}
 
       <div style={{ padding: 16 }}>
-        <button
+        <button type="button"
           className="btn btn-danger btn-block"
           onClick={() => {
             logout();

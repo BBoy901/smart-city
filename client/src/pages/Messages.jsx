@@ -819,6 +819,28 @@ export default function Messages() {
   }, [user]);
 
   useEffect(() => {
+    if (!user) return;
+
+    let cancelled = false;
+
+    const refreshConversations = async () => {
+      try {
+        const next = await api.getConversations();
+        if (!cancelled) setConversations(next || []);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    const interval = window.setInterval(refreshConversations, 3000);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+    };
+  }, [user]);
+
+  useEffect(() => {
     const chatFromHistory = location.state?.chat;
 
     if (chatFromHistory) {
@@ -876,6 +898,43 @@ export default function Messages() {
       console.error(err);
     }
   };
+
+  useEffect(() => {
+    if (!user || !activeConv?.id) return;
+
+    let cancelled = false;
+
+    const syncMessages = async () => {
+      try {
+        const next = await api.getMessages(activeConv.id);
+        if (cancelled) return;
+
+        setMessages((prev) => {
+          const prevIds = new Set(prev.map((message) => message.id));
+          const hasNewMessages = next.some((message) => !prevIds.has(message.id));
+
+          if (hasNewMessages) {
+            setTimeout(() => {
+              messagesEnd.current?.scrollIntoView({ behavior: "smooth" });
+            }, 60);
+          }
+
+          return next;
+        });
+
+        refreshUnreadMessages();
+      } catch (err) {
+        if (!cancelled) console.error(err);
+      }
+    };
+
+    const interval = window.setInterval(syncMessages, 2000);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+    };
+  }, [user, activeConv?.id, refreshUnreadMessages]);
 
   const loadConversationProducts = async () => {
     if (!activeConv) return;
@@ -1207,18 +1266,17 @@ export default function Messages() {
               ×
             </button>
 
-            <img
-              src={viewingImage}
-              alt="Full size"
-              onClick={(e) => e.stopPropagation()}
-              style={{
-                width: 320,
-                height: 240,
-                objectFit: "cover",
-                borderRadius: 10,
-                boxShadow: "0 12px 45px rgba(0,0,0,0.4)",
-              }}
-            />
+<img
+  src={viewingImage}
+  alt="Full size"
+  style={{
+    display: "block",
+    width: "90%",
+    height: "90%",
+    objectFit: "contain",
+    objectPosition: "center",
+  }}
+/>
           </div>
         )}
 
@@ -1233,11 +1291,11 @@ export default function Messages() {
           />
         )}
 
-        <ChatHeader
-          name={other?.name || "Chat"}
-          avatar={other?.name?.[0]?.toUpperCase() || "?"}
-        />
-
+<ChatHeader
+  name={other?.name || "Chat"}
+  avatar={other?.name?.[0]?.toUpperCase() || "?"}
+  lastSeenAt={other?.lastSeenAt}
+/>
         <div className="chat-thread">
           {showOriginalProductFallback && (
             <div
@@ -1272,184 +1330,249 @@ export default function Messages() {
           )}
 
           {messages.map((m, index) => {
-            const isMine = m.senderId === user.id;
+  const isMine = m.senderId === user.id;
 
-            // The original product is the first virtual item in the
-            // conversation timeline. Every later PRODUCT message is
-            // compared only with the immediately preceding timeline item.
-            const previousTimelineItem =
-              index === 0 && showOriginalProductFallback
-                ? { type: "PRODUCT", productId: originalProduct.id }
-                : messages[index - 1];
+  // The original product is the first virtual item in the
+  // conversation timeline.
+  const previousTimelineItem =
+    index === 0 && showOriginalProductFallback
+      ? { type: "PRODUCT", productId: originalProduct.id }
+      : messages[index - 1];
 
-            const currentProductId = getTimelineProductId(m);
-            const previousProductId =
-              getTimelineProductId(previousTimelineItem);
+  const currentProductId = getTimelineProductId(m);
+  const previousProductId =
+    getTimelineProductId(previousTimelineItem);
 
-            const isRepeatedProduct =
-              Boolean(currentProductId) &&
-              Boolean(previousProductId) &&
-              String(currentProductId) === String(previousProductId);
+  const isRepeatedProduct =
+    Boolean(currentProductId) &&
+    Boolean(previousProductId) &&
+    String(currentProductId) === String(previousProductId);
 
-            if (isRepeatedProduct) {
-              return null;
+  if (isRepeatedProduct) {
+    return null;
+  }
+
+  return (
+    <div
+      key={m.id}
+      className={`message-bubble ${isMine ? "sent" : "received"}${
+        m.type === "PRODUCT"
+          ? " product-message-bubble"
+          : ""
+      }${
+        m.type === "PHOTO"
+          ? " photo-message-bubble"
+          : ""
+      }`}
+      style={{
+        position: "relative",
+        ...(m.type === "PHOTO"
+          ? {
+              background: "transparent",
+              border: "none",
+              padding: 0,
             }
+          : {}),
+      }}
+    >
+      {/* PHOTO / PRODUCT / TEXT CONTAINER */}
+      <div
+        style={{
+          display: "block",
+          width:
+            m.type === "PHOTO"
+              ? "fit-content"
+              : "100%",
+          maxWidth: "100%",
 
-            return (
-              <div
-                key={m.id}
-                className={`message-bubble ${isMine ? "sent" : "received"}${m.type === "PRODUCT" ? " product-message-bubble" : ""}`}
+          ...(m.type === "PHOTO"
+            ? {
+                marginLeft: isMine ? "auto" : 0,
+                marginRight: isMine ? 0 : "auto",
+                border: "1px solid var(--border)",
+                borderRadius: 12,
+                background: "var(--surface)",
+                overflow: "hidden",
+              }
+            : {}),
+        }}
+      >
+        {/* MESSAGE CONTENT */}
+        <div
+          style={{
+            width:
+              m.type === "PHOTO"
+                ? "fit-content"
+                : "100%",
+            maxWidth: "100%",
+            display: "flex",
+            justifyContent: "flex-start",
+          }}
+        >
+          {m.type === "PHOTO" && m.imageUrl ? (
+            <button
+              type="button"
+              onClick={() =>
+                setViewingImage(
+                  getImageUrl(m.imageUrl),
+                )
+              }
+              style={{
+                display: "block",
+                width: "fit-content",
+                maxWidth: "100%",
+                padding: 0,
+                margin: 0,
+                border: 0,
+                background: "transparent",
+                cursor: "zoom-in",
+              }}
+            >
+              <img
+                src={getImageUrl(m.imageUrl)}
+                alt="Shared"
                 style={{
-                  position: "relative",
-                  ...(m.type === "PHOTO"
-                    ? {
-                        background: "transparent",
-                        border: "none",
-                        padding: 0,
-                      }
-                    : {}),
+                  display: "block",
+                  width: "auto",
+                  height: "auto",
+                  maxWidth: "100%",
+                  maxHeight: "360px",
+                  objectFit: "contain",
+                  borderRadius: 0,
+                  border: "none",
+                  background: "transparent",
                 }}
-              >
-                <div
-                  style={{
-                    display: "block",
-                    width: "100%",
-                  }}
-                >
-                  <div
-                    style={{
-                      width: "100%",
-                    }}
-                  >
-                    {m.type === "PHOTO" && m.imageUrl ? (
-                      <button
-                        type="button"
-                        onClick={() => setViewingImage(getImageUrl(m.imageUrl))}
-                        style={{
-                          display: "block",
-                          padding: 0,
-                          border: 0,
-                          background: "transparent",
-                          cursor: "zoom-in",
-                          maxWidth: "100%",
-                        }}
-                      >
-                        <img
-                          src={getImageUrl(m.imageUrl)}
-                          alt="Shared"
-                          style={{
-  display: "block",
-  width: "min(320px, 100%)",
-  height: 240,
-  objectFit: "cover",
-  borderRadius: 10,
-  border: "1px solid var(--border)",
-  background: "var(--surface)",
-  boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
-}}
-                        />
-                      </button>
-                    ) : m.type === "PRODUCT" && m.product ? (
-                      <ProductMessageCard
-                        product={m.product}
-                        onViewProduct={setViewingProduct}
-                        onViewShop={(shopId) => {
-                          if (shopId) navigate(`/shop/${shopId}`);
-                        }}
-                      />
-                    ) : (
-                      <div>{m.content}</div>
-                    )}
-                  </div>
+              />
+            </button>
+          ) : m.type === "PRODUCT" &&
+            m.product ? (
+            <ProductMessageCard
+              product={m.product}
+              onViewProduct={setViewingProduct}
+              onViewShop={(shopId) => {
+                if (shopId) {
+                  navigate(`/shop/${shopId}`);
+                }
+              }}
+            />
+          ) : (
+            <div>{m.content}</div>
+          )}
+        </div>
 
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      gap: 8,
-                      marginTop: 4,
-                      width: "100%",
-                    }}
-                  >
-                    <div className="message-time">
-                      {new Date(m.createdAt).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </div>
+        {/* TIME + THREE DOTS */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 8,
+            marginTop:
+              m.type === "PHOTO" ? 0 : 4,
+            width: "100%",
+            padding:
+              m.type === "PHOTO"
+                ? "6px 8px 8px"
+                : 0,
+            boxSizing: "border-box",
+          }}
+        >
+          <div className="message-time">
+            {new Date(
+              m.createdAt,
+            ).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+          </div>
 
-                    <button
-                      type="button"
-                      title="Message options"
-                      aria-label="Message options"
-                      onClick={(e) => {
-                        e.stopPropagation();
+          <button
+            type="button"
+            title="Message options"
+            aria-label="Message options"
+            onClick={(e) => {
+              e.stopPropagation();
 
-                        setOpenMessageMenu((current) =>
-                          current === m.id ? null : m.id,
-                        );
+              setOpenMessageMenu((current) =>
+                current === m.id
+                  ? null
+                  : m.id,
+              );
 
-                        setOpenConversationMenu(null);
-                        setShowAddMenu(false);
-                        setShowProductPicker(false);
-                      }}
-                      style={{
-                        padding: 2,
-                        margin: 0,
-                        cursor: "pointer",
-                        opacity: 1,
-                        color: "inherit",
-                        background: "var(--surface)",
-                        border: "1px solid var(--border)",
-                        borderRadius: "50%",
-                        width: 30,
-                        height: 30,
-                        display: "inline-flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        flexShrink: 0,
-                      }}
-                    >
-                      <MoreVertical size={16} />
-                    </button>
-                  </div>
-                </div>
+              setOpenConversationMenu(null);
+              setShowAddMenu(false);
+              setShowProductPicker(false);
+            }}
+            style={{
+              padding: 2,
+              margin: 0,
+              cursor: "pointer",
+              opacity: 1,
+              color: "var(--text)",
+              background: "var(--surface)",
+              border:
+                "1px solid var(--border)",
+              borderRadius: "50%",
+              width: 30,
+              height: 30,
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+            }}
+          >
+            <MoreVertical size={16} />
+          </button>
+        </div>
+      </div>
 
-                {openMessageMenu === m.id && (
-                  <div
-                    style={{
-                      ...menuStyle,
-                      right: 8,
-                      top: "auto",
-                      bottom: 38,
-                    }}
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <button
-                      type="button"
-                      style={menuButtonStyle}
-                      onClick={() => handleDeleteMessage(m, "for_me")}
-                    >
-                      <Trash2 size={15} />
-                      Delete for me
-                    </button>
+      {/* MESSAGE OPTIONS MENU */}
+      {openMessageMenu === m.id && (
+        <div
+          style={{
+            ...menuStyle,
+            right: 8,
+            top: "auto",
+            bottom: 38,
+          }}
+          onClick={(e) =>
+            e.stopPropagation()
+          }
+        >
+          <button
+            type="button"
+            style={menuButtonStyle}
+            onClick={() =>
+              handleDeleteMessage(
+                m,
+                "for_me",
+              )
+            }
+          >
+            <Trash2 size={15} />
+            Delete for me
+          </button>
 
-                    {m.senderId === user.id && (
-                      <button
-                        type="button"
-                        style={menuButtonStyle}
-                        onClick={() => handleDeleteMessage(m, "for_everyone")}
-                      >
-                        <Trash2 size={15} />
-                        Delete for everyone
-                      </button>
-                    )}
-                  </div>
-                )}
-              </div>
-            );
-          })}
+          {m.senderId === user.id && (
+            <button
+              type="button"
+              style={menuButtonStyle}
+              onClick={() =>
+                handleDeleteMessage(
+                  m,
+                  "for_everyone",
+                )
+              }
+            >
+              <Trash2 size={15} />
+              Delete for everyone
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+})}
 
           <div ref={messagesEnd} />
         </div>
@@ -1629,7 +1752,14 @@ export default function Messages() {
                   {conv.otherUser?.name?.[0]?.toUpperCase() || "?"}
                 </div>
 
-                <div className="conversation-content">
+                <div
+                  className="conversation-content"
+                  style={{
+                    minWidth: 0,
+                    flex: 1,
+                    paddingRight: 6,
+                  }}
+                >
                   <div className="conversation-heading">
                     <strong>{conv.otherUser?.name || "Unknown user"}</strong>
                   </div>
@@ -1643,13 +1773,40 @@ export default function Messages() {
                   </div>
                 </div>
 
-                <div className="conversation-side">
-                  <time>{formatConversationTime(conv.lastMessageAt)}</time>
+                <div
+                  className="conversation-side"
+                  style={{
+                    flex: "0 0 96px",
+                    width: 96,
+                    minWidth: 96,
+                    paddingRight: 38,
+                    boxSizing: "border-box",
+                    textAlign: "right",
+                    minHeight: 48,
+                  }}
+                >
+                  <time
+                    style={{
+                      display: "block",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {formatConversationTime(conv.lastMessageAt)}
+                  </time>
 
                   <div
                     className={`conversation-status ${
                       status.unread ? "is-unread" : ""
                     }`}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "flex-end",
+                      gap: 4,
+                      whiteSpace: "nowrap",
+                    }}
                   >
                     {status.unread && (
                       <span

@@ -7,6 +7,34 @@ import cloudinary from "../lib/cloudinary";
 const router = Router();
 
 /**
+ * UPDATE CURRENT USER PRESENCE
+ */
+router.patch(
+  "/presence",
+  authenticate,
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const userId = req.user!.id;
+
+      await prisma.user.update({
+        where: { id: userId },
+        data: {
+          lastSeenAt: new Date(),
+        },
+      });
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error("PATCH /messages/presence error:", error);
+
+      res.status(500).json({
+        error: "Failed to update presence",
+      });
+    }
+  },
+);
+
+/**
  * Shared product data returned inside messages.
  */
 const productSelect = {
@@ -57,6 +85,7 @@ router.get("/", authenticate, async (req: AuthRequest, res: Response) => {
                 id: true,
                 name: true,
                 avatarUrl: true,
+                lastSeenAt: true,
                 roles: true,
                 sellerProfile: {
                   select: {

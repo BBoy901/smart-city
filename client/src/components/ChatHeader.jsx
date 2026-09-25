@@ -1,7 +1,7 @@
 import { Settings as SettingsIcon } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-export default function ChatHeader({ name, avatar }) {
+export default function ChatHeader({ name, avatar, lastSeenAt }) {
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -39,13 +39,32 @@ export default function ChatHeader({ name, avatar }) {
         </button>
       </div>
 
-      <div className="chat-header-user">
-        <div className="chat-avatar">
-          {avatar || name?.charAt(0)?.toUpperCase()}
-        </div>
+<div className="chat-header-user">
+  <div className="chat-avatar">
+    {avatar || name?.charAt(0)?.toUpperCase()}
+  </div>
 
-        <strong>{name}</strong>
-      </div>
+  <div>
+    <strong>{name}</strong>
+
+    <div
+      style={{
+        marginTop: 2,
+        fontSize: 12,
+        color:
+          lastSeenAt &&
+          Date.now() - new Date(lastSeenAt).getTime() <= 30 * 1000
+            ? "#22c55e"
+            : "var(--text-secondary)",
+      }}
+    >
+      {lastSeenAt &&
+      Date.now() - new Date(lastSeenAt).getTime() <= 30 * 1000
+        ? "🟢 Online"
+        : "⚪ Offline"}
+    </div>
+  </div>
+</div>
     </header>
   );
 }

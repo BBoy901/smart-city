@@ -51,11 +51,11 @@ const api = {
       body: JSON.stringify(data),
     }),
 
-    forgotPassword: (email) =>
-  request("/auth/forgot-password", {
-    method: "POST",
-    body: JSON.stringify({ email }),
-  }),
+  forgotPassword: (email) =>
+    request("/auth/forgot-password", {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    }),
 
   register: (data) =>
     request("/auth/register", {
@@ -209,6 +209,12 @@ const api = {
   // Get all conversations for the current user
   getConversations: () => request("/messages"),
 
+  // Update current user's online presence
+  updatePresence: () =>
+    request("/messages/presence", {
+      method: "PATCH",
+    }),
+
   // Start or reopen a conversation with another user.
   // productId is optional. When supplied, it becomes the
   // original product context of a newly-created conversation.
@@ -282,7 +288,9 @@ const api = {
   deleteConversationForMe: (conversationId) =>
     request(`/messages/${conversationId}`, {
       method: "DELETE",
-    }), // =========================================================
+    }),
+
+  // =========================================================
   // MESSAGES
   // =========================================================
 
