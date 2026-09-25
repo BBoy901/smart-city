@@ -39,32 +39,32 @@ export default function ChatHeader({ name, avatar, lastSeenAt }) {
         </button>
       </div>
 
-<div className="chat-header-user">
-  <div className="chat-avatar">
-    {avatar || name?.charAt(0)?.toUpperCase()}
-  </div>
+      <div className="chat-header-user">
+        <div className="chat-avatar">
+          {avatar || name?.charAt(0)?.toUpperCase()}
+        </div>
 
-  <div>
-    <strong>{name}</strong>
+        <div>
+          <strong>{name}</strong>
 
-    <div
-      style={{
-        marginTop: 2,
-        fontSize: 12,
-        color:
-          lastSeenAt &&
-          Date.now() - new Date(lastSeenAt).getTime() <= 30 * 1000
-            ? "#22c55e"
-            : "var(--text-secondary)",
-      }}
-    >
-      {lastSeenAt &&
-      Date.now() - new Date(lastSeenAt).getTime() <= 30 * 1000
-        ? "🟢 Online"
-        : "⚪ Offline"}
-    </div>
-  </div>
-</div>
+          <div
+            style={{
+              marginTop: 2,
+              fontSize: 12,
+              color:
+                lastSeenAt &&
+                Date.now() - new Date(lastSeenAt).getTime() <= 30 * 1000
+                  ? "#22c55e"
+                  : "var(--text-secondary)",
+            }}
+          >
+            {lastSeenAt &&
+            Date.now() - new Date(lastSeenAt).getTime() <= 30 * 1000
+              ? "🟢 Online"
+              : "⚪ Offline"}
+          </div>
+        </div>
+      </div>
     </header>
   );
 }

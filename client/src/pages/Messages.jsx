@@ -911,7 +911,9 @@ export default function Messages() {
 
         setMessages((prev) => {
           const prevIds = new Set(prev.map((message) => message.id));
-          const hasNewMessages = next.some((message) => !prevIds.has(message.id));
+          const hasNewMessages = next.some(
+            (message) => !prevIds.has(message.id),
+          );
 
           if (hasNewMessages) {
             setTimeout(() => {
@@ -1079,24 +1081,24 @@ export default function Messages() {
       await api.deleteMessage(activeConv.id, message.id, mode);
 
       setMessages((prev) => {
-  const next = prev.filter((item) => item.id !== message.id);
+        const next = prev.filter((item) => item.id !== message.id);
 
-  // Keep consecutive identical PRODUCT messages collapsed in the UI.
-  // Other saved PRODUCT events are not deleted.
-  return next.filter((item, index) => {
-    if (item.type !== "PRODUCT") return true;
+        // Keep consecutive identical PRODUCT messages collapsed in the UI.
+        // Other saved PRODUCT events are not deleted.
+        return next.filter((item, index) => {
+          if (item.type !== "PRODUCT") return true;
 
-    const previous = next[index - 1];
-    const currentProductId = getTimelineProductId(item);
-    const previousProductId = getTimelineProductId(previous);
+          const previous = next[index - 1];
+          const currentProductId = getTimelineProductId(item);
+          const previousProductId = getTimelineProductId(previous);
 
-    return !(
-      currentProductId &&
-      previousProductId &&
-      String(currentProductId) === String(previousProductId)
-    );
-  });
-});
+          return !(
+            currentProductId &&
+            previousProductId &&
+            String(currentProductId) === String(previousProductId)
+          );
+        });
+      });
 
       if (mode === "for_everyone") {
         setConversations((prev) =>
@@ -1266,17 +1268,17 @@ export default function Messages() {
               ×
             </button>
 
-<img
-  src={viewingImage}
-  alt="Full size"
-  style={{
-    display: "block",
-    width: "90%",
-    height: "90%",
-    objectFit: "contain",
-    objectPosition: "center",
-  }}
-/>
+            <img
+              src={viewingImage}
+              alt="Full size"
+              style={{
+                display: "block",
+                width: "90%",
+                height: "90%",
+                objectFit: "contain",
+                objectPosition: "center",
+              }}
+            />
           </div>
         )}
 
@@ -1291,11 +1293,11 @@ export default function Messages() {
           />
         )}
 
-<ChatHeader
-  name={other?.name || "Chat"}
-  avatar={other?.name?.[0]?.toUpperCase() || "?"}
-  lastSeenAt={other?.lastSeenAt}
-/>
+        <ChatHeader
+          name={other?.name || "Chat"}
+          avatar={other?.name?.[0]?.toUpperCase() || "?"}
+          lastSeenAt={other?.lastSeenAt}
+        />
         <div className="chat-thread">
           {showOriginalProductFallback && (
             <div
@@ -1330,249 +1332,211 @@ export default function Messages() {
           )}
 
           {messages.map((m, index) => {
-  const isMine = m.senderId === user.id;
+            const isMine = m.senderId === user.id;
 
-  // The original product is the first virtual item in the
-  // conversation timeline.
-  const previousTimelineItem =
-    index === 0 && showOriginalProductFallback
-      ? { type: "PRODUCT", productId: originalProduct.id }
-      : messages[index - 1];
+            // The original product is the first virtual item in the
+            // conversation timeline.
+            const previousTimelineItem =
+              index === 0 && showOriginalProductFallback
+                ? { type: "PRODUCT", productId: originalProduct.id }
+                : messages[index - 1];
 
-  const currentProductId = getTimelineProductId(m);
-  const previousProductId =
-    getTimelineProductId(previousTimelineItem);
+            const currentProductId = getTimelineProductId(m);
+            const previousProductId =
+              getTimelineProductId(previousTimelineItem);
 
-  const isRepeatedProduct =
-    Boolean(currentProductId) &&
-    Boolean(previousProductId) &&
-    String(currentProductId) === String(previousProductId);
+            const isRepeatedProduct =
+              Boolean(currentProductId) &&
+              Boolean(previousProductId) &&
+              String(currentProductId) === String(previousProductId);
 
-  if (isRepeatedProduct) {
-    return null;
-  }
-
-  return (
-    <div
-      key={m.id}
-      className={`message-bubble ${isMine ? "sent" : "received"}${
-        m.type === "PRODUCT"
-          ? " product-message-bubble"
-          : ""
-      }${
-        m.type === "PHOTO"
-          ? " photo-message-bubble"
-          : ""
-      }`}
-      style={{
-        position: "relative",
-        ...(m.type === "PHOTO"
-          ? {
-              background: "transparent",
-              border: "none",
-              padding: 0,
+            if (isRepeatedProduct) {
+              return null;
             }
-          : {}),
-      }}
-    >
-      {/* PHOTO / PRODUCT / TEXT CONTAINER */}
-      <div
-        style={{
-          display: "block",
-          width:
-            m.type === "PHOTO"
-              ? "fit-content"
-              : "100%",
-          maxWidth: "100%",
 
-          ...(m.type === "PHOTO"
-            ? {
-                marginLeft: isMine ? "auto" : 0,
-                marginRight: isMine ? 0 : "auto",
-                border: "1px solid var(--border)",
-                borderRadius: 12,
-                background: "var(--surface)",
-                overflow: "hidden",
-              }
-            : {}),
-        }}
-      >
-        {/* MESSAGE CONTENT */}
-        <div
-          style={{
-            width:
-              m.type === "PHOTO"
-                ? "fit-content"
-                : "100%",
-            maxWidth: "100%",
-            display: "flex",
-            justifyContent: "flex-start",
-          }}
-        >
-          {m.type === "PHOTO" && m.imageUrl ? (
-            <button
-              type="button"
-              onClick={() =>
-                setViewingImage(
-                  getImageUrl(m.imageUrl),
-                )
-              }
-              style={{
-                display: "block",
-                width: "fit-content",
-                maxWidth: "100%",
-                padding: 0,
-                margin: 0,
-                border: 0,
-                background: "transparent",
-                cursor: "zoom-in",
-              }}
-            >
-              <img
-                src={getImageUrl(m.imageUrl)}
-                alt="Shared"
+            return (
+              <div
+                key={m.id}
+                className={`message-bubble ${isMine ? "sent" : "received"}${
+                  m.type === "PRODUCT" ? " product-message-bubble" : ""
+                }${m.type === "PHOTO" ? " photo-message-bubble" : ""}`}
                 style={{
-                  display: "block",
-                  width: "auto",
-                  height: "auto",
-                  maxWidth: "100%",
-                  maxHeight: "360px",
-                  objectFit: "contain",
-                  borderRadius: 0,
-                  border: "none",
-                  background: "transparent",
+                  position: "relative",
+                  ...(m.type === "PHOTO"
+                    ? {
+                        background: "transparent",
+                        border: "none",
+                        padding: 0,
+                      }
+                    : {}),
                 }}
-              />
-            </button>
-          ) : m.type === "PRODUCT" &&
-            m.product ? (
-            <ProductMessageCard
-              product={m.product}
-              onViewProduct={setViewingProduct}
-              onViewShop={(shopId) => {
-                if (shopId) {
-                  navigate(`/shop/${shopId}`);
-                }
-              }}
-            />
-          ) : (
-            <div>{m.content}</div>
-          )}
-        </div>
+              >
+                {/* PHOTO / PRODUCT / TEXT CONTAINER */}
+                <div
+                  style={{
+                    display: "block",
+                    width: m.type === "PHOTO" ? "fit-content" : "100%",
+                    maxWidth: "100%",
 
-        {/* TIME + THREE DOTS */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: 8,
-            marginTop:
-              m.type === "PHOTO" ? 0 : 4,
-            width: "100%",
-            padding:
-              m.type === "PHOTO"
-                ? "6px 8px 8px"
-                : 0,
-            boxSizing: "border-box",
-          }}
-        >
-          <div className="message-time">
-            {new Date(
-              m.createdAt,
-            ).toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-          </div>
+                    ...(m.type === "PHOTO"
+                      ? {
+                          marginLeft: isMine ? "auto" : 0,
+                          marginRight: isMine ? 0 : "auto",
+                          border: "1px solid var(--border)",
+                          borderRadius: 12,
+                          background: "var(--surface)",
+                          overflow: "hidden",
+                        }
+                      : {}),
+                  }}
+                >
+                  {/* MESSAGE CONTENT */}
+                  <div
+                    style={{
+                      width: m.type === "PHOTO" ? "fit-content" : "100%",
+                      maxWidth: "100%",
+                      display: "flex",
+                      justifyContent: "flex-start",
+                    }}
+                  >
+                    {m.type === "PHOTO" && m.imageUrl ? (
+                      <button
+                        type="button"
+                        onClick={() => setViewingImage(getImageUrl(m.imageUrl))}
+                        style={{
+                          display: "block",
+                          width: "fit-content",
+                          maxWidth: "100%",
+                          padding: 0,
+                          margin: 0,
+                          border: 0,
+                          background: "transparent",
+                          cursor: "zoom-in",
+                        }}
+                      >
+                        <img
+                          src={getImageUrl(m.imageUrl)}
+                          alt="Shared"
+                          style={{
+                            display: "block",
+                            width: "auto",
+                            height: "auto",
+                            maxWidth: "100%",
+                            maxHeight: "360px",
+                            objectFit: "contain",
+                            borderRadius: 0,
+                            border: "none",
+                            background: "transparent",
+                          }}
+                        />
+                      </button>
+                    ) : m.type === "PRODUCT" && m.product ? (
+                      <ProductMessageCard
+                        product={m.product}
+                        onViewProduct={setViewingProduct}
+                        onViewShop={(shopId) => {
+                          if (shopId) {
+                            navigate(`/shop/${shopId}`);
+                          }
+                        }}
+                      />
+                    ) : (
+                      <div>{m.content}</div>
+                    )}
+                  </div>
 
-          <button
-            type="button"
-            title="Message options"
-            aria-label="Message options"
-            onClick={(e) => {
-              e.stopPropagation();
+                  {/* TIME + THREE DOTS */}
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: 8,
+                      marginTop: m.type === "PHOTO" ? 0 : 4,
+                      width: "100%",
+                      padding: m.type === "PHOTO" ? "6px 8px 8px" : 0,
+                      boxSizing: "border-box",
+                    }}
+                  >
+                    <div className="message-time">
+                      {new Date(m.createdAt).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </div>
 
-              setOpenMessageMenu((current) =>
-                current === m.id
-                  ? null
-                  : m.id,
-              );
+                    <button
+                      type="button"
+                      title="Message options"
+                      aria-label="Message options"
+                      onClick={(e) => {
+                        e.stopPropagation();
 
-              setOpenConversationMenu(null);
-              setShowAddMenu(false);
-              setShowProductPicker(false);
-            }}
-            style={{
-              padding: 2,
-              margin: 0,
-              cursor: "pointer",
-              opacity: 1,
-              color: "var(--text)",
-              background: "var(--surface)",
-              border:
-                "1px solid var(--border)",
-              borderRadius: "50%",
-              width: 30,
-              height: 30,
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
-            }}
-          >
-            <MoreVertical size={16} />
-          </button>
-        </div>
-      </div>
+                        setOpenMessageMenu((current) =>
+                          current === m.id ? null : m.id,
+                        );
 
-      {/* MESSAGE OPTIONS MENU */}
-      {openMessageMenu === m.id && (
-        <div
-          style={{
-            ...menuStyle,
-            right: 8,
-            top: "auto",
-            bottom: 38,
-          }}
-          onClick={(e) =>
-            e.stopPropagation()
-          }
-        >
-          <button
-            type="button"
-            style={menuButtonStyle}
-            onClick={() =>
-              handleDeleteMessage(
-                m,
-                "for_me",
-              )
-            }
-          >
-            <Trash2 size={15} />
-            Delete for me
-          </button>
+                        setOpenConversationMenu(null);
+                        setShowAddMenu(false);
+                        setShowProductPicker(false);
+                      }}
+                      style={{
+                        padding: 2,
+                        margin: 0,
+                        cursor: "pointer",
+                        opacity: 1,
+                        color: "var(--text)",
+                        background: "var(--surface)",
+                        border: "1px solid var(--border)",
+                        borderRadius: "50%",
+                        width: 30,
+                        height: 30,
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        flexShrink: 0,
+                      }}
+                    >
+                      <MoreVertical size={16} />
+                    </button>
+                  </div>
+                </div>
 
-          {m.senderId === user.id && (
-            <button
-              type="button"
-              style={menuButtonStyle}
-              onClick={() =>
-                handleDeleteMessage(
-                  m,
-                  "for_everyone",
-                )
-              }
-            >
-              <Trash2 size={15} />
-              Delete for everyone
-            </button>
-          )}
-        </div>
-      )}
-    </div>
-  );
-})}
+                {/* MESSAGE OPTIONS MENU */}
+                {openMessageMenu === m.id && (
+                  <div
+                    style={{
+                      ...menuStyle,
+                      right: 8,
+                      top: "auto",
+                      bottom: 38,
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <button
+                      type="button"
+                      style={menuButtonStyle}
+                      onClick={() => handleDeleteMessage(m, "for_me")}
+                    >
+                      <Trash2 size={15} />
+                      Delete for me
+                    </button>
+
+                    {m.senderId === user.id && (
+                      <button
+                        type="button"
+                        style={menuButtonStyle}
+                        onClick={() => handleDeleteMessage(m, "for_everyone")}
+                      >
+                        <Trash2 size={15} />
+                        Delete for everyone
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
 
           <div ref={messagesEnd} />
         </div>
