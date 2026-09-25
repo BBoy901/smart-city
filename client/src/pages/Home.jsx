@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { api } from "../api/client";
 import ProductCard from "../components/ProductCard";
 import Header from "../components/Header";
@@ -6,29 +6,81 @@ import Loading from "../components/Loading";
 
 export default function Home() {
   const [categoryId, setCategoryId] = useState("");
+  const PAGE_SIZE = 20;
+
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
 
-  const loadFeed = useCallback(async () => {
-    setLoading(true);
+  const productsRef = useRef([]);
+  const loadingMoreRef = useRef(false);
+  const hasMoreRef = useRef(true);
+  const loadMoreRef = useRef(null);
+
+  const loadFeed = useCallback(async ({ reset = false } = {}) => {
+    if (reset) {
+      setLoading(true);
+      setHasMore(true);
+      hasMoreRef.current = true;
+    } else {
+      if (loadingMoreRef.current || !hasMoreRef.current) return;
+      setLoadingMore(true);
+      loadingMoreRef.current = true;
+    }
+
+    const offset = reset ? 0 : productsRef.current.length;
 
     try {
       const data = await api.getFeed({
         section: "for-you",
+        limit: PAGE_SIZE,
+        offset,
       });
 
-      setProducts(data);
+      setProducts((prev) => {
+        const next = reset ? data : [...prev, ...data];
+        productsRef.current = next;
+        return next;
+      });
+
+      const more = data.length === PAGE_SIZE;
+      setHasMore(more);
+      hasMoreRef.current = more;
     } catch (err) {
       console.error(err);
     } finally {
       setLoading(false);
+      setLoadingMore(false);
+      loadingMoreRef.current = false;
     }
   }, []);
 
   useEffect(() => {
-    loadFeed();
+    loadFeed({ reset: true });
   }, [loadFeed]);
+
+  useEffect(() => {
+    const sentinel = loadMoreRef.current;
+
+    if (!sentinel || loading || !hasMore) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          loadFeed();
+        }
+      },
+      {
+        rootMargin: "600px 0px",
+      },
+    );
+
+    observer.observe(sentinel);
+
+    return () => observer.disconnect();
+  }, [loadFeed, loading, hasMore]);
 
   useEffect(() => {
     api.getCategories().then(setCategories).catch(console.error);
@@ -105,16 +157,28 @@ export default function Home() {
           <p>Check back soon for new discoveries in Kariakoo!</p>
         </div>
       ) : (
-        <div className="feed-grid">
-          {visibleProducts.map((p) => (
-            <ProductCard
-              key={p.id}
-              product={p}
-              onLike={handleLike}
-              onSave={handleSave}
-            />
-          ))}
-        </div>
+        <>
+          <div className="feed-grid">
+            {visibleProducts.map((p) => (
+              <ProductCard
+                key={p.id}
+                product={p}
+                onLike={handleLike}
+                onSave={handleSave}
+              />
+            ))}
+          </div>
+
+          {hasMore && (
+            <div
+              ref={loadMoreRef}
+              className="feed-load-more"
+              aria-hidden="true"
+            >
+              {loadingMore && <Loading />}
+            </div>
+          )}
+        </>
       )}
     </div>
   );
